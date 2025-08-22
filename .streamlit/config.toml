@@ -1,0 +1,8 @@
+[server]
+maxUploadSize = 1000
+
+# Optional: disable CORS if testing locally
+enableCORS = false
+
+# Optional: allow fileWatcher to detect changes quickly
+fileWatcherType = "poll"
