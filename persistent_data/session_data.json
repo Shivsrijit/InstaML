@@ -1,22 +1,22 @@
 {
-  "timestamp": "2025-08-24T06:33:36.716025",
+  "timestamp": "2025-08-24T09:34:35.866794",
   "data_loaded": true,
   "data_type": "tabular",
   "data_shape": [
     21613,
     21
   ],
-  "preprocessed": true,
+  "preprocessed": false,
   "model_trained": true,
   "model_deployed": null,
-  "target_col": "price",
+  "target_col": "id",
   "model_type": "Linear Regression",
   "current_page": "home",
   "preprocessing_steps": [
     {
       "step_name": "data_upload",
       "description": "Data uploaded - 21613 rows \u00d7 21 columns",
-      "timestamp": "2025-08-24T06:01:06.692565",
+      "timestamp": "2025-08-24T09:32:40.299133",
       "metadata": {
         "data_type": "tabular",
         "shape": [
@@ -28,31 +28,7 @@
     {
       "step_name": "data_upload",
       "description": "Data uploaded - 21613 rows \u00d7 21 columns",
-      "timestamp": "2025-08-24T06:01:19.103935",
-      "metadata": {
-        "data_type": "tabular",
-        "shape": [
-          21613,
-          21
-        ]
-      }
-    },
-    {
-      "step_name": "data_upload",
-      "description": "Data uploaded - 21613 rows \u00d7 21 columns",
-      "timestamp": "2025-08-24T06:32:56.015450",
-      "metadata": {
-        "data_type": "tabular",
-        "shape": [
-          21613,
-          21
-        ]
-      }
-    },
-    {
-      "step_name": "data_upload",
-      "description": "Data uploaded - 21613 rows \u00d7 21 columns",
-      "timestamp": "2025-08-24T06:33:00.053971",
+      "timestamp": "2025-08-24T09:32:48.173362",
       "metadata": {
         "data_type": "tabular",
         "shape": [
@@ -63,17 +39,17 @@
     },
     {
       "step_name": "model_training",
-      "description": "Model trained - Linear Regression for price",
-      "timestamp": "2025-08-24T06:33:36.716025",
+      "description": "Model trained - Linear Regression for id",
+      "timestamp": "2025-08-24T09:34:35.866255",
       "metadata": {
         "model_type": "Linear Regression",
-        "target_col": "price",
+        "target_col": "id",
         "metrics": {
-          "mse": 45823221624.85198,
-          "rmse": 214063.59247861832,
-          "mae": 129089.70953733039,
-          "r2": 0.6968896800256107,
-          "mape": 25.411946735775498
+          "mse": 8.285678760565652e+18,
+          "rmse": 2878485497.716751,
+          "mae": 2524558861.3115315,
+          "r2": -0.001829772623750836,
+          "mape": 438.1885242074277
         }
       }
     }
