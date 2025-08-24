@@ -1,9 +1,11 @@
-# 🚀 InstaML — No-Code Machine Learning Platform
+# InstaML — No-Code Machine Learning Platform
 
-## 📌 Introduction
-InstaML is a **no-code machine learning platform** that allows users to train, test, evaluate, and deploy AI models directly from a simple **Streamlit interface**.  
-It is designed for students, researchers, and businesses who want to leverage **ML without writing complex code**.
+## Overview
 
+--- 
+InstaML is a comprehensive no-code machine learning platform designed to democratize AI development. It provides an intuitive web-based interface that enables users to build, train, evaluate, and deploy machine learning models without writing code. The platform serves students learning ML concepts, researchers prototyping models, and business professionals solving real-world problems.
+
+---
 ---
 ## App Preview
 
@@ -15,132 +17,118 @@ It is designed for students, researchers, and businesses who want to leverage **
   <img src="images/Screenshot%20(99).png" alt="App Preview 5" width="200"/>
 </p>
 
----
 
-## 📜 Abstract
-The goal of InstaML is to **democratize AI development** by enabling users to:
-- Upload datasets
-- **Preprocess and clean data** with automated recommendations
-- Perform advanced **Exploratory Data Analysis (EDA)** with 75+ visualization options
-- Train ML models for **classification, regression, and object detection**
-- Test trained models with custom inputs
-- Deploy models instantly for real-world use
-- Manage model versions and metadata
+## Core Features
 
-The system integrates a **Streamlit frontend** with a **FastAPI backend** and supports multiple ML libraries like **scikit-learn, XGBoost, YOLOv8**, and more.
+**Data Management**
+- Intelligent data upload and validation
+- Comprehensive data preprocessing pipeline
+- Advanced data quality assessment
+- Automated feature engineering
 
----
+**Exploratory Data Analysis**
+- Interactive visualization dashboard
+- Statistical analysis and insights
+- Correlation and feature importance analysis
+- Multi-dimensional data exploration
 
-## 🛠 Tech Stack
-- **Frontend**: [Streamlit](https://streamlit.io/) (Python-based interactive UI)
-- **Backend**: [FastAPI](https://fastapi.tiangolo.com/)
-- **Machine Learning**: scikit-learn, XGBoost, YOLOv8, Optuna, MLflow
-- **Data Visualization**: Seaborn, Matplotlib, Plotly
-- **Data Handling**: Pandas, NumPy
-- **Deployment**: Docker, GitHub Codespaces, Streamlit Cloud
-- **Version Control**: Git + GitHub
+**Machine Learning**
+- Multiple algorithm support (Classification, Regression, Object Detection)
+- Automated hyperparameter optimization
+- Model performance evaluation and comparison
+- Cross-validation and metrics analysis
 
----
+**Deployment**
+- One-click model deployment
+- REST API generation
+- Real-time prediction interface
+- Model versioning and management
 
-## 🎯 Final Aim
-To create a **complete no-code ML ecosystem** where:
-- Users can train any model from **tabular, image, or time-series datasets**
-- Fully automated **EDA and preprocessing**
-- In-built **hyperparameter tuning**
-- **Real-time deployment** with minimal effort
-- Open-source and easily extensible
+## Technology Stack
 
----
+| Layer | Technology | Purpose |
+|-------|------------|---------|
+| **Frontend** | Streamlit | Interactive web interface |
+| **Backend** | FastAPI | API services and model serving |
+| **ML Frameworks** | scikit-learn, XGBoost, YOLOv8 | Model training and inference |
+| **Data Processing** | Pandas, NumPy | Data manipulation and analysis |
+| **Visualization** | Plotly, Seaborn, Matplotlib | Charts and interactive graphs |
+| **Optimization** | Optuna | Hyperparameter tuning |
+| **MLOps** | MLflow | Experiment tracking and versioning |
+| **Deployment** | Docker, GitHub Codespaces | Containerization and cloud deployment |
 
-## 🚀 **NEW: Enhanced Data Pipeline**
-The platform now features a **comprehensive data preprocessing workflow**:
+## Platform Workflow
 
-### **Page Structure:**
-1. **📂 Data Upload** - Upload CSV files or load from local paths
-2. **🔧 Data Preprocessing** - **NEW!** Comprehensive data cleaning and transformation
-3. **📊 EDA** - Exploratory Data Analysis with 75+ visualizations
-4. **⚙️ Train Model** - ML model training with preprocessing validation
-5. **🧪 Test Model** - Model evaluation and testing
-6. **🚀 Deploy Model** - Model deployment and predictions
+1. **Data Upload** → Upload datasets and perform initial validation
+2. **Data Preprocessing** → Clean, transform, and prepare data for modeling
+3. **Exploratory Analysis** → Understand data patterns through visualizations
+4. **Model Training** → Select algorithms and train models with optimization
+5. **Model Testing** → Evaluate performance and validate results
+6. **Model Deployment** → Deploy models for real-world predictions
 
-### **Preprocessing Features:**
-- **🔍 Data Quality Analysis** - Missing values, data types, memory usage
-- **💡 Smart Recommendations** - AI-powered preprocessing suggestions
-- **🧹 Data Cleaning** - Duplicate removal, column selection, type conversion
-- **📏 Scaling & Encoding** - StandardScaler, MinMaxScaler, Label/One-Hot encoding
-- **🔢 Missing Values** - Multiple imputation strategies (mean, median, constant, drop)
-- **📈 Outlier Detection** - IQR-based outlier identification and handling
-- **💾 Data Persistence** - Save preprocessed data for consistent workflow
+## Quick Start
 
----
+### Local Installation
 
-##  What Has Been Done Till Now
-- **Data Upload module** (supports CSV)
-- **🔧 NEW: Data Preprocessing module** with comprehensive cleaning capabilities
-- **EDA module** with **75+ visualizations**
--  **Model training** for tabular datasets (classification/regression)
--  **Model evaluation** with performance metrics
--  **Project structure setup** for Streamlit + FastAPI
-- **Utility functions** for charts and UI helpers
--  **Dependencies management** with complete requirements.txt
--  Docker-ready project setup
-
----
-
-## Updates
-- ✅ **Added comprehensive Data Preprocessing page** with 5 main tabs
-- ✅ **Enhanced page navigation** with proper numbering and flow
-- ✅ **Added preprocessing recommendations** based on data analysis
-- ✅ **Improved data validation** and quality checks
-- ✅ **Enhanced user experience** with better guidance and status indicators
-- ✅ **Populated requirements.txt** with all necessary dependencies
-- ✅ **Updated main app** to reflect new page structure
-- ✅ **Enhanced EDA and Training pages** with preprocessing status checks
-- Added **comprehensive EDA charts** (15+ in each category: Univariate, Bivariate, Multivariate, Dimensionality Reduction, Time Series)
-- Fixed **import paths** and added `__init__.py` where necessary
-- Added **modular chart functions** in `charts.py`
-- Prepared **GitHub-ready folder structure**
-- Created **README** for clear project onboarding
-
----
-
-## Running the Project (Local)
 ```bash
-# Navigate to the repo
+git clone https://github.com/shivsrijit/InstaML.git
 cd InstaML/InstaML
-
-# Install dependencies
 pip install -r requirements.txt
-
-# Run the Streamlit app on a specific port
 streamlit run app/app.py --server.port 8501 --server.address 0.0.0.0
+```
+
+Access the application at: **[http://localhost:8501](http://localhost:8501)**
+
+---
+
+## Development Status
+
+| Component          | Status         | Description                                          |
+|--------------------|---------------|------------------------------------------------------|
+| Data Upload        | ✅ Complete   | CSV support with comprehensive validation            |
+| Data Preprocessing | ✅ Complete   | 5-stage preprocessing workflow                       |
+| EDA Dashboard      | ✅ Complete   | Lots of visualization options                        |
+| Model Training     | ✅ Complete   | Classification and regression algorithms             |
+| Model Testing      | ✅ Complete   | Performance evaluation and validation                |
+| Model Deployment   | 🔄 In Progress| Local deployment infrastructure                      |
+| Computer Vision    | ✅ Complete   | YOLO integration for object detection                |
+| Time Series        | 📋 Planned    | Forecasting and trend analysis                       |
+| API Backend        | 📋 Planned    | FastAPI service architecture                         |
 
 
+---
 
-## Running on GitHub Codespaces (4 Core)
-bash="gh codespace create --repo SAUNAK359/InstaML --machine standardLinux4Core --branch main"
+## Project Vision
 
+**InstaML** aims to bridge the gap between complex machine learning concepts and practical implementation.  
 
-## Pushing Code to GitHub
-# Navigate to repo root
-cd /workspaces/InstaML
+By providing a **no-code interface**, we enable users to focus on **problem-solving and insights** rather than technical implementation details.  
 
-# Stage all changes
-git add .
+The platform maintains the **flexibility required for advanced use cases** while ensuring **accessibility for beginners**.
 
-# Commit changes with message
-git commit -m "Updated EDA charts and fixed paths"
+---
 
-# Push to main branch
-git push origin main
+## Contributing
 
-### Overwriting Old Code with Updated Scripts
-# Force push updated code
-git add .
-git commit -m "Overwriting previous code with latest updates"
-git push origin main --force
-      
-************   When committing, always write:
-Summary of what changed
-Files affected
-Impact of changes
+We welcome contributions to enhance InstaML's capabilities.  
+Please review our contributing guidelines and feel free to submit **issues, feature requests, or pull requests**.
+
+---
+
+## License
+
+This project is licensed under the **MIT License**.  
+See the [LICENSE](./LICENSE) file for details.
+
+---
+
+## Documentation
+
+- 📘 **ML Guide** – Comprehensive machine learning documentation  
+- ⚙️ **API Reference** – Backend API documentation  
+- 🚀 **Deployment Guide** – Production deployment instructions  
+
+---
+
+✨ **Built for the AI community** | ⭐ **Star this repository if you find it helpful**
+

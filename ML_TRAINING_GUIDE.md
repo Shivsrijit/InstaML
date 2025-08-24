@@ -1,323 +1,236 @@
-# ML Training Modules Guide
-
-This guide explains how to use the comprehensive ML training modules in InstaML for different types of data.
-
-## 🚀 Quick Start
-
-The training modules automatically detect your data type and provide appropriate models. Here's the simplest way to train a model:
-
-```python
-from core.unified_trainer import train_model
-
-# Train a model (auto-detects data type and selects best model)
-model, metrics = train_model(
-    data_source="your_data.csv",  # or DataFrame, numpy array, directory
-    target_col="target_column",    # for supervised learning
-    data_type="auto"              # or specify: "tabular", "image", "audio", "multi_dimensional"
-)
-```
-
-## 📊 Supported Data Types
-
-### 1. Tabular Data (CSV, DataFrame, NumPy arrays)
-- **Classification**: Random Forest, XGBoost, Logistic Regression, SVM, KNN, Decision Tree, Naive Bayes
-- **Regression**: Random Forest, XGBoost, Linear Regression, Ridge, Lasso, SVR, KNN, Decision Tree
-- **Features**: Automatic preprocessing, feature scaling, hyperparameter tuning
-
-```python
-from core.ML_models.tabular_data import TabularModelTrainer
-
-# Initialize trainer
-trainer = TabularModelTrainer(df, target_col='target', task_type='auto')
-
-# Train with hyperparameter tuning
-model, metrics, best_params = trainer.train_model("Random Forest", use_hyperparameter_tuning=True)
-
-# Get feature importance
-importance_df = trainer.get_feature_importance()
-```
-
-### 2. Image Data (Directories with train/val folders)
-- **Classification**: ResNet18, ResNet50, VGG16, MobileNet
-- **Detection**: YOLOv8
-- **Features**: Data augmentation, transfer learning, automatic class detection
-
-```python
-from core.ML_models.image_data import ImageModelTrainer
-
-# Initialize trainer
-trainer = ImageModelTrainer("path/to/image/directory", task_type="classification")
-
-# Train classification model
-model, history = trainer.train_classification_model("resnet18", epochs=10)
-
-# Train YOLO detection model
-model, results = trainer.train_yolo_model("data.yaml", model_size="n", epochs=100)
-```
-
-### 3. Audio Data (Directories with train/val folders)
-- **Classification**: CNN, LSTM
-- **Features**: Mel spectrograms, MFCC, automatic preprocessing
-
-```python
-from core.ML_models.audio_data import AudioModelTrainer
-
-# Initialize trainer
-trainer = AudioModelTrainer("path/to/audio/directory", task_type="classification")
-
-# Train model
-model, history = trainer.train_classification_model("cnn", epochs=20)
-
-# Extract features
-mel_spec = trainer.extract_mel_spectrogram_features("audio_file.wav")
-```
-
-### 4. Multi-Dimensional Data (3D+ arrays, time series)
-- **Classification/Regression**: MLP, CNN, LSTM, Transformer
-- **Clustering**: K-Means, DBSCAN, Hierarchical
-- **Features**: Automatic reshaping, normalization, advanced architectures
-
-```python
-from core.ML_models.multi_dimensional_data import MultiDimensionalTrainer
-
-# Initialize trainer
-trainer = MultiDimensionalTrainer(data_3d, task_type="classification")
-
-# Train deep learning model
-model, metrics = trainer.train_model("Transformer", epochs=100, learning_rate=0.001)
-
-# Train clustering model
-model, metrics = trainer.train_model("KMeans", n_clusters=5)
-```
-
-## 🔧 Advanced Usage
-
-### Custom Model Parameters
-
-```python
-# Tabular data with custom parameters
-model, metrics = train_model(
-    df, 
-    target_col="target",
-    model_name="XGBoost",
-    n_estimators=500,
-    max_depth=10,
-    learning_rate=0.1
-)
-
-# Image data with custom parameters
-model, history = train_model(
-    "image_directory",
-    data_type="image",
-    model_name="resnet50",
-    epochs=50,
-    batch_size=64,
-    learning_rate=0.0001
-)
-```
-
-### Cross-Validation
-
-```python
-from core.ML_models.tabular_data import TabularModelTrainer
-
-trainer = TabularModelTrainer(df, target_col="target")
-cv_results = trainer.cross_validate("Random Forest", cv=5)
-
-print(f"CV Score: {cv_results['mean_score']:.4f} ± {cv_results['std_score']:.4f}")
-```
-
-### Model Persistence
-
-```python
-# Save model
-trainer.save_model("model.pkl")
-
-# Load model (for some frameworks)
-trainer.load_model("model.pkl")
-```
-
-## 📁 Directory Structures
-
-### Image Data
-```
-image_directory/
-├── train/
-│   ├── class_0/
-│   │   ├── image1.jpg
-│   │   └── image2.jpg
-│   └── class_1/
-│       ├── image3.jpg
-│       └── image4.jpg
-└── val/
-    ├── class_0/
-    └── class_1/
-```
-
-### Audio Data
-```
-audio_directory/
-├── train/
-│   ├── class_0/
-│   │   ├── audio1.wav
-│   │   └── audio2.mp3
-│   └── class_1/
-│       ├── audio3.flac
-│       └── audio4.m4a
-└── val/
-    ├── class_0/
-    └── class_1/
-```
-
-### YOLO Detection Data
-```
-yolo_data/
-├── images/
-│   ├── train/
-│   └── val/
-├── labels/
-│   ├── train/
-│   └── val/
-└── data.yaml
-```
-
-## 🎯 Model Selection Guide
-
-### For Tabular Data
-- **Small datasets (< 1000 samples)**: Logistic Regression, SVM
-- **Medium datasets (1000-10000 samples)**: Random Forest, XGBoost
-- **Large datasets (> 10000 samples)**: XGBoost, Deep Learning
-- **High-dimensional data**: Lasso, Ridge, Feature Selection + Random Forest
-
-### For Image Data
-- **Small datasets**: ResNet18, MobileNet (with transfer learning)
-- **Medium datasets**: ResNet50, VGG16
-- **Large datasets**: ResNet101, EfficientNet
-- **Real-time applications**: MobileNet, EfficientNet
-
-### For Audio Data
-- **Short audio clips**: CNN
-- **Long audio sequences**: LSTM, Transformer
-- **Real-time processing**: CNN with small receptive field
-
-### For Multi-Dimensional Data
-- **Time series**: LSTM, Transformer
-- **Spatial data**: CNN
-- **Mixed data types**: MLP with custom architecture
-
-## 🚨 Common Issues and Solutions
-
-### Memory Issues
-```python
-# Reduce batch size
-trainer = ImageModelTrainer("data_path", batch_size=16)
-
-# Use smaller models
-model, history = trainer.train_classification_model("resnet18")  # instead of resnet50
-```
-
-### Overfitting
-```python
-# Increase regularization
-model, metrics = trainer.train_model("Random Forest", max_depth=5, min_samples_split=10)
-
-# Use early stopping
-model, history = trainer.train_classification_model("resnet18", epochs=100, patience=10)
-```
-
-### Data Loading Issues
-```python
-# Check data structure
-trainer = UnifiedModelTrainer("data_path")
-info = trainer.get_data_info()
-print(f"Data type: {info['data_type']}")
-print(f"Available models: {trainer.get_available_models()}")
-```
-
-## 🧪 Testing
-
-Run the test suite to verify everything works:
-
-```bash
-cd InstaML
-python test_training_modules.py
-```
-
-## 📚 Examples
-
-### Complete Tabular Training Example
-```python
-import pandas as pd
-from core.unified_trainer import train_model
-
-# Load data
-df = pd.read_csv("data.csv")
-
-# Train model
-model, metrics = train_model(
-    df,
-    target_col="target",
-    data_type="tabular",
-    model_name="Random Forest",
-    test_size=0.2,
-    random_state=42
-)
-
-print(f"Accuracy: {metrics['accuracy']:.4f}")
-```
-
-### Complete Image Training Example
-```python
-from core.unified_trainer import train_model
-
-# Train image classification
-model, history = train_model(
-    "image_directory",
-    data_type="image",
-    model_name="resnet18",
-    epochs=20,
-    batch_size=32
-)
-
-print(f"Training completed with {len(history['train_losses'])} epochs")
-```
-
-## 🔗 Integration with Streamlit
-
-The training modules are fully integrated with the Streamlit interface. Users can:
-
-1. Upload data through the Data Upload page
-2. Preprocess data in the Data Preprocessing page
-3. Explore data in the EDA page
-4. Train models in the Train Model page
-5. Test models in the Test Model page
-6. Deploy models in the Deploy Model page
-
-The system automatically detects data types and suggests appropriate models and parameters.
-
-## 📈 Performance Tips
-
-1. **Use GPU acceleration** when available (PyTorch/TensorFlow automatically detect)
-2. **Start with simple models** and gradually increase complexity
-3. **Use cross-validation** for reliable performance estimates
-4. **Monitor training progress** with the provided history objects
-5. **Save intermediate checkpoints** for long training runs
-6. **Use data augmentation** for image and audio data to prevent overfitting
-
-## 🤝 Contributing
-
-To add new models or data types:
-
-1. Create a new trainer class in the appropriate module
-2. Implement the required methods (`train_model`, `save_model`, etc.)
-3. Add the new trainer to the `UnifiedModelTrainer` class
-4. Update the test suite
-5. Document the new functionality
-
-## 📞 Support
-
-For issues or questions:
-1. Check the test suite output
-2. Review the error messages for specific issues
-3. Verify your data format matches the expected structure
-4. Check that all dependencies are installed correctly
+# InstaML Machine Learning Guide
+
+## Table of Contents
+
+1. [Platform Overview](#platform-overview)
+2. [Data Preprocessing](#data-preprocessing)
+3. [Exploratory Data Analysis](#exploratory-data-analysis)
+4. [Model Training](#model-training)
+5. [Model Evaluation](#model-evaluation)
+6. [Deployment](#deployment)
+7. [Best Practices](#best-practices)
+
+## Platform Overview
+
+InstaML provides a complete machine learning workflow through six main modules, each designed to handle specific aspects of the ML pipeline.
+
+### Module Structure
+
+1. **Data Upload** - Import and validate datasets
+2. **Data Preprocessing** - Clean and prepare data for modeling
+3. **EDA (Exploratory Data Analysis)** - Understand data patterns and relationships
+4. **Train Model** - Build and optimize machine learning models
+5. **Test Model** - Evaluate model performance and validate results
+6. **Deploy Model** - Make models available for real-world predictions
+
+## Data Preprocessing
+
+### Overview Tab
+- **Data Quality Assessment**: Identifies missing values, data types, and memory usage
+- **Dataset Summary**: Provides statistical overview of numerical and categorical features
+- **Data Validation**: Checks for common data quality issues
+
+### Recommendations Tab
+- **AI-Powered Suggestions**: Automated preprocessing recommendations based on data analysis
+- **Feature Engineering**: Suggestions for new feature creation
+- **Data Quality Improvements**: Recommendations for handling missing values and outliers
+
+### Data Cleaning Tab
+- **Duplicate Removal**: Identifies and removes duplicate records
+- **Column Selection**: Choose relevant features for analysis
+- **Data Type Conversion**: Convert columns to appropriate data types
+- **Invalid Data Handling**: Manage inconsistent or invalid entries
+
+### Scaling & Encoding Tab
+- **Feature Scaling**: 
+  - StandardScaler (z-score normalization)
+  - MinMaxScaler (0-1 scaling)
+  - RobustScaler (median-based scaling)
+- **Categorical Encoding**:
+  - Label Encoding for ordinal data
+  - One-Hot Encoding for nominal data
+  - Target Encoding for high-cardinality features
+
+### Missing Values & Outliers Tab
+- **Missing Value Strategies**:
+  - Mean/Median imputation for numerical features
+  - Mode imputation for categorical features
+  - Forward/Backward fill for time series
+  - Custom value imputation
+- **Outlier Detection**:
+  - IQR (Interquartile Range) method
+  - Z-score analysis
+  - Isolation Forest algorithm
+  - Manual threshold setting
+
+## Exploratory Data Analysis
+
+### Visualization Categories
+
+#### Univariate Analysis
+- **Histograms**: Distribution of numerical features
+- **Box Plots**: Quartile analysis and outlier identification
+- **Violin Plots**: Distribution shape and density
+- **Count Plots**: Frequency of categorical values
+- **Density Plots**: Smooth distribution curves
+
+#### Bivariate Analysis
+- **Scatter Plots**: Relationship between two numerical variables
+- **Correlation Heatmaps**: Feature correlation matrix
+- **Joint Plots**: Combined scatter and distribution plots
+- **Box Plots by Category**: Numerical distribution across categories
+- **Cross-tabulation**: Relationship between categorical variables
+
+#### Multivariate Analysis
+- **Pair Plots**: Pairwise relationships between all features
+- **Parallel Coordinates**: Multi-dimensional data visualization
+- **Radar Charts**: Multi-attribute comparison
+- **3D Scatter Plots**: Three-dimensional relationships
+- **Correlation Networks**: Feature relationship networks
+
+#### Dimensionality Reduction
+- **PCA (Principal Component Analysis)**: Linear dimensionality reduction
+- **t-SNE**: Non-linear embedding for visualization
+- **UMAP**: Uniform manifold approximation and projection
+- **Factor Analysis**: Identify underlying factors in data
+
+#### Time Series Analysis
+- **Time Series Plots**: Temporal trend visualization
+- **Seasonal Decomposition**: Trend, seasonal, and residual components
+- **Autocorrelation**: Time series correlation analysis
+- **Rolling Statistics**: Moving averages and statistics
+
+### Statistical Insights
+- **Descriptive Statistics**: Mean, median, standard deviation, skewness
+- **Correlation Analysis**: Pearson, Spearman correlation coefficients
+- **Feature Importance**: Relative importance of features for prediction
+- **Distribution Testing**: Normality tests and distribution fitting
+
+## Model Training
+
+### Supported Algorithms
+
+#### Classification
+- **Logistic Regression**: Linear classification with probability outputs
+- **Random Forest**: Ensemble of decision trees
+- **Support Vector Machine**: Margin-based classification
+- **Gradient Boosting**: Sequential model improvement
+- **XGBoost**: Optimized gradient boosting
+- **Neural Networks**: Multi-layer perceptron
+
+#### Regression
+- **Linear Regression**: Simple linear relationship modeling
+- **Ridge Regression**: L2 regularized linear regression
+- **Lasso Regression**: L1 regularized with feature selection
+- **Random Forest Regressor**: Ensemble regression
+- **XGBoost Regressor**: Gradient boosting for regression
+- **Support Vector Regression**: Non-linear regression
+
+#### Object Detection (Planned)
+- **YOLOv8**: Real-time object detection
+- **Custom CNN**: Convolutional neural networks
+- **Transfer Learning**: Pre-trained model fine-tuning
+
+### Hyperparameter Optimization
+
+#### Optuna Integration
+- **Automatic Parameter Tuning**: AI-driven hyperparameter optimization
+- **Multi-objective Optimization**: Balance accuracy and model complexity
+- **Pruning**: Early stopping for inefficient trials
+- **Visualization**: Optimization history and parameter importance
+
+#### Search Strategies
+- **Grid Search**: Exhaustive parameter combination testing
+- **Random Search**: Random parameter sampling
+- **Bayesian Optimization**: Probabilistic model-based optimization
+- **Evolutionary Algorithms**: Population-based optimization
+
+### Model Validation
+- **Cross-Validation**: K-fold validation for robust performance estimation
+- **Train-Validation-Test Split**: Proper data partitioning
+- **Stratified Sampling**: Maintain class distribution in splits
+- **Time Series Validation**: Forward-chaining validation for temporal data
+
+## Model Evaluation
+
+### Classification Metrics
+- **Accuracy**: Overall correct prediction percentage
+- **Precision**: True positives / (True positives + False positives)
+- **Recall**: True positives / (True positives + False negatives)
+- **F1-Score**: Harmonic mean of precision and recall
+- **ROC-AUC**: Area under the receiver operating characteristic curve
+- **Confusion Matrix**: Detailed prediction breakdown
+
+### Regression Metrics
+- **Mean Absolute Error (MAE)**: Average absolute prediction error
+- **Mean Squared Error (MSE)**: Average squared prediction error
+- **Root Mean Squared Error (RMSE)**: Square root of MSE
+- **R-squared**: Coefficient of determination
+- **Mean Absolute Percentage Error (MAPE)**: Percentage-based error metric
+
+### Model Interpretation
+- **Feature Importance**: Relative contribution of each feature
+- **SHAP Values**: SHapley Additive exPlanations for prediction explanation
+- **Partial Dependence Plots**: Feature effect on predictions
+- **Learning Curves**: Training and validation performance over time
+
+## Deployment
+
+### Local Deployment
+- **Model Serialization**: Save trained models using joblib/pickle
+- **Prediction Interface**: Interactive web interface for new predictions
+- **Batch Prediction**: Process multiple samples simultaneously
+- **Model Comparison**: Compare different model performances
+
+### API Generation
+- **REST API**: Automatic FastAPI endpoint creation
+- **Request Validation**: Input data validation and preprocessing
+- **Response Formatting**: Structured prediction outputs
+- **Documentation**: Auto-generated API documentation
+
+### Production Considerations
+- **Model Versioning**: Track model versions and metadata
+- **Performance Monitoring**: Monitor prediction accuracy over time
+- **Data Drift Detection**: Identify when model retraining is needed
+- **Scalability**: Handle increasing prediction loads
+
+## Best Practices
+
+### Data Preparation
+1. **Always perform EDA before preprocessing**: Understand your data first
+2. **Handle missing values appropriately**: Consider the missing data mechanism
+3. **Scale features for distance-based algorithms**: Normalization is crucial for SVM, k-NN
+4. **Encode categorical variables properly**: Choose encoding based on cardinality
+5. **Split data before preprocessing**: Prevent data leakage
+
+### Model Selection
+1. **Start with simple models**: Baseline with linear/logistic regression
+2. **Consider problem type and data size**: Different algorithms for different scenarios
+3. **Use cross-validation**: Get robust performance estimates
+4. **Balance bias-variance trade-off**: Consider model complexity vs. performance
+5. **Validate on unseen data**: Reserve test set for final evaluation
+
+### Feature Engineering
+1. **Domain knowledge is valuable**: Use business understanding for feature creation
+2. **Feature selection matters**: Remove irrelevant or redundant features
+3. **Consider feature interactions**: Create polynomial or interaction features
+4. **Handle temporal features properly**: Extract relevant time-based features
+5. **Normalize skewed distributions**: Consider log transformation for skewed data
+
+### Model Evaluation
+1. **Use appropriate metrics**: Choose metrics aligned with business objectives
+2. **Consider class imbalance**: Use stratified sampling and appropriate metrics
+3. **Validate across different data segments**: Check performance consistency
+4. **Monitor for overfitting**: Compare training and validation performance
+5. **Document model limitations**: Understand where the model fails
+
+### Deployment
+1. **Version control everything**: Models, data, and code
+2. **Monitor model performance**: Set up alerts for performance degradation
+3. **Plan for model updates**: Establish retraining pipelines
+4. **Ensure reproducibility**: Document dependencies and environments
+5. **Consider ethical implications**: Monitor for bias and fairness
+
+---
+
+This guide provides comprehensive coverage of InstaML's machine learning capabilities. For technical implementation details, refer to the API documentation and source code.
