@@ -4,6 +4,18 @@
 
 InstaML is a comprehensive no-code machine learning platform designed to democratize AI development. It provides an intuitive web-based interface that enables users to build, train, evaluate, and deploy machine learning models without writing code. The platform serves students learning ML concepts, researchers prototyping models, and business professionals solving real-world problems.
 
+
+## App Preview
+
+<p align="center">
+  <img src="images/Screenshot%20(95).png" alt="App Preview 1" width="200"/>
+  <img src="images/Screenshot%20(94).png" alt="App Preview 2" width="200"/>
+  <img src="images/Screenshot%20(97).png" alt="App Preview 3" width="200"/>
+  <img src="images/Screenshot%20(98).png" alt="App Preview 4" width="200"/>
+  <img src="images/Screenshot%20(99).png" alt="App Preview 5" width="200"/>
+</p>
+
+
 ## Core Features
 
 **Data Management**
