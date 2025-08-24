@@ -22,10 +22,13 @@ matplotlib==3.9.2
 seaborn==0.13.2
 plotly==5.20.0
 streamlit==1.36.0
+streamlit-extras==0.3.6
+streamlit-extras[colored_header]==0.3.6
+streamlit-extras[grid]==0.3.6
 
 # Data Formats
 openpyxl==3.1.5
-pyarrow==15.0.2
+pyarrow==14.0.2
 h5py==3.11.0
 
 # Model Management

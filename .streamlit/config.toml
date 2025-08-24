@@ -6,3 +6,13 @@ enableCORS = false
 
 # Optional: allow fileWatcher to detect changes quickly
 fileWatcherType = "poll"
+
+[theme]
+primaryColor = "#667eea"
+backgroundColor = "#f8fafc"
+secondaryBackgroundColor = "#ffffff"
+textColor = "#2d3748"
+font = "Inter"
+
+[ui]
+navigationStyle = "collapsed"

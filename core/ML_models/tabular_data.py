@@ -52,14 +52,38 @@ class TabularModelTrainer:
         self._initialize_models()
         
     def _detect_task_type(self):
-        """Auto-detect if this is classification or regression."""
+        """Auto-detect if this is classification or regression with improved logic."""
         target_dtype = self.df[self.target_col].dtype
         unique_values = self.df[self.target_col].nunique()
+        total_samples = len(self.df[self.target_col])
         
-        if target_dtype in ['object', 'category'] or unique_values <= 10:
+        # Check if target column is categorical (object, category, or string-like)
+        if target_dtype in ['object', 'category', 'string']:
             return "classification"
-        else:
-            return "regression"
+        
+        # Check if numeric column has few unique values relative to total samples
+        # This catches numeric categorical variables (e.g., 0,1,2 for categories)
+        if unique_values <= min(10, total_samples * 0.1):  # 10% of samples or 10, whichever is smaller
+            return "classification"
+        
+        # Check if numeric values are integers and represent categories
+        if target_dtype in ['int64', 'int32', 'int16', 'int8']:
+            # If all values are non-negative integers and represent a small set of categories
+            if (self.df[self.target_col] >= 0).all() and unique_values <= 50:
+                # Additional check: if the values are consecutive starting from 0 or 1
+                sorted_values = sorted(self.df[self.target_col].unique())
+                if (sorted_values == list(range(len(sorted_values))) or 
+                    sorted_values == list(range(1, len(sorted_values) + 1))):
+                    return "classification"
+        
+        # Check for binary classification with numeric values (0/1 or -1/1)
+        if unique_values == 2:
+            unique_vals = self.df[self.target_col].unique()
+            if set(unique_vals) in [{0, 1}, {-1, 1}, {0.0, 1.0}, {-1.0, 1.0}]:
+                return "classification"
+        
+        # Default to regression for continuous numeric values
+        return "regression"
     
     def _prepare_data(self):
         """Prepare features and target."""

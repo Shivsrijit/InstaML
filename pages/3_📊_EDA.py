@@ -3,350 +3,241 @@ import sys
 import os
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../../")))
 
-from app.utilss import charts
+# ✅ Keep 'utilss' as you confirmed it's correct
 from app.utilss.navigation import safe_switch_page
+from streamlit_extras.stylable_container import stylable_container
+from streamlit_extras.colored_header import colored_header
+from streamlit_extras.stylable_container import stylable_container
 
 import streamlit as st
 import pandas as pd
 import numpy as np
 import plotly.express as px
 import plotly.graph_objects as go
-from plotly.subplots import make_subplots
+from sklearn.decomposition import PCA
+from sklearn.preprocessing import StandardScaler
+from sklearn.cluster import KMeans
 
-# Set page configuration for a wider layout and a more professional look
+# Set page config
 st.set_page_config(layout="wide", page_title="EDA", page_icon="📊")
 
-# Custom CSS for a cleaner, more modern look
+# === CUSTOM CSS (Same as Train Model) ===
 st.markdown("""
 <style>
-/* Main container styling */
-.main .block-container {
-    padding-top: 2rem;
-    padding-right: 2rem;
-    padding-left: 2rem;
-    padding-bottom: 2rem;
-}
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+    @import url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css');
+    
+    .stApp {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        font-family: 'Inter', sans-serif;
+    }
+    
+    #MainMenu, footer, .stDeployButton {visibility: hidden;}
 
-/* Header and subheader styling */
-h1 {
-    font-size: 2.5rem;
-    font-weight: 700;
-    color: #4B4B4B;
-}
-h2 {
-    font-size: 2rem;
-    font-weight: 600;
-    color: #4F84C4;
-    border-bottom: 2px solid #F0F2F6;
-    padding-bottom: 0.5rem;
-    margin-top: 2rem;
-}
-h3 {
-    font-size: 1.5rem;
-    font-weight: 600;
-    color: #6C757D;
-    margin-top: 1.5rem;
-}
+    .nav-icon {
+        font-size: 1.5rem; margin-right: 0.5rem;
+        background: linear-gradient(135deg, #667eea, #764ba2);
+        -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+        background-clip: text;
+    }
 
-/* Info and Warning boxes */
-.stAlert {
-    border-left: 5px solid;
-    border-radius: 5px;
-    padding: 1rem;
-    margin-bottom: 1rem;
-}
-
-/* Metric styling */
-[data-testid="stMetric"] {
-    background-color: #F8F9FA;
-    border: 1px solid #E9ECEF;
-    padding: 1rem;
-    border-radius: 10px;
-    text-align: center;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-}
-
-[data-testid="stMetricLabel"] > div {
-    font-size: 1.2rem;
-    font-weight: 600;
-    color: #495057;
-}
-
-[data-testid="stMetricValue"] {
-    font-size: 2rem !important;
-    font-weight: 700 !important;
-    color: #343A40 !important;
-}
-
-/* Button styling */
-.stButton>button {
-    font-weight: bold;
-    border-radius: 8px;
-    padding: 0.75rem 1rem;
-}
-.stButton>button.primary {
-    background-color: #4F84C4;
-    color: white;
-}
-.stButton>button.secondary {
-    background-color: #ADB5BD;
-    color: white;
-}
+    .metric-value {
+        font-size: 2.5rem; font-weight: 700;
+        background: linear-gradient(135deg, #667eea, #764ba2);
+        -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+        background-clip: text; margin-bottom: 0.5rem;
+    }
+    .metric-label {
+        color: #718096; font-size: 0.9rem; font-weight: 500;
+        text-transform: uppercase; letter-spacing: 1px;
+    }
+    .stButton > button {
+        background: linear-gradient(135deg, #667eea, #764ba2);
+        color: white; border: none; border-radius: 12px;
+        padding: 0.8rem 2rem; font-weight: 600; transition: all 0.3s ease;
+        box-shadow: 0 6px 20px rgba(102, 126, 234, 0.3);
+    }
+    .stButton > button:hover {
+        transform: translateY(-2px);
+        background: linear-gradient(135deg, #5a67d8, #6b46c1);
+    }
+    .stSuccess, .stInfo, .stWarning { border-radius: 12px; border: none; }
 </style>
 """, unsafe_allow_html=True)
 
+# === Main Container ===
+with stylable_container("main_container", css_styles="""
+    { background: rgba(255, 255, 255, 0.95); border-radius: 20px; padding: 2rem;
+      backdrop-filter: blur(10px); box-shadow: 0 20px 40px rgba(0,0,0,0.1); }
+"""):
+    # === Header ===
+    with stylable_container("page_header", css_styles="""
+        { background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+          color: white; padding: 2rem; border-radius: 15px; margin-bottom: 2rem; text-align: center; }
+    """):
+        st.markdown("""
+        <div style="font-size: 3rem; font-weight: 700; text-shadow: 2px 2px 4px rgba(0,0,0,0.3);">
+            <i class="fas fa-chart-network nav-icon"></i>Exploratory Data Analysis
+        </div>
+        <div style="font-size: 1.2rem; opacity: 0.9;">Uncover patterns, trends, and insights</div>
+        """, unsafe_allow_html=True)
 
-st.title("📊 Exploratory Data Analysis (EDA)")
+    # === Data Check ===
+    if "df" not in st.session_state or st.session_state.df is None:
+        st.warning("❌ No data loaded. Please go to Data Upload.")
+        if st.button("📂 Go to Data Upload", use_container_width=True):
+            safe_switch_page("pages/1_📂_Data_Upload.py")
+        st.stop()
 
-# Comprehensive guidance in an expander
-with st.expander("🎯 **What is EDA and Why Should You Care?**"):
-    st.markdown("""
-    **Exploratory Data Analysis (EDA)** is like being a detective investigating your data! It's the process of exploring, visualizing, and understanding your dataset before building machine learning models.
+    df = st.session_state.df.copy()
+    numeric_cols = df.select_dtypes(include=np.number).columns.tolist()
+    categorical_cols = df.select_dtypes(include='object').columns.tolist()
 
-    **🔍 What EDA helps you discover:**
-    - **Patterns and trends** hidden in your data
-    - **Relationships** between different variables
-    - **Data quality issues** that might affect your models
-    - **Insights** that guide your modeling decisions
-    - **Outliers and anomalies** that need attention
-
-    **⚡ Why EDA is crucial for ML success:**
-    - **Better model selection**: Understand your data to choose the right algorithms
-    - **Feature engineering**: Discover which variables are most important
-    - **Data validation**: Catch errors before they ruin your models
-    - **Business insights**: Find valuable patterns for decision-making
-    - **Model interpretation**: Understand why your models make certain predictions
-
-    **🚨 What happens if you skip EDA:**
-    - Choose wrong algorithms for your data
-    - Miss important features or relationships
-    - Build models on poor quality data
-    - Get misleading results and insights
-    - Waste time on ineffective approaches
-    """)
-
-
-if "df" not in st.session_state or st.session_state.df is None:
-    st.warning("⚠️ Please upload or load data first from the Data Upload page.")
-    st.stop()
-
-df = st.session_state.df
-
-# Enhanced Data Status Check
-st.markdown("## 📋 **Data Status Check**")
-with st.container():
-    if "df_preprocessed" in st.session_state:
-        st.success("✅ **Your data has been preprocessed and is ready for analysis!**")
-        with st.expander("See what this means"):
-            st.markdown("""
-            **What this means:**
-            - Your data is clean and well-structured
-            - Missing values have been handled
-            - Data types are properly formatted
-            - You're ready for comprehensive analysis
-            """)
-    else:
-        st.warning("⚠️ **Data Preprocessing Recommended**")
-        with st.expander("Why you should preprocess first"):
-            st.markdown("""
-            - Clean data reveals true patterns, not noise
-            - Proper formatting prevents analysis errors
-            - Better insights lead to better models
-            - You'll save time in the long run
-            """)
-        st.markdown("💡 **What to do:** Go to the preprocessing page to clean and transform your data.")
-        
-        col1, col2 = st.columns(2)
-        with col1:
-            if st.button("🔧 Go to Preprocessing", type="primary", use_container_width=True):
-                safe_switch_page("pages/2_🔧_Data_Preprocessing.py")
-        with col2:
-            if st.button("📊 Continue with EDA", type="secondary", use_container_width=True):
-                st.info("ℹ️ You can continue, but results may be affected by data quality issues.")
-
-
-# Enhanced Data Summary with explanations and metrics
-st.markdown("## 📊 **Dataset Overview - Know Your Data**")
-st.info("These metrics give you a quick understanding of your dataset. More details in the expander below.")
-
-col1, col2, col3, col4 = st.columns(4)
-with col1:
-    st.metric("Rows", f"{df.shape[0]:,}")
-with col2:
-    st.metric("Columns", f"{df.shape[1]:,}")
-with col3:
-    memory_mb = df.memory_usage(deep=True).sum() / 1024**2
-    st.metric("Memory", f"{memory_mb:.2f} MB")
-with col4:
-    missing_count = df.isnull().sum().sum()
-    missing_percentage = (missing_count / (df.shape[0] * df.shape[1])) * 100
-    st.metric("Missing Data", f"{missing_percentage:.1f}%")
-
-with st.expander("More details on these metrics"):
+    # === Dataset Overview ===
+    colored_header("📊 Dataset Overview", "Key facts about your data", "blue-70")
     col1, col2, col3, col4 = st.columns(4)
     with col1:
-        if df.shape[0] < 100: st.warning("⚠️ Small dataset")
-        elif df.shape[0] < 1000: st.info("📊 Medium dataset")
-        else: st.success("🚀 Large dataset")
-        
+        with stylable_container("metric_rows", css_styles="""{ text-align:center; padding:1.5rem; }"""):
+            st.markdown(f"<div class='metric-value'>{df.shape[0]:,}</div><div class='metric-label'>Rows</div>", unsafe_allow_html=True)
     with col2:
-        if df.shape[1] < 5: st.info("📊 Few features")
-        elif df.shape[1] < 20: st.success("✅ Good feature count")
-        else: st.warning("⚠️ Many features")
-        
+        with stylable_container("metric_cols", css_styles="""{ text-align:center; padding:1.5rem; }"""):
+            st.markdown(f"<div class='metric-value'>{df.shape[1]:,}</div><div class='metric-label'>Columns</div>", unsafe_allow_html=True)
     with col3:
-        if memory_mb < 10: st.success("✅ Small file")
-        elif memory_mb < 100: st.info("📊 Medium file")
-        else: st.warning("⚠️ Large file")
-        
+        mem = df.memory_usage(deep=True).sum() / (1024 * 1024)
+        with stylable_container("metric_mem", css_styles="""{ text-align:center; padding:1.5rem; }"""):
+            st.markdown(f"<div class='metric-value'>{mem:.1f}</div><div class='metric-label'>Memory (MB)</div>", unsafe_allow_html=True)
     with col4:
-        if missing_percentage == 0: st.success("✅ No missing data")
-        elif missing_percentage < 5: st.info("📊 Low missing data")
-        else: st.warning("⚠️ High missing data")
+        missing = df.isnull().sum().sum()
+        with stylable_container("metric_missing", css_styles="""{ text-align:center; padding:1.5rem; }"""):
+            st.markdown(f"<div class='metric-value'>{missing:,}</div><div class='metric-label'>Missing Values</div>", unsafe_allow_html=True)
 
-# Separator
-st.markdown("---")
+    st.markdown("---")
 
-# Enhanced Analysis Type Selection with guidance
-st.markdown("## 🔍 **Choose Your Analysis Approach**")
-st.info("Each analysis type is a different 'microscope' for your data. Choose one to get started.")
+    # === Univariate Analysis ===
+    colored_header("📈 Univariate Analysis", "Analyze one variable at a time", "violet-70")
+    tab1, tab2 = st.tabs(["📊 Numeric", "🏷️ Categorical"])
 
-analysis_type = st.radio(
-    "Select analysis type:",
-    ["Univariate", "Bivariate", "Multivariate", "Dimensionality Reduction", "Time Series & Specialized"],
-    horizontal=True,
-    help="Choose based on what you want to discover about your data"
-)
+    with tab1:
+        if not numeric_cols:
+            st.info("No numeric columns found.")
+        else:
+            col = st.selectbox("Select numeric column", numeric_cols, key="eda_num_col")
+            fig = px.histogram(df, x=col, nbins=50, marginal="violin", title=f"Distribution of {col}",
+                               color_discrete_sequence=['#667eea'])
+            st.plotly_chart(fig, use_container_width=True)
 
-st.markdown("---")
+            if df[col].nunique() <= 10:
+                counts = df[col].value_counts()
+                fig_pie = px.pie(values=counts.values, names=counts.index, title=f"Composition of {col}")
+                st.plotly_chart(fig_pie, use_container_width=True)
 
-# Detailed explanations for each analysis type inside a consistent layout
-if analysis_type == "Univariate":
-    st.subheader("📊 **Univariate Analysis**")
-    with st.expander("What to look for in Univariate Analysis"):
-        st.markdown("""
-        **What this reveals:**
-        - **Distribution patterns**: How values are spread out
-        - **Central tendencies**: What's typical or average
-        - **Variability**: How much values differ from each other
-        
-        **💡 Key insights to find:**
-        - **Normal distribution**: Bell-shaped curves are good for many ML algorithms
-        - **Skewed data**: Asymmetric distributions might need transformation
-        - **Outliers**: Extreme values that might be errors or important signals
-        """)
-    charts.univariate_analysis(df)
+    with tab2:
+        if not categorical_cols:
+            st.info("No categorical columns found.")
+        else:
+            col = st.selectbox("Select categorical column", categorical_cols, key="eda_cat_col")
+            top = df[col].value_counts().head(10)
+            fig_bar = px.bar(top, x=top.index, y=top.values, title=f"Top 10 Categories in {col}",
+                             color_discrete_sequence=['#764ba2'])
+            st.plotly_chart(fig_bar, use_container_width=True)
 
-elif analysis_type == "Bivariate":
-    st.subheader("🔗 **Bivariate Analysis**")
-    with st.expander("What to look for in Bivariate Analysis"):
-        st.markdown("""
-        **What this reveals:**
-        - **Correlations**: How two variables move together
-        - **Causal relationships**: Potential cause-and-effect connections
-        - **Feature importance**: Which variables might predict your target
-        
-        **💡 Key insights to find:**
-        - **Strong correlations**: Variables that move together (positive or negative)
-        - **No correlation**: Independent variables that don't affect each other
-        - **Non-linear relationships**: Curved patterns that correlation might miss
-        """)
-    charts.bivariate_analysis(df)
+            fig_pie = px.pie(df, names=col, title=f"Category Distribution: {col}")
+            st.plotly_chart(fig_pie, use_container_width=True)
 
-elif analysis_type == "Multivariate":
-    st.subheader("🌐 **Multivariate Analysis**")
-    with st.expander("What to look for in Multivariate Analysis"):
-        st.markdown("""
-        **What this reveals:**
-        - **Interaction effects**: How multiple variables work together
-        - **Hidden patterns**: Complex relationships not visible in simpler analyses
-        - **Feature combinations**: Which groups of variables are most important
-        
-        **💡 Key insights to find:**
-        - **Interaction effects**: Variables that work together differently than alone
-        - **Feature groups**: Clusters of related variables
-        - **Redundancy**: Variables that provide similar information
-        """)
-    charts.multivariate_analysis(df)
+    # === Multivariate Analysis ===
+    colored_header("🔗 Multivariate Analysis", "Explore relationships between variables", "green-70")
+    mv_tab1, mv_tab2, mv_tab3, mv_tab4 = st.tabs(["🧮 Correlation", "📉 Scatter", "🎻 Violin", "🧩 Clusters"])
 
-elif analysis_type == "Dimensionality Reduction":
-    st.subheader("📉 **Dimensionality Reduction**")
-    with st.expander("What to look for in Dimensionality Reduction"):
-        st.markdown("""
-        **What this reveals:**
-        - **Hidden structure**: Underlying patterns in high-dimensional data
-        - **Feature importance**: Which variables contribute most to patterns
-        - **Data visualization**: Making complex data easier to understand
-        
-        **💡 Key insights to find:**
-        - **Principal components**: New variables that capture most variation
-        - **Explained variance**: How much information each component preserves
-        - **Clustering patterns**: Natural groups in your data
-        """)
-    charts.dimensionality_reduction(df)
+    with mv_tab1:
+        if len(numeric_cols) < 2:
+            st.info("Need at least 2 numeric columns.")
+        else:
+            corr = df[numeric_cols].corr()
+            fig = px.imshow(corr, text_auto=".2f", color_continuous_scale='Blues', title="Correlation Heatmap")
+            st.plotly_chart(fig, use_container_width=True)
 
-elif analysis_type == "Time Series & Specialized":
-    st.subheader("⏰ **Time Series & Specialized Analysis**")
-    with st.expander("What to look for in Time Series Analysis"):
-        st.markdown("""
-        **What this reveals:**
-        - **Temporal patterns**: How data changes over time
-        - **Seasonality**: Repeating patterns (daily, weekly, yearly)
-        - **Trends**: Long-term changes or directions
-        
-        **💡 Key insights to find:**
-        - **Trends**: Overall direction of change over time
-        - **Seasonality**: Regular repeating patterns
-        - **Anomalies**: Unusual time periods or events
-        """)
-    charts.time_series_analysis(df)
+    with mv_tab2:
+        if len(numeric_cols) < 2:
+            st.info("Need 2+ numeric columns.")
+        else:
+            c1, c2 = st.columns(2)
+            with c1: x_col = st.selectbox("X-axis", numeric_cols, key="scatter_x")
+            with c2: y_col = st.selectbox("Y-axis", numeric_cols, key="scatter_y")
+            color_by = st.selectbox("Color by (optional)", ["None"] + categorical_cols, key="scatter_color")
+            fig = px.scatter(df, x=x_col, y=y_col, color=color_by if color_by != "None" else None,
+                             title=f"{y_col} vs {x_col}", opacity=0.7)
+            st.plotly_chart(fig, use_container_width=True)
 
-# Separator
-st.markdown("---")
+    with mv_tab3:
+        if not numeric_cols or not categorical_cols:
+            st.info("Need numeric and categorical columns.")
+        else:
+            num_col = st.selectbox("Numeric variable", numeric_cols, key="violin_num")
+            cat_col = st.selectbox("Category variable", categorical_cols, key="violin_cat")
+            top_cats = df[cat_col].value_counts().index[:5]
+            df_filtered = df[df[cat_col].isin(top_cats)]
+            fig = px.violin(df_filtered, x=cat_col, y=num_col, box=True, points="outliers",
+                            title=f"Violin Plot: {num_col} by {cat_col} (Top 5)")
+            st.plotly_chart(fig, use_container_width=True)
 
-# Enhanced navigation and next steps with a clear, two-column layout
-st.markdown("## 🚀 **What's Next After EDA?**")
-st.info("You've explored your data. Now choose your next step.")
+    with mv_tab4:
+        if len(numeric_cols) < 2:
+            st.info("Need at least 2 numeric features for clustering.")
+        else:
+            n_clusters = st.slider("Number of clusters", 2, 6, key="n_clusters_slider")
+            sample_df = df[numeric_cols].dropna().sample(n=min(1000, len(df)), random_state=42)
+            scaled_data = StandardScaler().fit_transform(sample_df)
+            labels = KMeans(n_clusters=n_clusters, random_state=42).fit_predict(scaled_data)
+            fig = px.scatter(sample_df, x=numeric_cols[0], y=numeric_cols[1], color=labels.astype(str),
+                             title=f"K-Means Clusters (k={n_clusters})")
+            st.plotly_chart(fig, use_container_width=True)
 
-col1, col2 = st.columns(2)
-with col1:
-    with st.container():
-        st.subheader("⚙️ **Train Model**")
-        st.markdown("Ready to build a model? Your EDA insights will help you choose the right algorithm and features.")
-        if st.button("⚙️ Train Model", type="primary", use_container_width=True):
-            safe_switch_page("pages/4_⚙️_Train_Model.py")
+    # === Dimensionality Reduction ===
+    colored_header("🔄 Dimensionality Reduction", "Reduce features using PCA", "blue-70")
+    if len(numeric_cols) < 2:
+        st.info("Need at least 2 numeric columns for PCA.")
+    else:
+        n_comp = st.slider("Number of Principal Components", 1, min(10, len(numeric_cols)), 2, key="pca_n_comp")
+        scale = st.checkbox("Standardize features before PCA", value=True)
 
-with col2:
-    with st.container():
-        st.subheader("🔧 **Refine Preprocessing**")
-        st.markdown("Did EDA reveal data quality issues? Go back to preprocessing to clean and transform your data.")
-        if st.button("🔧 Go to Preprocessing", type="primary", use_container_width=True):
-            safe_switch_page("pages/2_🔧_Data_Preprocessing.py")
+        data_clean = df[numeric_cols].dropna()
+        scaled_data = StandardScaler().fit_transform(data_clean) if scale else data_clean.values
 
-# Separator
-st.markdown("---")
+        pca = PCA(n_components=n_comp)
+        reduced_data = pca.fit_transform(scaled_data)
+        explained = pca.explained_variance_ratio_
 
-# Add EDA best practices and tips in a collapsed section
-with st.expander("💡 **EDA Best Practices & Tips**"):
+        st.write("✅ Explained Variance per Component:", [f"{v:.1%}" for v in explained])
+        st.write("📈 Cumulative Variance:", f"**{sum(explained):.1%}**")
+
+        reduced_df = pd.DataFrame(reduced_data, columns=[f"PC{i+1}" for i in range(n_comp)])
+        reduced_df['original_index'] = data_clean.index
+
+        # PCA Visualization
+        if n_comp >= 2:
+            fig_pca = px.scatter(reduced_df, x="PC1", y="PC2", title="PCA: First Two Components",
+                                 color=reduced_df.index, color_continuous_scale='Blues')
+            st.plotly_chart(fig_pca, use_container_width=True)
+
+        # Save & Continue Button (✅ This will now work)
+        st.info("This reduced dataset will be used for training.")
+
+        if st.button("✅ Save Reduced Data & Continue to Training", type="primary", use_container_width=True):
+            st.session_state.df = reduced_df  # Replace with reduced data
+            st.session_state.data_reduced = True
+            st.session_state.pca_info = {
+                "n_components": n_comp,
+                "explained_variance": explained.tolist(),
+                "cumulative": float(sum(explained))
+            }
+            safe_switch_page("pages/4_⚙️_Train_Model.py")  # ✅ Correct full path
+
+    # === Final Navigation ===
+    st.markdown("---")
     col1, col2 = st.columns(2)
     with col1:
-        st.markdown("**🎯 Analysis Strategy:**")
-        st.markdown("""
-        • **Start simple**: Begin with basic statistics and distributions
-        • **Ask questions**: What patterns do you expect to find?
-        • **Document insights**: Keep notes of what you discover
-        • **Iterate**: Go back and forth between different analysis types
-        """)
+        if st.button("➡️ Go to Training", use_container_width=True):
+            safe_switch_page("pages/4_⚙️_Train_Model.py")  # ✅ Full path
     with col2:
-        st.markdown("**🚨 Common Mistakes:**")
-        st.markdown("""
-        • **Rushing**: Take time to understand your data
-        • **Ignoring outliers**: They might be important signals
-        • **Missing context**: Understand what your variables mean
-        • **Over-analyzing**: Don't get lost in endless exploration
-        """)
-
-# Final encouragement in a visually appealing box
-st.success("""
-🎉 **You're doing great! EDA is a crucial skill that will make you a better data scientist.**
-""")
+        if st.button("🏠 Back to Home", use_container_width=True):
+            safe_switch_page("app.py")

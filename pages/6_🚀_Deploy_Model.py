@@ -1,4 +1,4 @@
-# app/pages/6_🚀_Deploy_Model.py
+# app/pages/6_Deploy_Model.py
 import sys
 import os
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../../")))
@@ -6,336 +6,262 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../../"
 import streamlit as st
 import pandas as pd
 import numpy as np
-import json
-import base64
 from datetime import datetime
 from app.utilss.navigation import safe_switch_page
+from streamlit_extras.stylable_container import stylable_container
+from streamlit_extras.colored_header import colored_header
 
-# Page configuration
-st.set_page_config(page_title="Deploy Model", layout="wide")
+# Page config
+st.set_page_config(page_title="Deploy Model", layout="wide", page_icon="🚀")
 
-# Custom CSS for better styling
+# === CUSTOM CSS (Same as EDA) ===
 st.markdown("""
 <style>
-    .help-section {
-        background: #f8f9fa;
-        border-radius: 10px;
-        padding: 1rem;
-        margin: 1rem 0;
-        border-left: 4px solid #667eea;
-    }
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+    @import url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css');
     
-    .metric-card {
-        background: white;
-        border-radius: 10px;
-        padding: 1rem;
-        text-align: center;
-        border: 1px solid #e0e0e0;
-        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-    }
-    
-    .metric-value {
-        font-size: 1.5rem;
-        font-weight: bold;
-        color: #667eea;
-    }
-    
-    .metric-label {
-        color: #666;
-        font-size: 0.9rem;
-    }
-    
-    .deploy-card {
-        background: white;
-        border: 1px solid #e0e0e0;
-        border-radius: 10px;
-        padding: 1.5rem;
-        margin: 1rem 0;
-        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-    }
-    
-    .deploy-card h4 {
-        color: #333;
-        margin-bottom: 1rem;
-        border-bottom: 2px solid #667eea;
-        padding-bottom: 0.5rem;
-    }
-    
-    .status-badge {
-        display: inline-block;
-        padding: 0.25rem 0.75rem;
-        border-radius: 20px;
-        font-size: 0.8rem;
-        font-weight: 500;
-    }
-    
-    .status-success {
-        background: #d4edda;
-        color: #155724;
-        border: 1px solid #c3e6cb;
-    }
-    
-    .status-warning {
-        background: #fff3cd;
-        color: #856404;
-        border: 1px solid #ffeaa7;
-    }
-    
-    .status-info {
-        background: #d1ecf1;
-        color: #0c5460;
-        border: 1px solid #bee5eb;
-    }
-    
-    .upload-area {
-        background: #f8f9fa;
-        border: 2px dashed #667eea;
-        border-radius: 15px;
-        padding: 2rem;
-        text-align: center;
-        margin: 1rem 0;
-        transition: all 0.3s ease;
-    }
-    
-    .upload-area:hover {
-        border-color: #764ba2;
-        background: #f0f2f6;
-    }
-    
-    .deployment-header {
+    .stApp {
         background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        color: white;
-        border-radius: 15px;
+        font-family: 'Inter', sans-serif;
+    }
+    
+    #MainMenu, footer, .stDeployButton {visibility: hidden;}
+
+    .nav-icon {
+        font-size: 1.5rem; margin-right: 0.5rem;
+        background: linear-gradient(135deg, #667eea, #764ba2);
+        -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+        background-clip: text;
+    }
+
+    .metric-value {
+        font-size: 2rem; font-weight: 700;
+        background: linear-gradient(135deg, #667eea, #764ba2);
+        -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+        background-clip: text; margin-bottom: 0.5rem;
+    }
+    .metric-label {
+        color: #718096; font-size: 0.9rem; font-weight: 500;
+        text-transform: uppercase; letter-spacing: 1px;
+    }
+    .stButton > button {
+        background: linear-gradient(135deg, #667eea, #764ba2);
+        color: white; border: none; border-radius: 12px;
+        padding: 0.8rem 2rem; font-weight: 600; transition: all 0.3s ease;
+        box-shadow: 0 6px 20px rgba(102, 126, 234, 0.3);
+    }
+    .stButton > button:hover {
+        transform: translateY(-2px);
+        background: linear-gradient(135deg, #5a67d8, #6b46c1);
+    }
+    .stSuccess, .stInfo, .stWarning { border-radius: 12px; border: none; }
+    
+    /* Download button special styling */
+    .stDownloadButton > button {
+        background: linear-gradient(135deg, #10b981, #059669) !important;
+        color: white !important;
+        border: none !important;
+        border-radius: 12px !important;
+        padding: 0.8rem 2rem !important;
+        font-weight: 600 !important;
+        transition: all 0.3s ease !important;
+        box-shadow: 0 6px 20px rgba(16, 185, 129, 0.3) !important;
+    }
+    .stDownloadButton > button:hover {
+        transform: translateY(-2px) !important;
+        background: linear-gradient(135deg, #059669, #047857) !important;
+    }
+    
+    /* Upload area styling */
+    .upload-info {
+        background: linear-gradient(135deg, rgba(102, 126, 234, 0.1), rgba(118, 75, 162, 0.1));
+        border: 2px dashed #667eea;
+        border-radius: 12px;
         padding: 2rem;
-        margin: 1rem 0;
         text-align: center;
-    }
-    
-    .api-section {
-        background: #f8f9fa;
-        border-radius: 10px;
-        padding: 1.5rem;
         margin: 1rem 0;
-        border: 1px solid #e0e0e0;
     }
     
-    .code-block {
-        background: #2d3748;
-        color: #e2e8f0;
+    /* Code blocks */
+    .stCode {
+        background: rgba(45, 55, 72, 0.9) !important;
+        border-radius: 8px !important;
+        border: 1px solid #667eea !important;
+    }
+    
+    /* Radio buttons */
+    .stRadio > div {
+        background: rgba(255, 255, 255, 0.1);
         padding: 1rem;
-        border-radius: 8px;
-        font-family: 'Courier New', monospace;
-        overflow-x: auto;
+        border-radius: 12px;
+        backdrop-filter: blur(10px);
     }
 </style>
 """, unsafe_allow_html=True)
 
-# Title and header
-st.title("🚀 Deploy Your Machine Learning Model")
-st.markdown("Transform your trained model into a production-ready prediction service")
+# === Main Container ===
+with stylable_container("main_container", css_styles="""
+    { background: rgba(255, 255, 255, 0.95); border-radius: 20px; padding: 2rem;
+      backdrop-filter: blur(10px); box-shadow: 0 20px 40px rgba(0,0,0,0.1); }
+"""):
+    # === Header ===
+    with stylable_container("page_header", css_styles="""
+        { background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+          color: white; padding: 2rem; border-radius: 15px; margin-bottom: 2rem; text-align: center; }
+    """):
+        st.markdown("""
+        <div style="font-size: 3rem; font-weight: 700; text-shadow: 2px 2px 4px rgba(0,0,0,0.3);">
+            <i class="fas fa-rocket nav-icon"></i>Deploy Model
+        </div>
+        <div style="font-size: 1.2rem; opacity: 0.9;">Deploy your trained model for real-world use</div>
+        """, unsafe_allow_html=True)
 
-# Collapsible help section
-with st.expander("ℹ️ **What is Model Deployment and Why is it Important?**", expanded=False):
-    st.markdown("""
-    **Model Deployment** is like opening a restaurant after perfecting your recipes. It's the final step that makes your model available to users and integrates it into real-world applications.
-    
-    **🎯 What deployment enables:**
-    - **Real-time predictions**: Make predictions on new data instantly
-    - **Integration**: Connect your model to web apps, mobile apps, or APIs
-    - **Scalability**: Handle multiple prediction requests simultaneously
-    - **Monitoring**: Track how your model performs in production
-    - **Business value**: Turn your ML work into actionable insights
-    
-    **⚡ Why deployment matters:**
-    - **Value realization**: Models only create value when they're used
-    - **Feedback loop**: Production data helps improve future models
-    - **User experience**: Seamless integration with existing workflows
-    - **Competitive advantage**: Operational ML capabilities set you apart
-    """)
+    # === Check if model exists ===
+    if "model" not in st.session_state:
+        st.warning("No trained model available. Please train a model first from the Training page.")
+        
+        col1, col2 = st.columns(2)
+        with col1:
+            if st.button("Go to Training", use_container_width=True):
+                safe_switch_page("pages/4_Train_Model.py")
+        with col2:
+            st.info("You need a trained model to deploy it for predictions.")
+        st.stop()
 
-# Check if model exists
-if "model" not in st.session_state:
-    st.error("""
-    ❌ **No Trained Model Available**
+    # === Model Info Overview ===
+    model_type = st.session_state.get("model_type", "Unknown")
+    target_col = st.session_state.get("target_col", "Unknown")
+
+    colored_header("Model Status", "Your trained model is ready for deployment", "blue-70")
     
-    Please train a model first from the Train Model page.
-    """)
-    
-    col1, col2 = st.columns(2)
+    col1, col2, col3, col4 = st.columns(4)
     with col1:
-        if st.button("⚙️ Go to Training", type="primary"):
-            safe_switch_page("pages/4_⚙️_Train_Model.py")
+        with stylable_container("metric_model", css_styles="""{ text-align:center; padding:1.5rem; }"""):
+            st.markdown(f"<div class='metric-value'><i class='fas fa-check-circle'></i></div><div class='metric-label'>Model Ready</div>", unsafe_allow_html=True)
     with col2:
-        st.info("💡 **Tip:** You need a trained model to deploy it for predictions.")
-    st.stop()
+        with stylable_container("metric_type", css_styles="""{ text-align:center; padding:1.5rem; }"""):
+            st.markdown(f"<div class='metric-value'>{model_type}</div><div class='metric-label'>Model Type</div>", unsafe_allow_html=True)
+    with col3:
+        with stylable_container("metric_target", css_styles="""{ text-align:center; padding:1.5rem; }"""):
+            st.markdown(f"<div class='metric-value'>{target_col}</div><div class='metric-label'>Target Variable</div>", unsafe_allow_html=True)
+    with col4:
+        status = "Saved" if st.session_state.get("model_saved", False) else "Memory"
+        with stylable_container("metric_status", css_styles="""{ text-align:center; padding:1.5rem; }"""):
+            st.markdown(f"<div class='metric-value'>{status}</div><div class='metric-label'>Storage</div>", unsafe_allow_html=True)
 
-# Model information display
-st.header("🤖 **Your Model Ready for Deployment**")
-model_type = st.session_state.get("model_type", "Unknown")
-target_col = st.session_state.get("target_col", "Unknown")
-model_metrics = st.session_state.get("metrics", {})
+    st.markdown("---")
 
-st.markdown(f"""
-<div class="deployment-header">
-    <h3>🚀 Model Ready for Production</h3>
-    <p><strong>Model Type:</strong> {model_type}</p>
-    <p><strong>Target Variable:</strong> {target_col}</p>
-    <p><strong>Status:</strong> ✅ Trained and Ready for Deployment</p>
-</div>
-""", unsafe_allow_html=True)
-
-# Deployment options
-st.header("🎯 **Choose Your Deployment Method**")
-st.info("""
-**Select how you want to deploy your model:**
-- **Batch Predictions**: Process multiple records at once (good for reports, analysis)
-- **Real-time API**: Make instant predictions on individual records (good for user-facing apps)
-- **Download Model**: Get your model file for custom deployment
-""")
-
-# Deployment method selection
-deployment_method = st.radio(
-    "Select deployment method:",
-    ["Batch Predictions", "Real-time API", "Download Model"],
-    horizontal=True
-)
-
-if deployment_method == "Batch Predictions":
-    st.subheader("📊 **Batch Prediction Service**")
-    st.info("""
-    **Batch predictions are perfect for:**
-    - Processing large datasets overnight
-    - Generating reports and analytics
-    - Bulk data analysis
-    - Offline prediction workflows
-    """)
-    
-    # Batch upload section
-    st.markdown("""
-    <div class="deploy-card">
-        <h4>📤 Upload Data for Batch Predictions</h4>
-    </div>
-    """, unsafe_allow_html=True)
+    # === Deployment Method Selection ===
+    colored_header("Deployment Methods", "Choose how you want to deploy your model", "violet-70")
     
     st.markdown("""
-    <div class="upload-area">
-        <h3>📁 Drop your CSV file here for batch predictions</h3>
-        <p>or click to browse</p>
+    <div class="upload-info">
+        <h4><i class="fas fa-bullseye"></i> Available Deployment Options</h4>
+        <p><strong><i class="fas fa-sync"></i> Batch Predictions:</strong> Process multiple records at once for reports and analysis</p>
+        <p><strong><i class="fas fa-bolt"></i> Real-time API:</strong> Make instant predictions for web apps and live systems</p>
+        <p><strong><i class="fas fa-download"></i> Download Model:</strong> Export your model for custom deployment environments</p>
     </div>
     """, unsafe_allow_html=True)
-    
-    batch_uploaded = st.file_uploader(
-        "Upload CSV for batch predictions", 
-        type=["csv"],
-        label_visibility="collapsed"
+
+    deployment_method = st.radio(
+        "Select your deployment method:",
+        ["Batch Predictions", "Real-time API", "Download Model"],
+        horizontal=True
     )
-    
-    if batch_uploaded is not None:
-        try:
-            batch_df = pd.read_csv(batch_uploaded)
-            st.success(f"✅ **Successfully uploaded: {batch_uploaded.name}**")
-            
-            # Show batch data overview
-            col1, col2, col3 = st.columns(3)
-            with col1:
-                st.metric("Records", f"{batch_df.shape[0]:,}")
-            with col2:
-                st.metric("Features", batch_df.shape[1])
-            with col3:
-                file_size_mb = batch_uploaded.size / (1024 * 1024)
-                st.metric("File Size", f"{file_size_mb:.1f} MB")
-            
-            # Data preview
-            st.subheader("🔍 **Data Preview**")
-            st.dataframe(batch_df.head(10))
-            
-            # Batch prediction button
-            if st.button("🚀 Start Batch Predictions", type="primary", use_container_width=True):
+
+    st.markdown("---")
+
+    # === Batch Predictions ===
+    if deployment_method == "Batch Predictions":
+        colored_header("Batch Prediction Service", "Process large datasets efficiently", "green-70")
+        
+        st.info("Perfect for: Large datasets, scheduled reports, offline analysis, and bulk processing")
+
+        # File upload section
+        with stylable_container("upload_section", css_styles="""
+            { background: linear-gradient(135deg, rgba(102, 126, 234, 0.05), rgba(118, 75, 162, 0.05));
+              border-radius: 15px; padding: 1.5rem; margin: 1rem 0; }
+        """):
+            st.markdown("### <i class='fas fa-file-upload'></i> Upload Your Data", unsafe_allow_html=True)
+            uploaded = st.file_uploader(
+                "Choose a CSV file for batch predictions",
+                type=["csv"],
+                help="Upload a CSV file containing the same features used during training"
+            )
+
+            if uploaded is not None:
                 try:
-                    with st.spinner("Processing batch predictions..."):
-                        # Make predictions
-                        predictions = st.session_state.model.predict(batch_df)
-                        
-                        # Create results dataframe
-                        results_df = batch_df.copy()
-                        results_df['Prediction'] = predictions
-                        
-                        # Add confidence scores if available
-                        if hasattr(st.session_state.model, 'predict_proba'):
-                            proba = st.session_state.model.predict_proba(batch_df)
-                            if proba.shape[1] == 2:  # Binary classification
-                                results_df['Confidence'] = np.max(proba, axis=1)
-                            else:  # Multi-class
-                                results_df['Confidence'] = np.max(proba, axis=1)
-                    
-                    st.success("✅ **Batch predictions completed successfully!**")
-                    
-                    # Display results
-                    st.subheader("📊 **Batch Prediction Results**")
-                    st.dataframe(results_df.head(20))
-                    
-                    # Download results
-                    csv = results_df.to_csv(index=False)
-                    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-                    st.download_button(
-                        label="📥 Download Batch Predictions (CSV)",
-                        data=csv,
-                        file_name=f"batch_predictions_{timestamp}.csv",
-                        mime="text/csv"
-                    )
-                    
-                    # Summary statistics
-                    st.subheader("📈 **Prediction Summary**")
+                    df = pd.read_csv(uploaded)
+                    st.success(f"Successfully uploaded: **{uploaded.name}**")
+
+                    # Data overview
+                    colored_header("Data Overview", "Quick stats about your uploaded data", "blue-70")
                     col1, col2, col3 = st.columns(3)
                     
                     with col1:
-                        st.metric("Total Predictions", len(predictions))
+                        with stylable_container("batch_records", css_styles="""{ text-align:center; padding:1.5rem; }"""):
+                            st.markdown(f"<div class='metric-value'>{df.shape[0]:,}</div><div class='metric-label'>Records</div>", unsafe_allow_html=True)
                     with col2:
-                        if 'Confidence' in results_df.columns:
-                            avg_confidence = results_df['Confidence'].mean()
-                            st.metric("Avg Confidence", f"{avg_confidence:.3f}")
+                        with stylable_container("batch_features", css_styles="""{ text-align:center; padding:1.5rem; }"""):
+                            st.markdown(f"<div class='metric-value'>{df.shape[1]}</div><div class='metric-label'>Features</div>", unsafe_allow_html=True)
                     with col3:
-                        if hasattr(st.session_state.model, 'predict_proba'):
-                            unique_predictions = len(np.unique(predictions))
-                            st.metric("Unique Predictions", unique_predictions)
-                    
-                except Exception as e:
-                    st.error(f"""
-                    ❌ **Batch prediction failed: {str(e)}**
-                    
-                    **🔧 Common solutions:**
-                    - Ensure data has the same columns as training data
-                    - Check data types and formats
-                    - Handle any missing values
-                    - Verify data preprocessing requirements
-                    """)
-                    
-        except Exception as e:
-            st.error(f"❌ **Failed to read file: {str(e)}**")
+                        size_mb = uploaded.size / (1024 * 1024)
+                        with stylable_container("batch_size", css_styles="""{ text-align:center; padding:1.5rem; }"""):
+                            st.markdown(f"<div class='metric-value'>{size_mb:.1f}</div><div class='metric-label'>Size (MB)</div>", unsafe_allow_html=True)
 
-elif deployment_method == "Real-time API":
-    st.subheader("⚡ **Real-time Prediction API**")
-    st.info("""
-    **Real-time API is perfect for:**
-    - Web applications and dashboards
-    - Mobile apps
-    - IoT devices
-    - Live user interactions
-    - Instant decision-making systems
-    """)
-    
-    # API documentation
-    st.markdown("""
-    <div class="deploy-card">
-        <h4>📚 API Documentation</h4>
-    </div>
-    """, unsafe_allow_html=True)
-    
-    # API endpoint information
-    st.markdown("""
-    <div class="api-section">
-        <h5>🌐 API Endpoint</h5>
-        <div class="code-block">
+                    # Data preview
+                    st.subheader("Data Preview")
+                    st.dataframe(df.head(10), use_container_width=True)
+
+                    # Process predictions
+                    if st.button("Start Batch Predictions", type="primary", use_container_width=True):
+                        try:
+                            with st.spinner("Processing predictions..."):
+                                preds = st.session_state.model.predict(df)
+                                results = df.copy()
+                                results["Prediction"] = preds
+                                
+                                # Add confidence if available
+                                if hasattr(st.session_state.model, "predict_proba"):
+                                    proba = st.session_state.model.predict_proba(df)
+                                    results["Confidence"] = np.max(proba, axis=1)
+
+                            st.success("Batch predictions completed successfully!")
+                            
+                            # Results preview
+                            colored_header("Prediction Results", "Your predictions are ready", "green-70")
+                            st.dataframe(results.head(20), use_container_width=True)
+
+                            # Download results
+                            csv = results.to_csv(index=False)
+                            st.download_button(
+                                "Download Predictions (CSV)",
+                                data=csv,
+                                file_name=f"batch_predictions_{datetime.now().strftime('%Y%m%d_%H%M%S')}.csv",
+                                mime="text/csv",
+                                use_container_width=True
+                            )
+
+                        except Exception as e:
+                            st.error(f"Prediction failed: {str(e)}")
+
+                except Exception as e:
+                    st.error(f"Failed to read file: {str(e)}")
+
+    # === Real-time API ===
+    elif deployment_method == "Real-time API":
+        colored_header("Real-time Prediction API", "Instant predictions for live applications", "orange-70")
+        
+        st.info("Perfect for: Web applications, mobile apps, live decision systems, and instant predictions")
+
+        # API Documentation
+        colored_header("API Documentation", "How to integrate with your applications", "blue-70")
+        
+        with stylable_container("api_docs", css_styles="""
+            { background: rgba(45, 55, 72, 0.1); border-radius: 12px; padding: 1.5rem; margin: 1rem 0; }
+        """):
+            st.markdown("### <i class='fas fa-plug'></i> API Endpoint", unsafe_allow_html=True)
+            st.code("""
 POST /api/predict
 Content-Type: application/json
 
@@ -343,256 +269,165 @@ Content-Type: application/json
     "features": {
         "feature1": value1,
         "feature2": value2,
-        ...
+        "feature3": value3
     }
 }
-        </div>
-    </div>
-    """, unsafe_allow_html=True)
-    
-    # Interactive API testing
-    st.subheader("🧪 **Test Your API**")
-    st.info("""
-    **Test your model with sample data to see how the API works:**
-    - Enter feature values manually
-    - Upload a single record
-    - See real-time predictions
-    """)
-    
-    # Manual input testing
-    st.markdown("""
-    <div class="deploy-card">
-        <h4>✏️ Manual Input Testing</h4>
-    </div>
-    """, unsafe_allow_html=True)
-    
-    # Get feature columns from training data
-    if "df" in st.session_state:
-        training_df = st.session_state.df
-        feature_cols = [col for col in training_df.columns if col != target_col]
+            """, language="json")
+
+        # Live API Test
+        colored_header("Test Your API", "Try real-time predictions", "green-70")
         
-        # Create input form
-        input_data = {}
-        cols = st.columns(3)
-        
-        for i, col in enumerate(feature_cols):
-            with cols[i % 3]:
-                if training_df[col].dtype in ['object', 'category']:
-                    # Categorical input
-                    unique_vals = training_df[col].unique()
-                    input_data[col] = st.selectbox(f"{col}:", unique_vals)
-                else:
-                    # Numeric input
-                    min_val = float(training_df[col].min())
-                    max_val = float(training_df[col].max())
-                    mean_val = float(training_df[col].mean())
-                    input_data[col] = st.number_input(
-                        f"{col}:",
-                        min_value=min_val,
-                        max_value=max_val,
-                        value=mean_val,
-                        step=(max_val - min_val) / 100
-                    )
-        
-        # Make prediction button
-        if st.button("🚀 Make Real-time Prediction", type="primary", use_container_width=True):
-            try:
-                # Create input dataframe
-                input_df = pd.DataFrame([input_data])
-                
-                # Make prediction
-                with st.spinner("Making prediction..."):
-                    prediction = st.session_state.model.predict(input_df)[0]
+        if "df" in st.session_state:
+            feature_cols = [col for col in st.session_state.df.columns if col != target_col]
+            
+            st.markdown("### <i class='fas fa-sliders-h'></i> Enter Feature Values", unsafe_allow_html=True)
+            input_data = {}
+            
+            # Create input fields dynamically
+            cols = st.columns(min(3, len(feature_cols)))
+            for i, col in enumerate(feature_cols):
+                with cols[i % len(cols)]:
+                    if st.session_state.df[col].dtype == "object":
+                        unique_vals = st.session_state.df[col].unique()
+                        input_data[col] = st.selectbox(f"Select {col}", unique_vals, key=f"api_{col}")
+                    else:
+                        mean_val = float(st.session_state.df[col].mean())
+                        input_data[col] = st.number_input(f"Enter {col}", value=mean_val, key=f"api_{col}")
+
+            if st.button("Make Real-time Prediction", type="primary", use_container_width=True):
+                try:
+                    with st.spinner("Making prediction..."):
+                        input_df = pd.DataFrame([input_data])
+                        pred = st.session_state.model.predict(input_df)[0]
+                        conf = None
+                        if hasattr(st.session_state.model, "predict_proba"):
+                            conf = np.max(st.session_state.model.predict_proba(input_df))
+
+                    # Display results
+                    colored_header("Prediction Results", "Your real-time prediction", "green-70")
                     
-                    # Get confidence if available
-                    confidence = None
-                    if hasattr(st.session_state.model, 'predict_proba'):
-                        proba = st.session_state.model.predict_proba(input_df)
-                        confidence = np.max(proba)
-                
-                st.success("✅ **Prediction completed!**")
-                
-                # Display results
+                    c1, c2 = st.columns(2)
+                    with c1:
+                        with stylable_container("pred_result", css_styles="""{ text-align:center; padding:2rem; }"""):
+                            st.markdown(f"<div class='metric-value'>{pred}</div><div class='metric-label'>Prediction</div>", unsafe_allow_html=True)
+                    with c2:
+                        if conf:
+                            with stylable_container("pred_confidence", css_styles="""{ text-align:center; padding:2rem; }"""):
+                                st.markdown(f"<div class='metric-value'>{conf:.3f}</div><div class='metric-label'>Confidence</div>", unsafe_allow_html=True)
+
+                    st.markdown("### <i class='fas fa-clipboard-list'></i> Input Data Used", unsafe_allow_html=True)
+                    st.json(input_data)
+
+                except Exception as e:
+                    st.error(f"Prediction failed: {str(e)}")
+
+    # === Download Model ===
+    elif deployment_method == "Download Model":
+        colored_header("Download Your Model", "Export for custom deployment environments", "voilet")
+        
+        st.info("Perfect for: Custom environments, production servers, edge devices, and offline deployment")
+
+        if st.session_state.get("model_saved", False):
+            colored_header("Model Ready for Download", "Your model has been saved successfully", "green-70")
+            
+            # Model information
+            with stylable_container("model_info", css_styles="""
+                { background: linear-gradient(135deg, rgba(16, 185, 129, 0.1), rgba(5, 150, 105, 0.1));
+                  border-radius: 15px; padding: 2rem; margin: 1rem 0; }
+            """):
                 col1, col2 = st.columns(2)
                 with col1:
-                    st.markdown(f"""
-                    <div class="metric-card">
-                        <div class="metric-value">{prediction}</div>
-                        <div class="metric-label">Prediction</div>
-                    </div>
-                    """, unsafe_allow_html=True)
-                
+                    st.markdown(f"**<i class='fas fa-robot'></i> Model Type:** `{model_type}`", unsafe_allow_html=True)
+                    st.markdown(f"**<i class='fas fa-bullseye'></i> Target Variable:** `{target_col}`", unsafe_allow_html=True)
                 with col2:
-                    if confidence is not None:
-                        st.markdown(f"""
-                        <div class="metric-card">
-                            <div class="metric-value">{confidence:.3f}</div>
-                            <div class="metric-label">Confidence</div>
-                        </div>
-                        """, unsafe_allow_html=True)
-                
-                # Show input data
-                st.subheader("📋 **Input Data Used**")
-                st.json(input_data)
-                
-            except Exception as e:
-                st.error(f"❌ **Prediction failed: {str(e)}**")
-    
-    # Single record upload testing
-    st.subheader("📤 **Upload Single Record for Testing**")
-    single_uploaded = st.file_uploader(
-        "Upload single CSV record for testing",
-        type=["csv"],
-        help="Upload a CSV with one row of data to test the API"
-    )
-    
-    if single_uploaded is not None:
-        try:
-            single_df = pd.read_csv(single_uploaded)
-            if single_df.shape[0] == 1:
-                st.success("✅ **Single record uploaded successfully!**")
-                st.dataframe(single_df)
-                
-                if st.button("🚀 Test with This Record", type="secondary"):
-                    try:
-                        with st.spinner("Testing prediction..."):
-                            prediction = st.session_state.model.predict(single_df)[0]
-                        
-                        st.success(f"✅ **Prediction: {prediction}**")
-                        
-                    except Exception as e:
-                        st.error(f"❌ **Test failed: {str(e)}**")
-            else:
-                st.warning("⚠️ **Please upload a CSV with exactly one row for testing.**")
-                
-        except Exception as e:
-            st.error(f"❌ **Failed to read file: {str(e)}**")
+                    st.markdown(f"**<i class='fas fa-save'></i> Format:** `Pickle (.pkl)`", unsafe_allow_html=True)
+                    st.markdown(f"**<i class='fas fa-info-circle'></i> Metadata:** `JSON included`", unsafe_allow_html=True)
 
-elif deployment_method == "Download Model":
-    st.subheader("💾 **Download Your Model**")
-    st.info("""
-    **Download your model for custom deployment:**
-    - Deploy to your own servers
-    - Integrate with custom applications
-    - Use in different environments
-    - Share with team members
-    """)
-    
-    # Model download section
-    st.markdown("""
-    <div class="deploy-card">
-        <h4>📦 Model Files</h4>
-    </div>
-    """, unsafe_allow_html=True)
-    
-    # Check if model was saved
-    if "model_saved" in st.session_state:
-        st.success("✅ **Your model has been saved and is ready for download!**")
-        
-        # Model metadata
-        st.subheader("📋 **Model Information**")
-        col1, col2 = st.columns(2)
-        
-        with col1:
-            st.info(f"**Model Type:** {model_type}")
-            st.info(f"**Target Variable:** {target_col}")
-        
-        with col2:
-            if model_metrics:
-                if "accuracy" in model_metrics:
-                    st.metric("Training Accuracy", f"{model_metrics['accuracy']:.4f}")
-                elif "r2_score" in model_metrics:
-                    st.metric("Training R²", f"{model_metrics['r2_score']:.4f}")
-        
-        # Download instructions
-        st.subheader("📥 **Download Instructions**")
-        st.markdown("""
-        **To download your model:**
-        1. Navigate to the `models/` directory in your project
-        2. Find the following files:
-           - `latest_model.pkl` - Your trained model
-           - `latest_model_meta.json` - Model metadata and performance
-        3. Copy these files to your deployment environment
-        
-        **💡 Tip:** The model file contains everything needed to make predictions!
-        """)
-        
-        # Show model file paths
-        st.subheader("📍 **Model File Locations**")
-        st.code("models/latest_model.pkl", language="bash")
-        st.code("models/latest_model_meta.json", language="bash")
-        
-    else:
-        st.warning("""
-        ⚠️ **Model not saved yet**
-        
-        Please save your model first on the Training page before downloading.
-        """)
-        
-        if st.button("💾 Go Save Model", type="primary"):
-            safe_switch_page("pages/4_⚙️_Train_Model.py")
+            # Download instructions
+            colored_header("Download Instructions", "How to use your downloaded model", "blue-70")
+            
+            st.markdown("""
+            ### <i class='fas fa-wrench'></i> Usage Steps:
+            1. **<i class='fas fa-folder-open'></i> Locate Files:** Navigate to the `models/` directory
+            2. **<i class='fas fa-copy'></i> Copy Files:** 
+               - `latest_model.pkl` (your trained model)
+               - `latest_model_meta.json` (model metadata)
+            3. **<i class='fas fa-code'></i> Load in Python:**
+            """, unsafe_allow_html=True)
+            
+            st.code("""
+import joblib
+import json
 
-# Production deployment guidance
-st.header("🏭 **Production Deployment Guide**")
-with st.expander("📚 **Advanced Deployment Options**", expanded=False):
-    st.markdown("""
-    **🚀 Production Deployment Strategies:**
-    
-    **1. Cloud Deployment:**
-    - **AWS SageMaker**: Managed ML platform with auto-scaling
-    - **Google Cloud AI Platform**: Enterprise ML deployment
-    - **Azure Machine Learning**: Microsoft's ML service
-    - **Heroku**: Simple deployment for small models
-    
-    **2. Container Deployment:**
-    - **Docker**: Package your model in a container
-    - **Kubernetes**: Orchestrate multiple model instances
-    - **Docker Compose**: Simple multi-service setup
-    
-    **3. Serverless Deployment:**
-    - **AWS Lambda**: Event-driven predictions
-    - **Google Cloud Functions**: Serverless ML inference
-    - **Azure Functions**: Microsoft's serverless platform
-    
-    **4. Edge Deployment:**
-    - **Mobile apps**: On-device predictions
-    - **IoT devices**: Local inference capabilities
-    - **Edge servers**: Distributed prediction services
-    
-    **🔧 Deployment Checklist:**
-    - [ ] Model performance validation
-    - [ ] Data preprocessing pipeline
-    - [ ] API endpoint design
-    - [ ] Error handling and logging
-    - [ ] Monitoring and alerting
-    - [ ] Security and authentication
-    - [ ] Scalability planning
-    - [ ] Backup and recovery
-    """)
+# Load the model
+model = joblib.load('latest_model.pkl')
 
-# Navigation section
-st.header("🚀 **What's Next?**")
-col1, col2 = st.columns(2)
+# Load metadata (optional)
+with open('latest_model_meta.json', 'r') as f:
+    metadata = json.load(f)
 
-with col1:
-    st.info("**🔄 Iterate and Improve**")
-    st.write("Go back to training to improve your model based on deployment feedback")
-    if st.button("⚙️ Back to Training", type="secondary", use_container_width=True):
-        safe_switch_page("pages/4_⚙️_Train_Model.py")
+# Make predictions
+predictions = model.predict(your_data)
+            """, language="python")
 
-with col2:
-    st.info("**📊 Monitor Performance**")
-    st.write("Track how your deployed model performs in production")
-    st.info("💡 **Tip:** Monitor prediction accuracy, response times, and user feedback")
+        else:
+            st.warning("Your model has not been saved yet. Please go to the Training page to save it first.")
+            
+            col1, col2 = st.columns(2)
+            with col1:
+                if st.button("Go Save Model", type="primary", use_container_width=True):
+                    safe_switch_page("pages/4_Train_Model.py")
+            with col2:
+                st.info("Saving your model creates the necessary files for download and deployment.")
 
-# Getting started guide
-st.info("""
-📋 **Deployment Success Guide**
+    # === Production Deployment Guide ===
+    st.markdown("---")
+    colored_header("Production Deployment Guide", "Advanced deployment strategies", "red-70")
+    
+    with st.expander("**Advanced Deployment Options**", expanded=False):
+        tab1, tab2, tab3, tab4 = st.tabs(["Cloud", "Containers", "Serverless", "Edge"])
+        
+        with tab1:
+            st.markdown("""
+            ### <i class='fas fa-cloud'></i> **Cloud Platforms**
+            - **AWS:** SageMaker, EC2, Batch
+            - **Google Cloud:** AI Platform, Compute Engine  
+            - **Azure:** Machine Learning, Container Instances
+            - **Benefits:** Auto-scaling, managed infrastructure, high availability
+            """, unsafe_allow_html=True)
+            
+        with tab2:
+            st.markdown("""
+            ### <i class='fab fa-docker'></i> **Container Deployment**
+            - **Docker:** Containerize your model and dependencies
+            - **Kubernetes:** Orchestrate containers at scale
+            - **Benefits:** Consistency, portability, easy scaling
+            """, unsafe_allow_html=True)
+            
+        with tab3:
+            st.markdown("""
+            ### <i class='fas fa-bolt'></i> **Serverless Functions**
+            - **AWS Lambda:** Event-driven predictions
+            - **Google Cloud Functions:** HTTP trigger predictions
+            - **Benefits:** No server management, pay-per-use, auto-scaling
+            """, unsafe_allow_html=True)
+            
+        with tab4:
+            st.markdown("""
+            ### <i class='fas fa-mobile-alt'></i> **Edge Deployment**
+            - **Mobile Apps:** On-device inference
+            - **IoT Devices:** Real-time edge computing
+            - **Benefits:** Low latency, offline capability, privacy
+            """, unsafe_allow_html=True)
 
-**Step 1:** Choose your deployment method (batch, real-time, or download)
-**Step 2:** Test your deployment with sample data
-**Step 3:** Integrate with your applications or systems
-**Step 4:** Monitor performance and gather feedback
-**Step 5:** Iterate and improve based on real-world usage
-**Step 6:** Scale up as demand grows
-""") 
+    # === Navigation ===
+    st.markdown("---")
+    colored_header("What's Next?", "Continue your ML journey", "blue-70")
+    
+    col1, col2 = st.columns(2)
+    with col1:
+        if st.button("Back to Training", use_container_width=True):
+            safe_switch_page("pages/4_Train_Model.py")
+    with col2:
+        if st.button("Back to Home", use_container_width=True):
+            safe_switch_page("app.py")

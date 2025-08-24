@@ -1,0 +1,1336 @@
+{
+  "versions": [
+    {
+      "version_id": "data_upload_20250823_163819",
+      "step_name": "data_upload",
+      "description": "Initial data upload",
+      "timestamp": "2025-08-23T16:38:19.956188",
+      "data_hash": "53aeb5dbd2017230fe84ed4f3addb281",
+      "shape": [
+        300153,
+        12
+      ],
+      "columns": [
+        "index",
+        "airline",
+        "flight",
+        "source_city",
+        "departure_time",
+        "stops",
+        "arrival_time",
+        "destination_city",
+        "class",
+        "duration",
+        "days_left",
+        "price"
+      ],
+      "dtypes": {
+        "index": "int64",
+        "airline": "object",
+        "flight": "object",
+        "source_city": "object",
+        "departure_time": "object",
+        "stops": "object",
+        "arrival_time": "object",
+        "destination_city": "object",
+        "class": "object",
+        "duration": "float64",
+        "days_left": "int64",
+        "price": "int64"
+      },
+      "metadata": {
+        "source": "data_upload_page"
+      },
+      "data_file": "data_versions\\data_upload_20250823_163819\\data.pkl"
+    },
+    {
+      "version_id": "column_selection_20250823_163933",
+      "step_name": "column_selection",
+      "description": "Selected 11 columns",
+      "timestamp": "2025-08-23T16:39:33.356344",
+      "data_hash": "88c1b9667427b25e7e6fdea5d3cf4332",
+      "shape": [
+        300153,
+        11
+      ],
+      "columns": [
+        "airline",
+        "flight",
+        "source_city",
+        "departure_time",
+        "stops",
+        "arrival_time",
+        "destination_city",
+        "class",
+        "duration",
+        "days_left",
+        "price"
+      ],
+      "dtypes": {
+        "airline": "object",
+        "flight": "object",
+        "source_city": "object",
+        "departure_time": "object",
+        "stops": "object",
+        "arrival_time": "object",
+        "destination_city": "object",
+        "class": "object",
+        "duration": "float64",
+        "days_left": "int64",
+        "price": "int64"
+      },
+      "metadata": {
+        "selected_columns": [
+          "airline",
+          "flight",
+          "source_city",
+          "departure_time",
+          "stops",
+          "arrival_time",
+          "destination_city",
+          "class",
+          "duration",
+          "days_left",
+          "price"
+        ],
+        "original_columns": [
+          "index",
+          "airline",
+          "flight",
+          "source_city",
+          "departure_time",
+          "stops",
+          "arrival_time",
+          "destination_city",
+          "class",
+          "duration",
+          "days_left",
+          "price"
+        ]
+      },
+      "data_file": "data_versions\\column_selection_20250823_163933\\data.pkl"
+    },
+    {
+      "version_id": "remove_outliers_20250823_164128",
+      "step_name": "remove_outliers",
+      "description": "Removed 2110 outliers from duration",
+      "timestamp": "2025-08-23T16:41:28.307505",
+      "data_hash": "b2b85611be26db4a926ddcdf5173f416",
+      "shape": [
+        298043,
+        11
+      ],
+      "columns": [
+        "airline",
+        "flight",
+        "source_city",
+        "departure_time",
+        "stops",
+        "arrival_time",
+        "destination_city",
+        "class",
+        "duration",
+        "days_left",
+        "price"
+      ],
+      "dtypes": {
+        "airline": "object",
+        "flight": "object",
+        "source_city": "object",
+        "departure_time": "object",
+        "stops": "object",
+        "arrival_time": "object",
+        "destination_city": "object",
+        "class": "object",
+        "duration": "float64",
+        "days_left": "int64",
+        "price": "int64"
+      },
+      "metadata": {
+        "outliers_removed": 2110,
+        "column": "duration",
+        "bounds": [
+          -7.1800000000000015,
+          30.180000000000003
+        ]
+      },
+      "data_file": "data_versions\\remove_outliers_20250823_164128\\data.pkl"
+    },
+    {
+      "version_id": "final_preprocessed_20250823_164628",
+      "step_name": "final_preprocessed",
+      "description": "Final preprocessed data ready for training",
+      "timestamp": "2025-08-23T16:46:28.625791",
+      "data_hash": "b2b85611be26db4a926ddcdf5173f416",
+      "shape": [
+        298043,
+        11
+      ],
+      "columns": [
+        "airline",
+        "flight",
+        "source_city",
+        "departure_time",
+        "stops",
+        "arrival_time",
+        "destination_city",
+        "class",
+        "duration",
+        "days_left",
+        "price"
+      ],
+      "dtypes": {
+        "airline": "object",
+        "flight": "object",
+        "source_city": "object",
+        "departure_time": "object",
+        "stops": "object",
+        "arrival_time": "object",
+        "destination_city": "object",
+        "class": "object",
+        "duration": "float64",
+        "days_left": "int64",
+        "price": "int64"
+      },
+      "metadata": {
+        "preprocessing_complete": true,
+        "final_shape": [
+          298043,
+          11
+        ]
+      },
+      "data_file": "data_versions\\final_preprocessed_20250823_164628\\data.pkl"
+    },
+    {
+      "version_id": "data_upload_20250823_170501",
+      "step_name": "data_upload",
+      "description": "Initial data upload",
+      "timestamp": "2025-08-23T17:05:02.076578",
+      "data_hash": "53aeb5dbd2017230fe84ed4f3addb281",
+      "shape": [
+        300153,
+        12
+      ],
+      "columns": [
+        "index",
+        "airline",
+        "flight",
+        "source_city",
+        "departure_time",
+        "stops",
+        "arrival_time",
+        "destination_city",
+        "class",
+        "duration",
+        "days_left",
+        "price"
+      ],
+      "dtypes": {
+        "index": "int64",
+        "airline": "object",
+        "flight": "object",
+        "source_city": "object",
+        "departure_time": "object",
+        "stops": "object",
+        "arrival_time": "object",
+        "destination_city": "object",
+        "class": "object",
+        "duration": "float64",
+        "days_left": "int64",
+        "price": "int64"
+      },
+      "metadata": {
+        "source": "data_upload_page"
+      },
+      "data_file": "data_versions\\data_upload_20250823_170501\\data.pkl"
+    },
+    {
+      "version_id": "data_upload_20250823_170846",
+      "step_name": "data_upload",
+      "description": "Initial data upload",
+      "timestamp": "2025-08-23T17:08:46.959411",
+      "data_hash": "53aeb5dbd2017230fe84ed4f3addb281",
+      "shape": [
+        300153,
+        12
+      ],
+      "columns": [
+        "index",
+        "airline",
+        "flight",
+        "source_city",
+        "departure_time",
+        "stops",
+        "arrival_time",
+        "destination_city",
+        "class",
+        "duration",
+        "days_left",
+        "price"
+      ],
+      "dtypes": {
+        "index": "int64",
+        "airline": "object",
+        "flight": "object",
+        "source_city": "object",
+        "departure_time": "object",
+        "stops": "object",
+        "arrival_time": "object",
+        "destination_city": "object",
+        "class": "object",
+        "duration": "float64",
+        "days_left": "int64",
+        "price": "int64"
+      },
+      "metadata": {
+        "source": "data_upload_page"
+      },
+      "data_file": "data_versions\\data_upload_20250823_170846\\data.pkl"
+    },
+    {
+      "version_id": "data_upload_20250823_171308",
+      "step_name": "data_upload",
+      "description": "Initial data upload",
+      "timestamp": "2025-08-23T17:13:08.917800",
+      "data_hash": "53aeb5dbd2017230fe84ed4f3addb281",
+      "shape": [
+        300153,
+        12
+      ],
+      "columns": [
+        "index",
+        "airline",
+        "flight",
+        "source_city",
+        "departure_time",
+        "stops",
+        "arrival_time",
+        "destination_city",
+        "class",
+        "duration",
+        "days_left",
+        "price"
+      ],
+      "dtypes": {
+        "index": "int64",
+        "airline": "object",
+        "flight": "object",
+        "source_city": "object",
+        "departure_time": "object",
+        "stops": "object",
+        "arrival_time": "object",
+        "destination_city": "object",
+        "class": "object",
+        "duration": "float64",
+        "days_left": "int64",
+        "price": "int64"
+      },
+      "metadata": {
+        "source": "data_upload_page"
+      },
+      "data_file": "data_versions\\data_upload_20250823_171308\\data.pkl"
+    },
+    {
+      "version_id": "data_upload_20250823_184053",
+      "step_name": "data_upload",
+      "description": "Initial data upload",
+      "timestamp": "2025-08-23T18:40:53.297991",
+      "data_hash": "53aeb5dbd2017230fe84ed4f3addb281",
+      "shape": [
+        300153,
+        12
+      ],
+      "columns": [
+        "index",
+        "airline",
+        "flight",
+        "source_city",
+        "departure_time",
+        "stops",
+        "arrival_time",
+        "destination_city",
+        "class",
+        "duration",
+        "days_left",
+        "price"
+      ],
+      "dtypes": {
+        "index": "int64",
+        "airline": "object",
+        "flight": "object",
+        "source_city": "object",
+        "departure_time": "object",
+        "stops": "object",
+        "arrival_time": "object",
+        "destination_city": "object",
+        "class": "object",
+        "duration": "float64",
+        "days_left": "int64",
+        "price": "int64"
+      },
+      "metadata": {
+        "source": "data_upload_page"
+      },
+      "data_file": "data_versions\\data_upload_20250823_184053\\data.pkl"
+    },
+    {
+      "version_id": "data_upload_20250823_184533",
+      "step_name": "data_upload",
+      "description": "Initial data upload",
+      "timestamp": "2025-08-23T18:45:34.053599",
+      "data_hash": "53aeb5dbd2017230fe84ed4f3addb281",
+      "shape": [
+        300153,
+        12
+      ],
+      "columns": [
+        "index",
+        "airline",
+        "flight",
+        "source_city",
+        "departure_time",
+        "stops",
+        "arrival_time",
+        "destination_city",
+        "class",
+        "duration",
+        "days_left",
+        "price"
+      ],
+      "dtypes": {
+        "index": "int64",
+        "airline": "object",
+        "flight": "object",
+        "source_city": "object",
+        "departure_time": "object",
+        "stops": "object",
+        "arrival_time": "object",
+        "destination_city": "object",
+        "class": "object",
+        "duration": "float64",
+        "days_left": "int64",
+        "price": "int64"
+      },
+      "metadata": {
+        "source": "data_upload_page"
+      },
+      "data_file": "data_versions\\data_upload_20250823_184533\\data.pkl"
+    },
+    {
+      "version_id": "data_upload_20250823_184824",
+      "step_name": "data_upload",
+      "description": "Initial data upload",
+      "timestamp": "2025-08-23T18:48:24.912495",
+      "data_hash": "9a4bcd798a058b35f2f8aeaeede9a159",
+      "shape": [
+        891,
+        12
+      ],
+      "columns": [
+        "PassengerId",
+        "Survived",
+        "Pclass",
+        "Name",
+        "Sex",
+        "Age",
+        "SibSp",
+        "Parch",
+        "Ticket",
+        "Fare",
+        "Cabin",
+        "Embarked"
+      ],
+      "dtypes": {
+        "PassengerId": "int64",
+        "Survived": "int64",
+        "Pclass": "int64",
+        "Name": "object",
+        "Sex": "object",
+        "Age": "float64",
+        "SibSp": "int64",
+        "Parch": "int64",
+        "Ticket": "object",
+        "Fare": "float64",
+        "Cabin": "object",
+        "Embarked": "object"
+      },
+      "metadata": {
+        "source": "data_upload_page"
+      },
+      "data_file": "data_versions\\data_upload_20250823_184824\\data.pkl"
+    },
+    {
+      "version_id": "final_preprocessed_20250823_185739",
+      "step_name": "final_preprocessed",
+      "description": "Final preprocessed data ready for training",
+      "timestamp": "2025-08-23T18:57:39.463637",
+      "data_hash": "9a4bcd798a058b35f2f8aeaeede9a159",
+      "shape": [
+        891,
+        12
+      ],
+      "columns": [
+        "PassengerId",
+        "Survived",
+        "Pclass",
+        "Name",
+        "Sex",
+        "Age",
+        "SibSp",
+        "Parch",
+        "Ticket",
+        "Fare",
+        "Cabin",
+        "Embarked"
+      ],
+      "dtypes": {
+        "PassengerId": "int64",
+        "Survived": "int64",
+        "Pclass": "int64",
+        "Name": "object",
+        "Sex": "object",
+        "Age": "float64",
+        "SibSp": "int64",
+        "Parch": "int64",
+        "Ticket": "object",
+        "Fare": "float64",
+        "Cabin": "object",
+        "Embarked": "object"
+      },
+      "metadata": {
+        "preprocessing_complete": true,
+        "final_shape": [
+          891,
+          12
+        ]
+      },
+      "data_file": "data_versions\\final_preprocessed_20250823_185739\\data.pkl"
+    },
+    {
+      "version_id": "data_upload_20250823_192217",
+      "step_name": "data_upload",
+      "description": "Initial data upload",
+      "timestamp": "2025-08-23T19:22:17.293041",
+      "data_hash": "53aeb5dbd2017230fe84ed4f3addb281",
+      "shape": [
+        300153,
+        12
+      ],
+      "columns": [
+        "index",
+        "airline",
+        "flight",
+        "source_city",
+        "departure_time",
+        "stops",
+        "arrival_time",
+        "destination_city",
+        "class",
+        "duration",
+        "days_left",
+        "price"
+      ],
+      "dtypes": {
+        "index": "int64",
+        "airline": "object",
+        "flight": "object",
+        "source_city": "object",
+        "departure_time": "object",
+        "stops": "object",
+        "arrival_time": "object",
+        "destination_city": "object",
+        "class": "object",
+        "duration": "float64",
+        "days_left": "int64",
+        "price": "int64"
+      },
+      "metadata": {
+        "source": "data_upload_page"
+      },
+      "data_file": "data_versions\\data_upload_20250823_192217\\data.pkl"
+    },
+    {
+      "version_id": "column_selection_20250823_193300",
+      "step_name": "column_selection",
+      "description": "Selected 11 columns",
+      "timestamp": "2025-08-23T19:33:01.048883",
+      "data_hash": "88c1b9667427b25e7e6fdea5d3cf4332",
+      "shape": [
+        300153,
+        11
+      ],
+      "columns": [
+        "airline",
+        "flight",
+        "source_city",
+        "departure_time",
+        "stops",
+        "arrival_time",
+        "destination_city",
+        "class",
+        "duration",
+        "days_left",
+        "price"
+      ],
+      "dtypes": {
+        "airline": "object",
+        "flight": "object",
+        "source_city": "object",
+        "departure_time": "object",
+        "stops": "object",
+        "arrival_time": "object",
+        "destination_city": "object",
+        "class": "object",
+        "duration": "float64",
+        "days_left": "int64",
+        "price": "int64"
+      },
+      "metadata": {
+        "selected_columns": [
+          "airline",
+          "flight",
+          "source_city",
+          "departure_time",
+          "stops",
+          "arrival_time",
+          "destination_city",
+          "class",
+          "duration",
+          "days_left",
+          "price"
+        ],
+        "original_columns": [
+          "index",
+          "airline",
+          "flight",
+          "source_city",
+          "departure_time",
+          "stops",
+          "arrival_time",
+          "destination_city",
+          "class",
+          "duration",
+          "days_left",
+          "price"
+        ]
+      },
+      "data_file": "data_versions\\column_selection_20250823_193300\\data.pkl"
+    },
+    {
+      "version_id": "column_selection_20250823_193338",
+      "step_name": "column_selection",
+      "description": "Selected 11 columns",
+      "timestamp": "2025-08-23T19:33:38.284050",
+      "data_hash": "88c1b9667427b25e7e6fdea5d3cf4332",
+      "shape": [
+        300153,
+        11
+      ],
+      "columns": [
+        "airline",
+        "flight",
+        "source_city",
+        "departure_time",
+        "stops",
+        "arrival_time",
+        "destination_city",
+        "class",
+        "duration",
+        "days_left",
+        "price"
+      ],
+      "dtypes": {
+        "airline": "object",
+        "flight": "object",
+        "source_city": "object",
+        "departure_time": "object",
+        "stops": "object",
+        "arrival_time": "object",
+        "destination_city": "object",
+        "class": "object",
+        "duration": "float64",
+        "days_left": "int64",
+        "price": "int64"
+      },
+      "metadata": {
+        "selected_columns": [
+          "airline",
+          "flight",
+          "source_city",
+          "departure_time",
+          "stops",
+          "arrival_time",
+          "destination_city",
+          "class",
+          "duration",
+          "days_left",
+          "price"
+        ],
+        "original_columns": [
+          "index",
+          "airline",
+          "flight",
+          "source_city",
+          "departure_time",
+          "stops",
+          "arrival_time",
+          "destination_city",
+          "class",
+          "duration",
+          "days_left",
+          "price"
+        ]
+      },
+      "data_file": "data_versions\\column_selection_20250823_193338\\data.pkl"
+    },
+    {
+      "version_id": "feature_scaling_20250823_193409",
+      "step_name": "feature_scaling",
+      "description": "Applied StandardScaler (Z-score) to 3 numeric columns",
+      "timestamp": "2025-08-23T19:34:10.089003",
+      "data_hash": "caf8a99e9b16f2b1c1ec5e83568a3cab",
+      "shape": [
+        300153,
+        11
+      ],
+      "columns": [
+        "airline",
+        "flight",
+        "source_city",
+        "departure_time",
+        "stops",
+        "arrival_time",
+        "destination_city",
+        "class",
+        "duration",
+        "days_left",
+        "price"
+      ],
+      "dtypes": {
+        "airline": "object",
+        "flight": "object",
+        "source_city": "object",
+        "departure_time": "object",
+        "stops": "object",
+        "arrival_time": "object",
+        "destination_city": "object",
+        "class": "object",
+        "duration": "float64",
+        "days_left": "float64",
+        "price": "float64"
+      },
+      "metadata": {
+        "scaling_method": "StandardScaler (Z-score)",
+        "scaled_columns": [
+          "duration",
+          "days_left",
+          "price"
+        ]
+      },
+      "data_file": "data_versions\\feature_scaling_20250823_193409\\data.pkl"
+    },
+    {
+      "version_id": "remove_outliers_20250823_194426",
+      "step_name": "remove_outliers",
+      "description": "Removed 2110 outliers from duration",
+      "timestamp": "2025-08-23T19:44:26.628574",
+      "data_hash": "c259511b8139dcb07806c62d7b2a5224",
+      "shape": [
+        298043,
+        11
+      ],
+      "columns": [
+        "airline",
+        "flight",
+        "source_city",
+        "departure_time",
+        "stops",
+        "arrival_time",
+        "destination_city",
+        "class",
+        "duration",
+        "days_left",
+        "price"
+      ],
+      "dtypes": {
+        "airline": "object",
+        "flight": "object",
+        "source_city": "object",
+        "departure_time": "object",
+        "stops": "object",
+        "arrival_time": "object",
+        "destination_city": "object",
+        "class": "object",
+        "duration": "float64",
+        "days_left": "float64",
+        "price": "float64"
+      },
+      "metadata": {
+        "outliers_removed": 2110,
+        "column": "duration",
+        "bounds": [
+          -2.697589068655698,
+          2.4970823137339675
+        ]
+      },
+      "data_file": "data_versions\\remove_outliers_20250823_194426\\data.pkl"
+    },
+    {
+      "version_id": "final_preprocessed_20250823_194540",
+      "step_name": "final_preprocessed",
+      "description": "Final preprocessed data ready for training",
+      "timestamp": "2025-08-23T19:45:40.328418",
+      "data_hash": "c259511b8139dcb07806c62d7b2a5224",
+      "shape": [
+        298043,
+        11
+      ],
+      "columns": [
+        "airline",
+        "flight",
+        "source_city",
+        "departure_time",
+        "stops",
+        "arrival_time",
+        "destination_city",
+        "class",
+        "duration",
+        "days_left",
+        "price"
+      ],
+      "dtypes": {
+        "airline": "object",
+        "flight": "object",
+        "source_city": "object",
+        "departure_time": "object",
+        "stops": "object",
+        "arrival_time": "object",
+        "destination_city": "object",
+        "class": "object",
+        "duration": "float64",
+        "days_left": "float64",
+        "price": "float64"
+      },
+      "metadata": {
+        "preprocessing_complete": true,
+        "final_shape": [
+          298043,
+          11
+        ]
+      },
+      "data_file": "data_versions\\final_preprocessed_20250823_194540\\data.pkl"
+    },
+    {
+      "version_id": "data_upload_20250823_195531",
+      "step_name": "data_upload",
+      "description": "Initial data upload",
+      "timestamp": "2025-08-23T19:55:31.238178",
+      "data_hash": "53aeb5dbd2017230fe84ed4f3addb281",
+      "shape": [
+        300153,
+        12
+      ],
+      "columns": [
+        "index",
+        "airline",
+        "flight",
+        "source_city",
+        "departure_time",
+        "stops",
+        "arrival_time",
+        "destination_city",
+        "class",
+        "duration",
+        "days_left",
+        "price"
+      ],
+      "dtypes": {
+        "index": "int64",
+        "airline": "object",
+        "flight": "object",
+        "source_city": "object",
+        "departure_time": "object",
+        "stops": "object",
+        "arrival_time": "object",
+        "destination_city": "object",
+        "class": "object",
+        "duration": "float64",
+        "days_left": "int64",
+        "price": "int64"
+      },
+      "metadata": {
+        "source": "data_upload_page"
+      },
+      "data_file": "data_versions\\data_upload_20250823_195531\\data.pkl"
+    },
+    {
+      "version_id": "data_upload_20250823_200717",
+      "step_name": "data_upload",
+      "description": "Initial data upload",
+      "timestamp": "2025-08-23T20:07:17.650832",
+      "data_hash": "53aeb5dbd2017230fe84ed4f3addb281",
+      "shape": [
+        300153,
+        12
+      ],
+      "columns": [
+        "index",
+        "airline",
+        "flight",
+        "source_city",
+        "departure_time",
+        "stops",
+        "arrival_time",
+        "destination_city",
+        "class",
+        "duration",
+        "days_left",
+        "price"
+      ],
+      "dtypes": {
+        "index": "int64",
+        "airline": "object",
+        "flight": "object",
+        "source_city": "object",
+        "departure_time": "object",
+        "stops": "object",
+        "arrival_time": "object",
+        "destination_city": "object",
+        "class": "object",
+        "duration": "float64",
+        "days_left": "int64",
+        "price": "int64"
+      },
+      "metadata": {
+        "source": "data_upload_page"
+      },
+      "data_file": "data_versions\\data_upload_20250823_200717\\data.pkl"
+    },
+    {
+      "version_id": "data_upload_20250823_202225",
+      "step_name": "data_upload",
+      "description": "Initial data upload",
+      "timestamp": "2025-08-23T20:22:25.846999",
+      "data_hash": "53aeb5dbd2017230fe84ed4f3addb281",
+      "shape": [
+        300153,
+        12
+      ],
+      "columns": [
+        "index",
+        "airline",
+        "flight",
+        "source_city",
+        "departure_time",
+        "stops",
+        "arrival_time",
+        "destination_city",
+        "class",
+        "duration",
+        "days_left",
+        "price"
+      ],
+      "dtypes": {
+        "index": "int64",
+        "airline": "object",
+        "flight": "object",
+        "source_city": "object",
+        "departure_time": "object",
+        "stops": "object",
+        "arrival_time": "object",
+        "destination_city": "object",
+        "class": "object",
+        "duration": "float64",
+        "days_left": "int64",
+        "price": "int64"
+      },
+      "metadata": {
+        "source": "data_upload_page"
+      },
+      "data_file": "data_versions\\data_upload_20250823_202225\\data.pkl"
+    },
+    {
+      "version_id": "data_upload_20250823_203332",
+      "step_name": "data_upload",
+      "description": "Initial data upload",
+      "timestamp": "2025-08-23T20:33:32.566931",
+      "data_hash": "9a4bcd798a058b35f2f8aeaeede9a159",
+      "shape": [
+        891,
+        12
+      ],
+      "columns": [
+        "PassengerId",
+        "Survived",
+        "Pclass",
+        "Name",
+        "Sex",
+        "Age",
+        "SibSp",
+        "Parch",
+        "Ticket",
+        "Fare",
+        "Cabin",
+        "Embarked"
+      ],
+      "dtypes": {
+        "PassengerId": "int64",
+        "Survived": "int64",
+        "Pclass": "int64",
+        "Name": "object",
+        "Sex": "object",
+        "Age": "float64",
+        "SibSp": "int64",
+        "Parch": "int64",
+        "Ticket": "object",
+        "Fare": "float64",
+        "Cabin": "object",
+        "Embarked": "object"
+      },
+      "metadata": {
+        "source": "data_upload_page"
+      },
+      "data_file": "data_versions\\data_upload_20250823_203332\\data.pkl"
+    },
+    {
+      "version_id": "column_selection_20250823_203504",
+      "step_name": "column_selection",
+      "description": "Selected 11 columns",
+      "timestamp": "2025-08-23T20:35:04.616567",
+      "data_hash": "c7aaab1ff7512246c2e29b1e5b69b102",
+      "shape": [
+        891,
+        11
+      ],
+      "columns": [
+        "Survived",
+        "Pclass",
+        "Name",
+        "Sex",
+        "Age",
+        "SibSp",
+        "Parch",
+        "Ticket",
+        "Fare",
+        "Cabin",
+        "Embarked"
+      ],
+      "dtypes": {
+        "Survived": "int64",
+        "Pclass": "int64",
+        "Name": "object",
+        "Sex": "object",
+        "Age": "float64",
+        "SibSp": "int64",
+        "Parch": "int64",
+        "Ticket": "object",
+        "Fare": "float64",
+        "Cabin": "object",
+        "Embarked": "object"
+      },
+      "metadata": {
+        "selected_columns": [
+          "Survived",
+          "Pclass",
+          "Name",
+          "Sex",
+          "Age",
+          "SibSp",
+          "Parch",
+          "Ticket",
+          "Fare",
+          "Cabin",
+          "Embarked"
+        ],
+        "original_columns": [
+          "PassengerId",
+          "Survived",
+          "Pclass",
+          "Name",
+          "Sex",
+          "Age",
+          "SibSp",
+          "Parch",
+          "Ticket",
+          "Fare",
+          "Cabin",
+          "Embarked"
+        ]
+      },
+      "data_file": "data_versions\\column_selection_20250823_203504\\data.pkl"
+    },
+    {
+      "version_id": "data_upload_20250823_204232",
+      "step_name": "data_upload",
+      "description": "Initial data upload",
+      "timestamp": "2025-08-23T20:42:32.859146",
+      "data_hash": "53aeb5dbd2017230fe84ed4f3addb281",
+      "shape": [
+        300153,
+        12
+      ],
+      "columns": [
+        "index",
+        "airline",
+        "flight",
+        "source_city",
+        "departure_time",
+        "stops",
+        "arrival_time",
+        "destination_city",
+        "class",
+        "duration",
+        "days_left",
+        "price"
+      ],
+      "dtypes": {
+        "index": "int64",
+        "airline": "object",
+        "flight": "object",
+        "source_city": "object",
+        "departure_time": "object",
+        "stops": "object",
+        "arrival_time": "object",
+        "destination_city": "object",
+        "class": "object",
+        "duration": "float64",
+        "days_left": "int64",
+        "price": "int64"
+      },
+      "metadata": {
+        "source": "data_upload_page"
+      },
+      "data_file": "data_versions\\data_upload_20250823_204232\\data.pkl"
+    },
+    {
+      "version_id": "data_upload_20250823_204336",
+      "step_name": "data_upload",
+      "description": "Initial data upload",
+      "timestamp": "2025-08-23T20:43:36.742641",
+      "data_hash": "53aeb5dbd2017230fe84ed4f3addb281",
+      "shape": [
+        300153,
+        12
+      ],
+      "columns": [
+        "index",
+        "airline",
+        "flight",
+        "source_city",
+        "departure_time",
+        "stops",
+        "arrival_time",
+        "destination_city",
+        "class",
+        "duration",
+        "days_left",
+        "price"
+      ],
+      "dtypes": {
+        "index": "int64",
+        "airline": "object",
+        "flight": "object",
+        "source_city": "object",
+        "departure_time": "object",
+        "stops": "object",
+        "arrival_time": "object",
+        "destination_city": "object",
+        "class": "object",
+        "duration": "float64",
+        "days_left": "int64",
+        "price": "int64"
+      },
+      "metadata": {
+        "source": "data_upload_page"
+      },
+      "data_file": "data_versions\\data_upload_20250823_204336\\data.pkl"
+    },
+    {
+      "version_id": "data_upload_20250823_204722",
+      "step_name": "data_upload",
+      "description": "Initial data upload",
+      "timestamp": "2025-08-23T20:47:22.788297",
+      "data_hash": "53aeb5dbd2017230fe84ed4f3addb281",
+      "shape": [
+        300153,
+        12
+      ],
+      "columns": [
+        "index",
+        "airline",
+        "flight",
+        "source_city",
+        "departure_time",
+        "stops",
+        "arrival_time",
+        "destination_city",
+        "class",
+        "duration",
+        "days_left",
+        "price"
+      ],
+      "dtypes": {
+        "index": "int64",
+        "airline": "object",
+        "flight": "object",
+        "source_city": "object",
+        "departure_time": "object",
+        "stops": "object",
+        "arrival_time": "object",
+        "destination_city": "object",
+        "class": "object",
+        "duration": "float64",
+        "days_left": "int64",
+        "price": "int64"
+      },
+      "metadata": {
+        "source": "data_upload_page"
+      },
+      "data_file": "data_versions\\data_upload_20250823_204722\\data.pkl"
+    },
+    {
+      "version_id": "data_upload_20250823_204918",
+      "step_name": "data_upload",
+      "description": "Initial data upload",
+      "timestamp": "2025-08-23T20:49:18.426477",
+      "data_hash": "53aeb5dbd2017230fe84ed4f3addb281",
+      "shape": [
+        300153,
+        12
+      ],
+      "columns": [
+        "index",
+        "airline",
+        "flight",
+        "source_city",
+        "departure_time",
+        "stops",
+        "arrival_time",
+        "destination_city",
+        "class",
+        "duration",
+        "days_left",
+        "price"
+      ],
+      "dtypes": {
+        "index": "int64",
+        "airline": "object",
+        "flight": "object",
+        "source_city": "object",
+        "departure_time": "object",
+        "stops": "object",
+        "arrival_time": "object",
+        "destination_city": "object",
+        "class": "object",
+        "duration": "float64",
+        "days_left": "int64",
+        "price": "int64"
+      },
+      "metadata": {
+        "source": "data_upload_page"
+      },
+      "data_file": "data_versions\\data_upload_20250823_204918\\data.pkl"
+    },
+    {
+      "version_id": "column_selection_20250823_205227",
+      "step_name": "column_selection",
+      "description": "Selected 12 columns",
+      "timestamp": "2025-08-23T20:52:28.126857",
+      "data_hash": "53aeb5dbd2017230fe84ed4f3addb281",
+      "shape": [
+        300153,
+        12
+      ],
+      "columns": [
+        "index",
+        "airline",
+        "flight",
+        "source_city",
+        "departure_time",
+        "stops",
+        "arrival_time",
+        "destination_city",
+        "class",
+        "duration",
+        "days_left",
+        "price"
+      ],
+      "dtypes": {
+        "index": "int64",
+        "airline": "object",
+        "flight": "object",
+        "source_city": "object",
+        "departure_time": "object",
+        "stops": "object",
+        "arrival_time": "object",
+        "destination_city": "object",
+        "class": "object",
+        "duration": "float64",
+        "days_left": "int64",
+        "price": "int64"
+      },
+      "metadata": {
+        "selected_columns": [
+          "index",
+          "airline",
+          "flight",
+          "source_city",
+          "departure_time",
+          "stops",
+          "arrival_time",
+          "destination_city",
+          "class",
+          "duration",
+          "days_left",
+          "price"
+        ]
+      },
+      "data_file": "data_versions\\column_selection_20250823_205227\\data.pkl"
+    },
+    {
+      "version_id": "remove_outliers_20250823_205410",
+      "step_name": "remove_outliers",
+      "description": "Removed 2110 outliers from duration",
+      "timestamp": "2025-08-23T20:54:10.260004",
+      "data_hash": "4faa49eed4fb98a185c2b79962071c18",
+      "shape": [
+        298043,
+        12
+      ],
+      "columns": [
+        "index",
+        "airline",
+        "flight",
+        "source_city",
+        "departure_time",
+        "stops",
+        "arrival_time",
+        "destination_city",
+        "class",
+        "duration",
+        "days_left",
+        "price"
+      ],
+      "dtypes": {
+        "index": "int64",
+        "airline": "object",
+        "flight": "object",
+        "source_city": "object",
+        "departure_time": "object",
+        "stops": "object",
+        "arrival_time": "object",
+        "destination_city": "object",
+        "class": "object",
+        "duration": "float64",
+        "days_left": "int64",
+        "price": "int64"
+      },
+      "metadata": {
+        "outliers_removed": 2110,
+        "column": "duration"
+      },
+      "data_file": "data_versions\\remove_outliers_20250823_205410\\data.pkl"
+    }
+  ],
+  "current_version": "remove_outliers_20250823_205410"
+}

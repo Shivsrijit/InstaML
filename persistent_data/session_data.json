@@ -1,0 +1,42 @@
+{
+  "timestamp": "2025-08-24T06:01:19.103935",
+  "data_loaded": true,
+  "data_type": "tabular",
+  "data_shape": [
+    21613,
+    21
+  ],
+  "preprocessed": false,
+  "model_trained": null,
+  "model_deployed": null,
+  "target_col": null,
+  "model_type": null,
+  "current_page": "home",
+  "preprocessing_steps": [
+    {
+      "step_name": "data_upload",
+      "description": "Data uploaded - 21613 rows \u00d7 21 columns",
+      "timestamp": "2025-08-24T06:01:06.692565",
+      "metadata": {
+        "data_type": "tabular",
+        "shape": [
+          21613,
+          21
+        ]
+      }
+    },
+    {
+      "step_name": "data_upload",
+      "description": "Data uploaded - 21613 rows \u00d7 21 columns",
+      "timestamp": "2025-08-24T06:01:19.103935",
+      "metadata": {
+        "data_type": "tabular",
+        "shape": [
+          21613,
+          21
+        ]
+      }
+    }
+  ],
+  "data_hash": "5ab7cb883489bf43fb76464b6d5ac8e1"
+}
