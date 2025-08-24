@@ -13,6 +13,8 @@ InstaML is a comprehensive no-code machine learning platform designed to democra
   <img src="images/Screenshot%20(97).png" alt="App Preview 3" width="200"/>
   <img src="images/Screenshot%20(98).png" alt="App Preview 4" width="200"/>
   <img src="images/Screenshot%20(99).png" alt="App Preview 5" width="200"/>
+  <img src="images/Screenshot (96) - Copy.png" alt="App Preview 5" width="200"/>
+
 </p>
 
 
