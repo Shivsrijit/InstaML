@@ -1,5 +1,5 @@
 {
-  "timestamp": "2025-08-24T09:34:35.866794",
+  "timestamp": "2025-08-24T12:52:49.872557",
   "data_loaded": true,
   "data_type": "tabular",
   "data_shape": [
@@ -51,6 +51,18 @@
           "r2": -0.001829772623750836,
           "mape": 438.1885242074277
         }
+      }
+    },
+    {
+      "step_name": "data_upload",
+      "description": "Data uploaded - 21613 rows \u00d7 21 columns",
+      "timestamp": "2025-08-24T12:52:49.872557",
+      "metadata": {
+        "data_type": "tabular",
+        "shape": [
+          21613,
+          21
+        ]
       }
     }
   ],

@@ -125,6 +125,51 @@ st.markdown("""
         border: none;
         padding: 1rem 1.5rem;
     }
+
+    /* Custom button styling for image/audio buttons */
+    .custom-data-button {
+        background: linear-gradient(145deg, #ffffff, #f8f9fa);
+        border: 2px solid #667eea;
+        border-radius: 15px;
+        padding: 2rem;
+        text-align: center;
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08);
+        transition: all 0.3s ease;
+        cursor: pointer;
+        text-decoration: none;
+        display: block;
+        color: inherit;
+        margin: 1rem 0;
+    }
+    
+    .custom-data-button:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 12px 35px rgba(0, 0, 0, 0.12);
+        border-color: #764ba2;
+        background: linear-gradient(145deg, #f8f9fa, #e9ecef);
+    }
+    
+    .custom-data-button h3 {
+        margin: 0 0 1rem 0;
+        font-size: 1.5rem;
+        font-weight: 600;
+        color: #2d3748;
+    }
+    
+    .custom-data-button p {
+        margin: 0;
+        color: #718096;
+        font-size: 1rem;
+    }
+    
+    .custom-data-button i {
+        font-size: 2rem;
+        margin-bottom: 1rem;
+        background: linear-gradient(135deg, #667eea, #764ba2);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+    }
 </style>
 """, unsafe_allow_html=True)
 
@@ -192,6 +237,37 @@ with stylable_container(
         - **Foundation**: Everything else depends on this data
         - **Efficiency**: Good data means faster training and better results
         """)
+
+    # Special Data Type Buttons Section
+    colored_header(
+        label="Special Data Types",
+        description="Work with specialized data formats",
+        color_name="red-70",
+    )
+    
+    col1, col2 = st.columns(2)
+    
+    with col1:
+        st.markdown("""
+        <a href="http://localhost:8503/" target="_blank" class="custom-data-button">
+            <div>
+                <i class="fas fa-image"></i>
+                <h3>Work with Image Data</h3>
+                <p>Train models on images, photos, and visual data</p>
+            </div>
+        </a>
+        """, unsafe_allow_html=True)
+    
+    # with col2:
+    #     st.markdown("""
+    #     <a href="https://localhost:8504" target="_blank" class="custom-data-button">
+    #         <div>
+    #             <i class="fas fa-music"></i>
+    #             <h3>Work with Audio Data</h3>
+    #             <p>Process sound, music, and audio signals</p>
+    #         </div>
+    #     </a>
+    #     """, unsafe_allow_html=True)
 
     # Mode selection
     colored_header(
