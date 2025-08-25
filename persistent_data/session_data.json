@@ -1,15 +1,15 @@
 {
-  "timestamp": "2025-08-24T12:52:49.872557",
+  "timestamp": "2025-08-25T16:50:40.126488",
   "data_loaded": true,
   "data_type": "tabular",
   "data_shape": [
-    21613,
-    21
+    19702,
+    20
   ],
   "preprocessed": false,
   "model_trained": true,
   "model_deployed": null,
-  "target_col": "id",
+  "target_col": "price",
   "model_type": "Linear Regression",
   "current_page": "home",
   "preprocessing_steps": [
@@ -64,7 +64,47 @@
           21
         ]
       }
+    },
+    {
+      "step_name": "data_upload",
+      "description": "Data uploaded - 21613 rows \u00d7 21 columns",
+      "timestamp": "2025-08-25T16:46:58.316510",
+      "metadata": {
+        "data_type": "tabular",
+        "shape": [
+          21613,
+          21
+        ]
+      }
+    },
+    {
+      "step_name": "data_upload",
+      "description": "Data uploaded - 21613 rows \u00d7 21 columns",
+      "timestamp": "2025-08-25T16:47:24.759275",
+      "metadata": {
+        "data_type": "tabular",
+        "shape": [
+          21613,
+          21
+        ]
+      }
+    },
+    {
+      "step_name": "model_training",
+      "description": "Model trained - Linear Regression for price",
+      "timestamp": "2025-08-25T16:50:40.126488",
+      "metadata": {
+        "model_type": "Linear Regression",
+        "target_col": "price",
+        "metrics": {
+          "mse": 0.16377525311294167,
+          "rmse": 0.40469155305360854,
+          "mae": 0.27446804973617017,
+          "r2": 0.634849730409152,
+          "mape": 520.2031520513779
+        }
+      }
     }
   ],
-  "data_hash": "5ab7cb883489bf43fb76464b6d5ac8e1"
+  "data_hash": "ec091532b097e7b00879291359c29dbf"
 }
