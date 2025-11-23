@@ -1,0 +1,8 @@
+[build]
+builder = "NIXPACKS"
+
+[python]
+version = "3.11"
+
+[deploy]
+start = "streamlit run app.py --server.port=${PORT} --server.address=0.0.0.0"
