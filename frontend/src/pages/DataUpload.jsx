@@ -43,6 +43,7 @@ const DataUpload = ({ project, datasetStatus, refreshStatus }) => {
   const [loading, setLoading] = useState(false);
   const [pastedText, setPastedText] = useState('');
   const [activeTab, setActiveTab] = useState('file'); // 'file' or 'paste'
+  const [taskUpdating, setTaskUpdating] = useState(false);
 
   const dataType = project?.data_type || 'tabular';
   const isImageOrAudio = dataType === 'image' || dataType === 'audio';
@@ -370,18 +371,23 @@ const DataUpload = ({ project, datasetStatus, refreshStatus }) => {
             
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
               <span style={{ fontSize: '0.8rem', fontWeight: 600, color: 'var(--text-muted)' }}>Change Task:</span>
+              {taskUpdating && <span className="spinner" style={{ width: '14px', height: '14px', border: '2px solid var(--accent-purple)', borderTopColor: 'transparent', borderRadius: '50%', animation: 'spin 1s linear infinite' }}></span>}
               <select
                 className="form-control"
                 style={{ width: '240px', padding: '0.35rem 0.65rem', fontSize: '0.8rem', cursor: 'pointer', height: 'auto' }}
                 value={project.task || 'Classification'}
+                disabled={taskUpdating}
                 onChange={async (e) => {
                   const newTask = e.target.value;
+                  setTaskUpdating(true);
                   try {
                     await api.patch(`/projects/${project.id}`, { task: newTask });
                     toast.success(`Project task updated to: ${newTask}`);
-                    refreshStatus();
+                    await refreshStatus();
                   } catch (err) {
                     toast.error("Failed to update project task.");
+                  } finally {
+                    setTaskUpdating(false);
                   }
                 }}
               >

@@ -172,7 +172,7 @@ def predict_file(
         elif project.data_type == "image":
             # Heuristic classification
             latest_versions = query_sync(
-                "SELECT * FROM dataset_versions WHERE project_id = ? ORDER BY created_at DESC LIMIT 1",
+                "SELECT * FROM dataset_versions WHERE project_id = ? ORDER BY id DESC LIMIT 1",
                 [project_id]
             )
             class_name = "default"
@@ -187,7 +187,7 @@ def predict_file(
             }
         elif project.data_type == "audio":
             latest_versions = query_sync(
-                "SELECT * FROM dataset_versions WHERE project_id = ? ORDER BY created_at DESC LIMIT 1",
+                "SELECT * FROM dataset_versions WHERE project_id = ? ORDER BY id DESC LIMIT 1",
                 [project_id]
             )
             class_name = "default"

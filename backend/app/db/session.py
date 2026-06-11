@@ -5,7 +5,7 @@ from dotenv import load_dotenv
 
 # Paths
 BASE_DIR = Path(__file__).resolve().parent.parent.parent
-load_dotenv(BASE_DIR / ".env", override=True)
+load_dotenv(BASE_DIR / ".env")
 
 # Determine URL and auth token
 TURSO_URL = os.getenv("TURSO_DATABASE_URL")

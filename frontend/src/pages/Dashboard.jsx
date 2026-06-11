@@ -45,6 +45,7 @@ const Dashboard = () => {
   const [projects, setProjects] = useState([]);
   const [loading, setLoading] = useState(true);
   const [modalOpen, setModalOpen] = useState(false);
+  const [deleteConfirmProj, setDeleteConfirmProj] = useState(null);
   
   // Search state
   const [searchQuery, setSearchQuery] = useState('');
@@ -127,14 +128,17 @@ const Dashboard = () => {
     }
   };
 
-  const handleDeleteProject = async (id, e) => {
+  const handleDeleteProject = (project, e) => {
     e.stopPropagation(); // Avoid navigating to the project
-    if (!window.confirm("Are you sure you want to delete this project and all its uploaded datasets and saved models? This action cannot be undone.")) {
-      return;
-    }
+    setDeleteConfirmProj(project);
+  };
+
+  const confirmDeleteProject = async () => {
+    if (!deleteConfirmProj) return;
     try {
-      await api.delete(`/projects/${id}`);
-      setProjects(projects.filter(p => p.id !== id));
+      await api.delete(`/projects/${deleteConfirmProj.id}`);
+      setProjects(projects.filter(p => p.id !== deleteConfirmProj.id));
+      setDeleteConfirmProj(null);
     } catch (err) {
       alert("Failed to delete project");
     }
@@ -295,7 +299,7 @@ const Dashboard = () => {
                           </h3>
                         </div>
                         <button
-                          onClick={(e) => handleDeleteProject(project.id, e)}
+                          onClick={(e) => handleDeleteProject(project, e)}
                           style={{ 
                             background: 'none', 
                             border: 'none', 
@@ -401,9 +405,9 @@ const Dashboard = () => {
                 >
                   <option value="tabular">Tabular (CSV, Excel, Parquet)</option>
                   <option value="text">Raw Text (NLP classification)</option>
-                  <option value="image">Image Dataset (Image classification, Detection)</option>
-                  <option value="audio">Audio Signals (Sound classification)</option>
-                  <option value="multi_dimensional">Multi-Dimensional Arrays</option>
+                  <option value="image" disabled>Image Dataset (Coming Soon)</option>
+                  <option value="audio" disabled>Audio Signals (Coming Soon)</option>
+                  <option value="multi_dimensional" disabled>Multi-Dimensional Arrays (Coming Soon)</option>
                 </select>
               </div>
 
@@ -432,6 +436,31 @@ const Dashboard = () => {
                 </button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* Delete Confirmation Modal */}
+      {deleteConfirmProj && (
+        <div className="modal-backdrop">
+          <div className="modal-content" style={{ maxWidth: '400px' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
+              <h3 style={{ fontSize: '1.1rem', fontWeight: 700, letterSpacing: '-0.02em', color: 'var(--accent-red)' }}>Delete Workspace?</h3>
+              <button onClick={() => setDeleteConfirmProj(null)} style={{ background: 'none', border: 'none', color: 'var(--text-muted)', fontSize: '1.1rem', cursor: 'pointer' }}>
+                <i className="fa-solid fa-xmark"></i>
+              </button>
+            </div>
+            <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)', lineHeight: '1.6', marginBottom: '2rem' }}>
+              Are you sure you want to delete the workspace <strong>{deleteConfirmProj.name}</strong>? All uploaded datasets and saved models associated with it will be permanently deleted. This action cannot be undone.
+            </p>
+            <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '0.5rem' }}>
+              <button type="button" onClick={() => setDeleteConfirmProj(null)} className="btn btn-secondary">
+                Cancel
+              </button>
+              <button type="button" onClick={confirmDeleteProject} className="btn btn-primary" style={{ backgroundColor: 'var(--accent-red)', borderColor: 'var(--accent-red)' }}>
+                Delete
+              </button>
+            </div>
           </div>
         </div>
       )}

@@ -61,6 +61,9 @@ def apply_preprocessing_operations(df: pd.DataFrame, operations: list) -> pd.Dat
             if existing_cols:
                 df = df.drop(columns=existing_cols)
                 
+        elif op == "drop_duplicates":
+            df = df.drop_duplicates()
+                
         elif op == "fill_missing":
             strategy = op_data.get("strategy", "mean")
             cols = op_data.get("columns", [])
@@ -155,5 +158,38 @@ def apply_preprocessing_operations(df: pd.DataFrame, operations: list) -> pd.Dat
                         inlier_index = clean_data.index[preds == 1]
                         nan_index = df.index[df[numeric_cols].isna().any(axis=1)]
                         df = df.loc[inlier_index.union(nan_index)].sort_index()
+                        
+        elif op == "pca":
+            cols = op_data.get("columns", [])
+            n_components = int(op_data.get("n_components", 2))
+            existing_cols = [c for c in cols if c in df.columns]
+            
+            if existing_cols and len(existing_cols) >= n_components:
+                from sklearn.decomposition import PCA
+                from sklearn.preprocessing import StandardScaler
+                
+                # Extract columns to reduce
+                X = df[existing_cols]
+                # Impute missing values if any to prevent PCA crashing
+                if X.isnull().any().any():
+                    from sklearn.impute import SimpleImputer
+                    X = SimpleImputer(strategy="median").fit_transform(X)
+                else:
+                    X = X.values
+                    
+                # Scale features
+                X_scaled = StandardScaler().fit_transform(X)
+                
+                # Fit PCA
+                pca = PCA(n_components=n_components)
+                pca_result = pca.fit_transform(X_scaled)
+                
+                # Create PC column names
+                pca_cols = [f"PC{i+1}" for i in range(n_components)]
+                pca_df = pd.DataFrame(pca_result, columns=pca_cols, index=df.index)
+                
+                # Drop original columns and concatenate PCA columns
+                df = df.drop(columns=existing_cols)
+                df = pd.concat([df, pca_df], axis=1)
                 
     return df

@@ -17,7 +17,7 @@ def get_latest_dataframe(project_id: int, user_id: int) -> pd.DataFrame:
     """Helper to get project's active dataset."""
     get_user_project(project_id, user_id)
     latest_version = query_sync(
-        "SELECT * FROM dataset_versions WHERE project_id = ? ORDER BY created_at DESC LIMIT 1",
+        "SELECT * FROM dataset_versions WHERE project_id = ? ORDER BY id DESC LIMIT 1",
         [project_id]
     )
     if not latest_version:
@@ -357,4 +357,57 @@ def get_dimensionality_reduction(
         "color_by": color_col,
         "color_candidates": color_candidates,
         "points": points
+    }
+
+@router.get("/boxplot/{column}")
+def get_boxplot_stats(
+    project_id: int,
+    column: str,
+    current_user: dict = Depends(get_current_user)
+):
+    """Retrieve box plot statistics and outlier points for a numerical column."""
+    df = get_latest_dataframe(project_id, current_user.id)
+    if column not in df.columns:
+        raise HTTPException(status_code=404, detail=f"Column '{column}' not found")
+        
+    col_data = df[column].dropna()
+    if not np.issubdtype(col_data.dtype, np.number):
+        raise HTTPException(status_code=400, detail="Boxplot is only available for numerical columns")
+        
+    if len(col_data) == 0:
+        raise HTTPException(status_code=400, detail="Column has no data")
+        
+    q1 = float(col_data.quantile(0.25))
+    median = float(col_data.median())
+    q3 = float(col_data.quantile(0.75))
+    iqr = q3 - q1
+    
+    min_val = float(col_data.min())
+    max_val = float(col_data.max())
+    
+    lower_whisker = float(max(min_val, q1 - 1.5 * iqr))
+    upper_whisker = float(min(max_val, q3 + 1.5 * iqr))
+    
+    # Identify outlier values
+    outliers_mask = (col_data < lower_whisker) | (col_data > upper_whisker)
+    outliers = col_data[outliers_mask].tolist()
+    
+    # Sample outliers to keep response lightweight
+    if len(outliers) > 200:
+        import random
+        random.seed(42)
+        outliers = random.sample(outliers, 200)
+        
+    return {
+        "column": column,
+        "q1": q1,
+        "median": median,
+        "q3": q3,
+        "lower_whisker": lower_whisker,
+        "upper_whisker": upper_whisker,
+        "min": min_val,
+        "max": max_val,
+        "outliers": outliers,
+        "total_outliers": int(outliers_mask.sum()),
+        "total_rows": len(col_data)
     }

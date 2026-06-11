@@ -67,7 +67,7 @@ def trigger_training(
     
     # Resolve active dataset version
     latest_versions = query_sync(
-        "SELECT * FROM dataset_versions WHERE project_id = ? ORDER BY created_at DESC LIMIT 1",
+        "SELECT * FROM dataset_versions WHERE project_id = ? ORDER BY id DESC LIMIT 1",
         [project_id]
     )
         

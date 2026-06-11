@@ -11,7 +11,8 @@ import {
   CartesianGrid,
   ScatterChart,
   Scatter,
-  Legend
+  Legend,
+  Label
 } from 'recharts';
 
 const EDA = ({ datasetStatus }) => {
@@ -41,9 +42,10 @@ const EDA = ({ datasetStatus }) => {
 
   const getNumericColumns = () => {
     if (!datasetStatus?.columns) return [];
-    return datasetStatus.columns.filter(c => 
-      datasetStatus.dtypes?.[c]?.includes('int') || datasetStatus.dtypes?.[c]?.includes('float')
-    );
+    return datasetStatus.columns.filter(c => {
+      const dtype = datasetStatus.dtypes?.[c]?.toLowerCase() || '';
+      return dtype.includes('int') || dtype.includes('float') || dtype.includes('double') || dtype.includes('number');
+    });
   };
 
   // Run Univariate Analysis
@@ -249,10 +251,14 @@ const EDA = ({ datasetStatus }) => {
                   </h4>
                   <div style={{ height: '350px', width: '100%' }}>
                     <ResponsiveContainer width="100%" height="100%">
-                      <BarChart data={uniData}>
+                      <BarChart data={uniData} margin={{ top: 10, right: 10, bottom: 25, left: 25 }}>
                         <CartesianGrid strokeDasharray="3 3" stroke="var(--border-color)" vertical={false} />
-                        <XAxis dataKey={isNumeric ? "range" : "name"} stroke="var(--text-muted)" fontSize={11} tickLine={false} />
-                        <YAxis stroke="var(--text-muted)" fontSize={11} tickLine={false} />
+                        <XAxis dataKey={isNumeric ? "range" : "name"} stroke="var(--text-muted)" fontSize={11} tickLine={false}>
+                          <Label value={selectedCol} offset={-15} position="insideBottom" fill="var(--text-muted)" fontSize={12} fontWeight={600} />
+                        </XAxis>
+                        <YAxis stroke="var(--text-muted)" fontSize={11} tickLine={false}>
+                          <Label value="Count" angle={-90} position="insideLeft" offset={-10} style={{ textAnchor: 'middle', fill: 'var(--text-muted)', fontSize: 12, fontWeight: 600 }} />
+                        </YAxis>
                         <Tooltip contentStyle={{ backgroundColor: 'var(--bg-tertiary)', borderColor: 'var(--border-color)', color: 'var(--text-main)', borderRadius: '6px' }} />
                         <Bar dataKey="count" fill="var(--accent-primary)" radius={[2, 2, 0, 0]} />
                       </BarChart>
@@ -335,10 +341,14 @@ const EDA = ({ datasetStatus }) => {
                 </h4>
                 <div style={{ height: '400px', width: '100%' }}>
                   <ResponsiveContainer width="100%" height="100%">
-                    <ScatterChart>
+                    <ScatterChart margin={{ top: 10, right: 10, bottom: 25, left: 25 }}>
                       <CartesianGrid stroke="var(--border-color)" strokeDasharray="3 3" />
-                      <XAxis type="number" dataKey="x" name={scatterX} stroke="var(--text-muted)" fontSize={11} tickLine={false} />
-                      <YAxis type="number" dataKey="y" name={scatterY} stroke="var(--text-muted)" fontSize={11} tickLine={false} />
+                      <XAxis type="number" dataKey="x" name={scatterX} stroke="var(--text-muted)" fontSize={11} tickLine={false}>
+                        <Label value={scatterX} offset={-15} position="insideBottom" fill="var(--text-muted)" fontSize={12} fontWeight={600} />
+                      </XAxis>
+                      <YAxis type="number" dataKey="y" name={scatterY} stroke="var(--text-muted)" fontSize={11} tickLine={false}>
+                        <Label value={scatterY} angle={-90} position="insideLeft" offset={-10} style={{ textAnchor: 'middle', fill: 'var(--text-muted)', fontSize: 12, fontWeight: 600 }} />
+                      </YAxis>
                       <Tooltip cursor={{ strokeDasharray: '3 3' }} contentStyle={{ backgroundColor: 'var(--bg-tertiary)', borderColor: 'var(--border-color)', color: 'var(--text-main)', borderRadius: '6px' }} />
                       <Scatter name="Points" data={scatterData} fill="var(--accent-purple)" opacity={0.7} />
                     </ScatterChart>
@@ -464,10 +474,14 @@ const EDA = ({ datasetStatus }) => {
 
                 <div style={{ height: '450px', width: '100%' }}>
                   <ResponsiveContainer width="100%" height="100%">
-                    <ScatterChart margin={{ top: 20, right: 20, bottom: 20, left: 20 }}>
+                    <ScatterChart margin={{ top: 20, right: 20, bottom: 25, left: 25 }}>
                       <CartesianGrid stroke="var(--border-color)" strokeDasharray="3 3" />
-                      <XAxis type="number" dataKey="x" name="Dimension 1" stroke="var(--text-muted)" fontSize={11} tickLine={false} />
-                      <YAxis type="number" dataKey="y" name="Dimension 2" stroke="var(--text-muted)" fontSize={11} tickLine={false} />
+                      <XAxis type="number" dataKey="x" name="Dimension 1" stroke="var(--text-muted)" fontSize={11} tickLine={false}>
+                        <Label value="Dimension 1" offset={-15} position="insideBottom" fill="var(--text-muted)" fontSize={12} fontWeight={600} />
+                      </XAxis>
+                      <YAxis type="number" dataKey="y" name="Dimension 2" stroke="var(--text-muted)" fontSize={11} tickLine={false}>
+                        <Label value="Dimension 2" angle={-90} position="insideLeft" offset={-10} style={{ textAnchor: 'middle', fill: 'var(--text-muted)', fontSize: 12, fontWeight: 600 }} />
+                      </YAxis>
                       <Tooltip cursor={{ strokeDasharray: '3 3' }} contentStyle={{ backgroundColor: 'var(--bg-tertiary)', borderColor: 'var(--border-color)', color: 'var(--text-main)', borderRadius: '6px' }} />
                       <Legend verticalAlign="top" height={36} wrapperStyle={{ fontSize: '12px' }} />
                       {Object.keys(groupedPoints).map((groupName, index) => (

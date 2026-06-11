@@ -24,6 +24,25 @@ def get_user_project(project_id: int, user_id: int) -> dict:
         )
     return projects[0]
 
+def compute_dataframe_stats(df) -> dict:
+    """Helper to calculate missing values and duplicate row counts in a DataFrame."""
+    missing_counts = df.isnull().sum().to_dict()
+    missing_total = int(df.isnull().sum().sum())
+    # Convert keys to string and values to int for JSON compatibility
+    missing_counts_str = {str(k): int(v) for k, v in missing_counts.items()}
+    
+    # Calculate duplicate rows
+    try:
+        duplicate_count = int(df.duplicated().sum())
+    except:
+        duplicate_count = 0
+        
+    return {
+        "missing_counts": missing_counts_str,
+        "missing_total": missing_total,
+        "duplicate_count": duplicate_count
+    }
+
 @router.post("/upload")
 def upload_dataset(
     project_id: int,
@@ -197,6 +216,13 @@ def upload_dataset(
             columns_list = list(df.columns)
             dtypes_dict = {col: str(dtype) for col, dtype in df.dtypes.to_dict().items()}
             
+            metadata = {"filename": file.filename, "extracted_zip": True}
+            try:
+                stats = compute_dataframe_stats(df)
+                metadata.update(stats)
+            except Exception as stats_err:
+                print(f"Warning computing stats: {stats_err}")
+
             execute_sync(
                 """INSERT INTO dataset_versions (
                     version_id, step_name, description, shape_rows, shape_cols,
@@ -210,7 +236,7 @@ def upload_dataset(
                     shape_cols,
                     json.dumps(columns_list),
                     json.dumps(dtypes_dict),
-                    json.dumps({"filename": file.filename, "extracted_zip": True}),
+                    json.dumps(metadata),
                     str(final_file_path),
                     project_id
                 ]
@@ -261,6 +287,13 @@ def upload_dataset(
             columns_list = list(df.columns)
             dtypes_dict = {col: str(dtype) for col, dtype in df.dtypes.to_dict().items()}
             
+            metadata = {"filename": file.filename}
+            try:
+                stats = compute_dataframe_stats(df)
+                metadata.update(stats)
+            except Exception as stats_err:
+                print(f"Warning computing stats: {stats_err}")
+
             execute_sync(
                 """INSERT INTO dataset_versions (
                     version_id, step_name, description, shape_rows, shape_cols,
@@ -274,7 +307,7 @@ def upload_dataset(
                     shape_cols,
                     json.dumps(columns_list),
                     json.dumps(dtypes_dict),
-                    json.dumps({"filename": file.filename}),
+                    json.dumps(metadata),
                     str(final_file_path),
                     project_id
                 ]
@@ -430,6 +463,12 @@ def upload_dataset(
                 [predicted_target, predicted_task, project_id]
             )
             
+            try:
+                stats = compute_dataframe_stats(df)
+                metadata.update(stats)
+            except Exception as stats_err:
+                print(f"Warning computing stats: {stats_err}")
+
             # Save version
             execute_sync(
                 """INSERT INTO dataset_versions (
@@ -478,7 +517,7 @@ def get_current_dataset(
     project = get_user_project(project_id, current_user.id)
     
     latest_versions = query_sync(
-        "SELECT * FROM dataset_versions WHERE project_id = ? ORDER BY created_at DESC LIMIT 1",
+        "SELECT * FROM dataset_versions WHERE project_id = ? ORDER BY id DESC LIMIT 1",
         [project_id]
     )
         
@@ -519,9 +558,26 @@ def get_current_dataset(
             df = load_dataframe(latest_version.file_path)
             preview = get_dataframe_preview(df, preview_rows)
             
-            missing_counts = df.isnull().sum().to_dict()
-            missing_total = int(df.isnull().sum().sum())
-            duplicate_count = int(df.duplicated().sum())
+            # Retrieve cached stats if present in metadata_json
+            metadata = {}
+            if latest_version.metadata_json:
+                try:
+                    metadata = json.loads(latest_version.metadata_json)
+                except:
+                    pass
+            
+            missing_counts = metadata.get("missing_counts")
+            missing_total = metadata.get("missing_total")
+            duplicate_count = metadata.get("duplicate_count")
+            
+            if missing_counts is None or missing_total is None or duplicate_count is None:
+                missing_counts = df.isnull().sum().to_dict()
+                missing_counts = {str(k): int(v) for k, v in missing_counts.items()}
+                missing_total = int(df.isnull().sum().sum())
+                try:
+                    duplicate_count = int(df.duplicated().sum())
+                except:
+                    duplicate_count = 0
             
             columns = json.loads(latest_version.columns_json)
             dtypes = json.loads(latest_version.dtypes_json)
@@ -552,9 +608,8 @@ def preprocess_dataset(
     """Apply sequential cleaning, scaling, encoding, or outlier removals, generating a new version."""
     project = get_user_project(project_id, current_user.id)
     
-    # Get latest dataset version for project
     latest_versions = query_sync(
-        "SELECT * FROM dataset_versions WHERE project_id = ? ORDER BY created_at DESC LIMIT 1",
+        "SELECT * FROM dataset_versions WHERE project_id = ? ORDER BY id DESC LIMIT 1",
         [project_id]
     )
         
@@ -583,6 +638,13 @@ def preprocess_dataset(
         columns_list = list(df_processed.columns)
         dtypes_dict = {col: str(dtype) for col, dtype in df_processed.dtypes.to_dict().items()}
         
+        metadata = {"operations": req.operations}
+        try:
+            stats = compute_dataframe_stats(df_processed)
+            metadata.update(stats)
+        except Exception as stats_err:
+            print(f"Warning computing stats: {stats_err}")
+
         execute_sync(
             """INSERT INTO dataset_versions (
                 version_id, step_name, description, shape_rows, shape_cols,
@@ -596,7 +658,7 @@ def preprocess_dataset(
                 shape_cols,
                 json.dumps(columns_list),
                 json.dumps(dtypes_dict),
-                json.dumps({"operations": req.operations}),
+                json.dumps(metadata),
                 str(final_file_path),
                 project_id
             ]
@@ -626,7 +688,7 @@ def get_dataset_versions(
     """Retrieve the version log list for the project."""
     get_user_project(project_id, current_user.id)
     return query_sync(
-        "SELECT * FROM dataset_versions WHERE project_id = ? ORDER BY created_at DESC",
+        "SELECT * FROM dataset_versions WHERE project_id = ? ORDER BY id DESC",
         [project_id]
     )
 
