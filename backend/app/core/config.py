@@ -1,0 +1,39 @@
+import os
+from pathlib import Path
+from dotenv import load_dotenv
+
+# Paths
+BASE_DIR = Path(__file__).resolve().parent.parent.parent
+STORAGE_DIR = BASE_DIR / "storage"
+STORAGE_DIR.mkdir(exist_ok=True)
+
+# Load environment variables from backend/.env
+load_dotenv(BASE_DIR / ".env")
+
+# Database config
+TURSO_DATABASE_URL = os.getenv("TURSO_DATABASE_URL")
+TURSO_AUTH_TOKEN = os.getenv("TURSO_AUTH_TOKEN")
+
+if TURSO_DATABASE_URL and TURSO_AUTH_TOKEN:
+    # Clean up standard URL prefixes if present
+    clean_url = TURSO_DATABASE_URL
+    if clean_url.startswith("libsql://"):
+        clean_url = clean_url.replace("libsql://", "", 1)
+    elif clean_url.startswith("https://"):
+        clean_url = clean_url.replace("https://", "", 1)
+    DATABASE_URL = f"sqlite+libsql://{clean_url}/?authToken={TURSO_AUTH_TOKEN}&secure=true"
+else:
+    DATABASE_URL = os.getenv("DATABASE_URL", f"sqlite:///{BASE_DIR}/instaml.db")
+
+# Security
+SECRET_KEY = os.getenv("SECRET_KEY", "instaml-super-secret-key-change-in-prod")
+ALGORITHM = "HS256"
+ACCESS_TOKEN_EXPIRE_MINUTES = 60 * 24  # 1 day
+
+# Allowed CORS Origins
+ORIGINS = [
+    "http://localhost:5173",  # Vite default
+    "http://localhost:3000",
+    "http://127.0.0.1:5173",
+    "http://127.0.0.1:3000",
+]

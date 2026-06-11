@@ -14,7 +14,6 @@ from sklearn.metrics import (
 )
 from xgboost import XGBClassifier, XGBRegressor
 from core.preprocess import create_preprocessing_pipeline
-from core.evaluator import evaluate_classification
 import warnings
 warnings.filterwarnings('ignore')
 
@@ -173,13 +172,14 @@ class TabularModelTrainer:
                 }
             }
     
-    def train_model(self, model_name, use_hyperparameter_tuning=True):
+    def train_model(self, model_name, use_hyperparameter_tuning=True, trials=10):
         """
         Train a specific model.
         
         Args:
             model_name: Name of the model to train
-            use_hyperparameter_tuning: Whether to use GridSearchCV
+            use_hyperparameter_tuning: Whether to use Optuna hyperparameter tuning
+            trials: Number of Optuna trials
             
         Returns:
             Trained model and metrics
@@ -191,27 +191,118 @@ class TabularModelTrainer:
         
         # Create pipeline
         from sklearn.pipeline import Pipeline
-        pipeline = Pipeline([
-            ("preprocessor", self.preprocessor),
-            ("model", model)
-        ])
+        from sklearn.base import clone
         
-        # Hyperparameter tuning
-        if use_hyperparameter_tuning and model_name in self.param_grids:
-            grid_search = GridSearchCV(
-                pipeline, 
-                self.param_grids[model_name], 
-                cv=5, 
-                scoring='accuracy' if self.task_type == "classification" else 'r2',
-                n_jobs=-1
-            )
-            grid_search.fit(self.X_train, self.y_train)
-            best_model = grid_search.best_estimator_
-            best_params = grid_search.best_params_
+        best_params = {}
+        
+        # Hyperparameter tuning with Optuna
+        if use_hyperparameter_tuning and trials > 0:
+            try:
+                import optuna
+                optuna.logging.set_verbosity(optuna.logging.WARNING)
+                
+                # Check if we have parameters to tune for this model
+                no_tuning_models = ["Naive Bayes", "Linear Regression"]
+                
+                if model_name not in no_tuning_models:
+                    def objective(trial):
+                        params = {}
+                        if model_name == "Random Forest":
+                            params = {
+                                'n_estimators': trial.suggest_int('n_estimators', 50, 200),
+                                'max_depth': trial.suggest_categorical('max_depth', [5, 10, 20, None]),
+                                'min_samples_split': trial.suggest_int('min_samples_split', 2, 10)
+                            }
+                        elif model_name == "XGBoost":
+                            params = {
+                                'n_estimators': trial.suggest_int('n_estimators', 50, 200),
+                                'max_depth': trial.suggest_int('max_depth', 3, 9),
+                                'learning_rate': trial.suggest_float('learning_rate', 0.01, 0.3, log=True),
+                                'subsample': trial.suggest_float('subsample', 0.6, 1.0),
+                                'colsample_bytree': trial.suggest_float('colsample_bytree', 0.6, 1.0)
+                            }
+                        elif model_name == "Gradient Boosting":
+                            params = {
+                                'n_estimators': trial.suggest_int('n_estimators', 50, 200),
+                                'max_depth': trial.suggest_int('max_depth', 3, 9),
+                                'learning_rate': trial.suggest_float('learning_rate', 0.01, 0.3, log=True)
+                            }
+                        elif model_name == "Logistic Regression":
+                            penalty = trial.suggest_categorical('penalty', ['l2', 'none'])
+                            params = {
+                                'C': trial.suggest_float('C', 0.01, 10.0, log=True),
+                                'penalty': penalty
+                            }
+                            if penalty == 'none':
+                                params['solver'] = 'lbfgs'
+                            else:
+                                params['solver'] = 'liblinear'
+                        elif model_name == "SVM" or model_name == "SVR":
+                            kernel = trial.suggest_categorical('kernel', ['rbf', 'linear'])
+                            params = {
+                                'C': trial.suggest_float('C', 0.01, 10.0, log=True),
+                                'kernel': kernel
+                            }
+                            if kernel == 'rbf':
+                                params['gamma'] = trial.suggest_categorical('gamma', ['scale', 'auto'])
+                        elif model_name == "KNN":
+                            params = {
+                                'n_neighbors': trial.suggest_int('n_neighbors', 3, 15),
+                                'weights': trial.suggest_categorical('weights', ['uniform', 'distance'])
+                            }
+                        elif model_name == "Decision Tree":
+                            params = {
+                                'max_depth': trial.suggest_categorical('max_depth', [3, 5, 7, 10, None]),
+                                'min_samples_split': trial.suggest_int('min_samples_split', 2, 10)
+                            }
+                        elif model_name == "Ridge" or model_name == "Lasso":
+                            params = {
+                                'alpha': trial.suggest_float('alpha', 0.01, 10.0, log=True)
+                            }
+                        
+                        tuned_model = clone(model)
+                        tuned_model.set_params(**params)
+                        
+                        trial_pipeline = Pipeline([
+                            ("preprocessor", self.preprocessor),
+                            ("model", tuned_model)
+                        ])
+                        
+                        scoring = 'accuracy' if self.task_type == "classification" else 'r2'
+                        scores = cross_val_score(trial_pipeline, self.X_train, self.y_train, cv=5, scoring=scoring, n_jobs=-1)
+                        return scores.mean()
+                    
+                    study = optuna.create_study(direction="maximize")
+                    study.optimize(objective, n_trials=trials)
+                    best_params = study.best_params
+                    
+                    # Apply best params to model
+                    tuned_model = clone(model)
+                    tuned_model.set_params(**best_params)
+                    best_model = Pipeline([
+                        ("preprocessor", self.preprocessor),
+                        ("model", tuned_model)
+                    ])
+                    best_model.fit(self.X_train, self.y_train)
+                else:
+                    best_model = Pipeline([
+                        ("preprocessor", self.preprocessor),
+                        ("model", model)
+                    ])
+                    best_model.fit(self.X_train, self.y_train)
+            except Exception as e:
+                print(f"Optuna tuning failed, falling back to defaults. Error: {str(e)}")
+                best_model = Pipeline([
+                    ("preprocessor", self.preprocessor),
+                    ("model", model)
+                ])
+                best_model.fit(self.X_train, self.y_train)
         else:
-            best_model = pipeline
+            best_model = Pipeline([
+                ("preprocessor", self.preprocessor),
+                ("model", model)
+            ])
             best_model.fit(self.X_train, self.y_train)
-            best_params = {}
         
         # Evaluate model
         if self.task_type == "classification":

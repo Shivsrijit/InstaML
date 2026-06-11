@@ -1,0 +1,65 @@
+version: '3.8'
+
+services:
+  gateway-api:
+    build:
+      context: .
+      dockerfile: backend/Dockerfile.gateway
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./backend:/workspace/backend
+      - ./core:/workspace/core
+    environment:
+      - SECRET_KEY=instaml-super-secret-key-change-in-prod
+      - DATABASE_URL=sqlite:////workspace/backend/instaml.db
+      - TRAINER_SERVICE_URL=http://trainer-service:8001
+      - PREDICTOR_SERVICE_URL=http://predictor-service:8002
+      - TURSO_DATABASE_URL=${TURSO_DATABASE_URL}
+      - TURSO_AUTH_TOKEN=${TURSO_AUTH_TOKEN}
+    restart: always
+
+  trainer-service:
+    build:
+      context: .
+      dockerfile: backend/Dockerfile.trainer
+    ports:
+      - "8001:8001"
+    volumes:
+      - ./backend:/workspace/backend
+      - ./core:/workspace/core
+    environment:
+      - SECRET_KEY=instaml-super-secret-key-change-in-prod
+      - DATABASE_URL=sqlite:////workspace/backend/instaml.db
+      - TURSO_DATABASE_URL=${TURSO_DATABASE_URL}
+      - TURSO_AUTH_TOKEN=${TURSO_AUTH_TOKEN}
+    restart: always
+
+  predictor-service:
+    build:
+      context: .
+      dockerfile: backend/Dockerfile.predictor
+    ports:
+      - "8002:8002"
+    volumes:
+      - ./backend:/workspace/backend
+      - ./core:/workspace/core
+    environment:
+      - SECRET_KEY=instaml-super-secret-key-change-in-prod
+      - DATABASE_URL=sqlite:////workspace/backend/instaml.db
+      - TURSO_DATABASE_URL=${TURSO_DATABASE_URL}
+      - TURSO_AUTH_TOKEN=${TURSO_AUTH_TOKEN}
+    restart: always
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    ports:
+      - "5173:5173"
+    volumes:
+      - ./frontend/src:/app/src
+      - /app/node_modules
+    depends_on:
+      - gateway-api
+    restart: always

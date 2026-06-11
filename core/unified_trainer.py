@@ -10,6 +10,7 @@ from core.ML_models.tabular_data import TabularModelTrainer
 from core.ML_models.image_data import ImageModelTrainer
 from core.ML_models.audio_data import AudioModelTrainer
 from core.ML_models.multi_dimensional_data import MultiDimensionalTrainer
+from core.ML_models.text_data import TextModelTrainer
 
 class UnifiedModelTrainer:
     """Unified interface for training models on different data types."""
@@ -95,8 +96,10 @@ class UnifiedModelTrainer:
                     random_state=self.kwargs.get('random_state', 42)
                 )
             else:
-                # Load CSV file
-                df = pd.read_csv(self.data_source)
+                if str(self.data_source).endswith('.parquet'):
+                    df = pd.read_parquet(self.data_source)
+                else:
+                    df = pd.read_csv(self.data_source)
                 self.trainer = TabularModelTrainer(
                     df, 
                     self.target_col, 
@@ -104,6 +107,30 @@ class UnifiedModelTrainer:
                     test_size=self.kwargs.get('test_size', 0.2),
                     random_state=self.kwargs.get('random_state', 42)
                 )
+        
+        elif self.data_type == "text":
+            text_col = self.kwargs.get('text_col')
+            if isinstance(self.data_source, pd.DataFrame):
+                df = self.data_source
+            else:
+                if str(self.data_source).endswith('.parquet'):
+                    df = pd.read_parquet(self.data_source)
+                else:
+                    df = pd.read_csv(self.data_source)
+            if not text_col:
+                # Find the first string/object column that is not target_col
+                string_cols = [col for col in df.columns if col != self.target_col and df[col].dtype == 'object']
+                if string_cols:
+                    text_col = string_cols[0]
+                else:
+                    raise ValueError("No valid text/categorical column found to serve as input feature for text classification.")
+            self.trainer = TextModelTrainer(
+                df,
+                text_col,
+                self.target_col,
+                test_size=self.kwargs.get('test_size', 0.2),
+                random_state=self.kwargs.get('random_state', 42)
+            )
         
         elif self.data_type == "image":
             self.trainer = ImageModelTrainer(
@@ -130,6 +157,8 @@ class UnifiedModelTrainer:
         """Get list of available models for the current data type."""
         if self.data_type == "tabular":
             return self.trainer.get_available_models()
+        elif self.data_type == "text":
+            return self.trainer.get_available_models()
         elif self.data_type == "image":
             return {
                 "classification": ["resnet18", "resnet50", "vgg16", "mobilenet"],
@@ -152,7 +181,14 @@ class UnifiedModelTrainer:
             Trained model and metrics
         """
         if self.data_type == "tabular":
-            # For tabular data, only pass model_name and use_hyperparameter_tuning
+            # For tabular data, pass model_name, use_hyperparameter_tuning, and trials
+            training_kwargs = {
+                'use_hyperparameter_tuning': kwargs.get('use_hyperparameter_tuning', True),
+                'trials': kwargs.get('trials', 10)
+            }
+            return self.trainer.train_model(model_name, **training_kwargs)
+        
+        elif self.data_type == "text":
             training_kwargs = {
                 'use_hyperparameter_tuning': kwargs.get('use_hyperparameter_tuning', True)
             }
@@ -183,6 +219,15 @@ class UnifiedModelTrainer:
                     "shape": self.trainer.df.shape,
                     "columns": list(self.trainer.df.columns),
                     "dtypes": self.trainer.df.dtypes.to_dict()
+                })
+        elif self.data_type == "text":
+            if hasattr(self.trainer, 'df'):
+                info.update({
+                    "shape": self.trainer.df.shape,
+                    "columns": list(self.trainer.df.columns),
+                    "dtypes": {col: str(dtype) for col, dtype in self.trainer.df.dtypes.to_dict().items()},
+                    "text_col": self.trainer.text_col,
+                    "target_col": self.trainer.target_col
                 })
         elif self.data_type == "image":
             if hasattr(self.trainer, 'class_names'):
