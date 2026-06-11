@@ -24,6 +24,7 @@ import TestModel from './pages/TestModel';
 import Deployment from './pages/Deployment';
 import Versions from './pages/Versions';
 import NLPPlayground from './pages/NLPPlayground';
+import FeatureEngineering from './pages/FeatureEngineering';
 
 // Protected Route Guard
 const ProtectedRoute = ({ children }) => {
@@ -50,11 +51,12 @@ const PipelineNavigation = ({ datasetStatus, models }) => {
   const navigate = useNavigate();
   const location = useLocation();
 
-  const steps = ['upload', 'preprocess', 'eda', 'train', 'test', 'deploy'];
+  const steps = ['upload', 'preprocess', 'eda', 'feature-eng', 'train', 'test', 'deploy'];
   const stepTitles = [
     'Data Upload',
     'Preprocessing',
     'EDA Analysis',
+    'Feature Engineering',
     'Train Model',
     'Test Model',
     'Model Deploy'
@@ -259,6 +261,11 @@ const EDAAdapter = () => {
   return <EDA datasetStatus={datasetStatus} />;
 };
 
+const FeatureEngineeringAdapter = () => {
+  const { datasetStatus, refreshStatus } = useOutletContext();
+  return <FeatureEngineering datasetStatus={datasetStatus} refreshStatus={refreshStatus} />;
+};
+
 const TrainModelAdapter = () => {
   const { project, datasetStatus, refreshStatus } = useOutletContext();
   return <TrainModel project={project} datasetStatus={datasetStatus} refreshModels={refreshStatus} />;
@@ -355,6 +362,7 @@ const App = () => {
             <Route path="upload" element={<DataUploadAdapter />} />
             <Route path="preprocess" element={<PreprocessingAdapter />} />
             <Route path="eda" element={<EDAAdapter />} />
+            <Route path="feature-eng" element={<FeatureEngineeringAdapter />} />
             <Route path="train" element={<TrainModelAdapter />} />
             <Route path="test" element={<TestModelAdapter />} />
             <Route path="deploy" element={<DeploymentAdapter />} />

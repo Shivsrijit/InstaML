@@ -141,6 +141,13 @@ const Sidebar = ({ project, datasetStatus, hasModels }) => {
             </li>
 
             <li className={`menu-item ${!hasData ? 'disabled' : ''}`}>
+              <NavLink to={`/projects/${project_id}/feature-eng`} className={({ isActive }) => isActive ? 'active' : ''}>
+                <i className="fa-solid fa-wand-magic-sparkles"></i>
+                <span>Feature Engineering</span>
+              </NavLink>
+            </li>
+
+            <li className={`menu-item ${!hasData ? 'disabled' : ''}`}>
               <NavLink to={`/projects/${project_id}/train`} className={({ isActive }) => isActive ? 'active' : ''}>
                 <i className="fa-solid fa-gears"></i>
                 <span>Train Model</span>

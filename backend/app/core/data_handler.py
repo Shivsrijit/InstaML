@@ -231,4 +231,107 @@ def apply_preprocessing_operations(df: pd.DataFrame, operations: list) -> pd.Dat
                     except Exception:
                         df[new_col] = pd.cut(df[col], bins=bins, labels=False)
                         
+        elif op == "feature_select":
+            method = op_data.get("method")
+            target_col = op_data.get("target_col")
+            
+            # 1. Variance Threshold
+            if method == "variance_threshold":
+                threshold = float(op_data.get("threshold", 0.0))
+                num_cols = df.select_dtypes(include=[np.number]).columns.tolist()
+                if num_cols:
+                    from sklearn.feature_selection import VarianceThreshold
+                    selector = VarianceThreshold(threshold=threshold)
+                    selector.fit(df[num_cols].fillna(df[num_cols].median()))
+                    features_keep = df[num_cols].columns[selector.get_support()].tolist()
+                    cat_cols = df.select_dtypes(exclude=[np.number]).columns.tolist()
+                    all_keep = cat_cols + features_keep
+                    if target_col and target_col in df.columns and target_col not in all_keep:
+                        all_keep.append(target_col)
+                    df = df[[c for c in df.columns if c in all_keep]]
+                    
+            # 2. SelectKBest
+            elif method == "select_k_best":
+                k = op_data.get("k", 5)
+                num_cols = df.select_dtypes(include=[np.number]).columns.tolist()
+                if target_col in num_cols:
+                    num_cols.remove(target_col)
+                
+                if num_cols and target_col in df.columns:
+                    from sklearn.feature_selection import SelectKBest, f_classif, f_regression
+                    task = op_data.get("task", "classification").lower()
+                    score_func = f_classif if "class" in task else f_regression
+                    
+                    X = df[num_cols].fillna(df[num_cols].median())
+                    y = df[target_col]
+                    if not np.issubdtype(y.dtype, np.number):
+                        from sklearn.preprocessing import LabelEncoder
+                        y = LabelEncoder().fit_transform(y.astype(str))
+                    else:
+                        y = y.fillna(y.median())
+                    
+                    k_val = min(int(k), len(num_cols))
+                    if k_val > 0:
+                        selector = SelectKBest(score_func=score_func, k=k_val)
+                        selector.fit(X, y)
+                        features_keep = [num_cols[i] for i in selector.get_support(indices=True)]
+                        cat_cols = df.select_dtypes(exclude=[np.number]).columns.tolist()
+                        all_keep = cat_cols + features_keep
+                        if target_col not in all_keep:
+                            all_keep.append(target_col)
+                        df = df[[c for c in df.columns if c in all_keep]]
+                        
+            # 3. RFE / RFECV
+            elif method in ["rfe", "rfecv"]:
+                n_features = int(op_data.get("n_features", 5))
+                num_cols = df.select_dtypes(include=[np.number]).columns.tolist()
+                if target_col in num_cols:
+                    num_cols.remove(target_col)
+                    
+                if num_cols and target_col in df.columns:
+                    X = df[num_cols].fillna(df[num_cols].median())
+                    y = df[target_col]
+                    if not np.issubdtype(y.dtype, np.number):
+                        from sklearn.preprocessing import LabelEncoder
+                        y = LabelEncoder().fit_transform(y.astype(str))
+                    else:
+                        y = y.fillna(y.median())
+                        
+                    task = op_data.get("task", "classification").lower()
+                    if "class" in task:
+                        from sklearn.ensemble import RandomForestClassifier
+                        estimator = RandomForestClassifier(n_estimators=50, random_state=42)
+                    else:
+                        from sklearn.ensemble import RandomForestRegressor
+                        estimator = RandomForestRegressor(n_estimators=50, random_state=42)
+                        
+                    if method == "rfe":
+                        from sklearn.feature_selection import RFE
+                        n_feat_val = min(n_features, len(num_cols))
+                        selector = RFE(estimator=estimator, n_features_to_select=n_feat_val, step=1)
+                    else:
+                        from sklearn.feature_selection import RFECV
+                        selector = RFECV(estimator=estimator, step=1, cv=3)
+                        
+                    selector.fit(X, y)
+                    features_keep = [num_cols[i] for i in selector.get_support(indices=True)]
+                    cat_cols = df.select_dtypes(exclude=[np.number]).columns.tolist()
+                    all_keep = cat_cols + features_keep
+                    if target_col not in all_keep:
+                        all_keep.append(target_col)
+                    df = df[[c for c in df.columns if c in all_keep]]
+                    
+            # 4. Correlation Threshold
+            elif method == "correlation_threshold":
+                threshold = float(op_data.get("threshold", 0.85))
+                num_cols = df.select_dtypes(include=[np.number]).columns.tolist()
+                if target_col in num_cols:
+                    num_cols.remove(target_col)
+                    
+                if len(num_cols) > 1:
+                    corr_matrix = df[num_cols].corr().abs()
+                    upper = corr_matrix.where(np.triu(np.ones(corr_matrix.shape), k=1).astype(bool))
+                    to_drop = [column for column in upper.columns if any(upper[column] > threshold)]
+                    df = df.drop(columns=to_drop)
+                    
     return df

@@ -47,17 +47,24 @@ const Guidelines = () => {
     },
     {
       step: "05",
+      title: "Feature Engineering & Selection",
+      description: "Construct powerful engineered features using math operations, mathematical transformations (log, sqrt), or continuous binning. Apply advanced feature selection like Variance Thresholding, ANOVA SelectKBest, and Recursive Feature Elimination (RFE) to prune non-informative columns.",
+      icon: "fa-solid fa-wand-magic-sparkles",
+      color: "var(--accent-purple)"
+    },
+    {
+      step: "06",
       title: "Configure Training & Optuna Tuning",
       description: "Select validation ratios (e.g. 80/20 train-test splits) and configure machine learning models (XGBoost, Random Forest, ResNet, Text CNNs). Scale up background hyperparameter tuning with Optuna search trials.",
       icon: "fa-solid fa-gears",
       color: "var(--accent-primary)"
     },
     {
-      step: "06",
+      step: "07",
       title: "Testing & REST API Deployments",
       description: "Evaluate your models on the Test page (accuracy, confusion matrix, loss logs). Deploy a model dynamically as a serverless REST endpoint, then copy the auto-generated integration snippets (curl, javascript, python) to embed inside your application code.",
       icon: "fa-solid fa-rocket",
-      color: "var(--accent-purple)"
+      color: "var(--accent-green)"
     }
   ];
 

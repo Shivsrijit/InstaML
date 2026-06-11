@@ -5,23 +5,25 @@
 1. [Platform Overview](#platform-overview)
 2. [Data Preprocessing](#data-preprocessing)
 3. [Exploratory Data Analysis](#exploratory-data-analysis)
-4. [Model Training](#model-training)
-5. [Model Evaluation](#model-evaluation)
-6. [Deployment](#deployment)
-7. [Best Practices](#best-practices)
+4. [Feature Engineering & Selection](#feature-engineering-selection)
+5. [Model Training](#model-training)
+6. [Model Evaluation](#model-evaluation)
+7. [Deployment](#deployment)
+8. [Best Practices](#best-practices)
 
 ## Platform Overview
 
-InstaML provides a complete machine learning workflow through six main modules, each designed to handle specific aspects of the ML pipeline.
+InstaML provides a complete machine learning workflow through seven main modules, each designed to handle specific aspects of the ML pipeline.
 
 ### Module Structure
 
 1. **Data Upload** - Import and validate datasets
 2. **Data Preprocessing** - Clean and prepare data for modeling
 3. **EDA (Exploratory Data Analysis)** - Understand data patterns and relationships
-4. **Train Model** - Build and optimize machine learning models
-5. **Test Model** - Evaluate model performance and validate results
-6. **Deploy Model** - Make models available for real-world predictions
+4. **Feature Engineering & Selection** - Construct powerful features and prune dimensions
+5. **Train Model** - Build and optimize machine learning models
+6. **Test Model** - Evaluate model performance and validate results
+7. **Deploy Model** - Make models available for real-world predictions
 
 ## Data Preprocessing
 
@@ -105,6 +107,59 @@ InstaML provides a complete machine learning workflow through six main modules, 
 - **Correlation Analysis**: Pearson, Spearman correlation coefficients
 - **Feature Importance**: Relative importance of features for prediction
 - **Distribution Testing**: Normality tests and distribution fitting
+
+## Feature Engineering & Selection
+
+Feature engineering and selection are crucial steps in building powerful, robust machine learning models. InstaML separates these into dedicated panels to give you granular control over input dimensions.
+
+### Feature Engineering
+Feature Engineering allows you to synthesize new dimensions from existing features, providing stronger learning signals to the models.
+
+#### 1. Mathematical Operations
+Create a new feature by combining two existing numerical features using basic arithmetic operators:
+- **Addition ($+$)**: Useful for summing counts, parts, or magnitudes.
+- **Subtraction ($-$)**: Calculates differences (e.g., age from birth year).
+- **Multiplication ($*$)**: Captures interaction effects (e.g., Area $=$ Width $\times$ Height).
+- **Division ($/$)**: Creates ratios (e.g., income-to-loan ratio). Handles division-by-zero errors safely by adding a minor epsilon ($1\times10^{-9}$).
+
+#### 2. Mathematical Transformations
+Modify skewness and distribution of numerical columns:
+- **Logarithm ($\ln(x)$)**: Stabilizes variance and normalizes right-skewed data distributions (e.g., salary, price).
+- **Square Root ($\sqrt{x}$)**: Dampens the effect of extreme values.
+- **Square ($x^2$)**: Amplifies differences in high-value ranges.
+- **Absolute Value ($|x|$)**: Disregards negative directions to capture magnitude.
+
+#### 3. Continuous Binning
+Discretizes continuous numerical values into ordinal categories (bins/quantiles). Helps algorithms like linear models capture non-linear steps.
+
+---
+
+### Feature Selection
+Feature Selection is the process of reducing the number of input variables when developing a predictive model. It helps simplify the model, speed up training, and reduce overfitting by removing redundant or noisy columns.
+
+#### 1. Variance Threshold
+An unsupervised selection filter. It calculates the variance of each numerical feature and drops any column with variance below the threshold.
+- **When to use**: To remove columns that are constant or near-constant across all samples.
+- **Mathematical Form**: Drops feature $X$ if:
+  $$\text{Var}(X) = \frac{1}{N} \sum_{i=1}^N (x_i - \mu)^2 \le \theta$$
+  where $\theta$ is the user-defined threshold (default is $0.01$).
+
+#### 2. Select K Best (ANOVA)
+A supervised univariate selection method. It scores each numeric feature against the target column and keeps the top $k$ highest-scoring columns.
+- **Classification Tasks**: Uses ANOVA F-value (`f_classif`) to check if means of features differ significantly across classes.
+- **Regression Tasks**: Uses univariate linear regression F-test (`f_regression`) to check for linear dependency with the continuous target.
+- **When to use**: When you want a quick, model-agnostic ranking of features based on individual correlation with the target.
+
+#### 3. Correlation-based Filter
+A filter method designed to combat multi-collinearity. It computes the absolute Pearson correlation matrix of all features. If two features have a correlation coefficient exceeding the threshold, one of the features is removed.
+- **When to use**: To drop highly redundant variables (e.g., keeping only one of `zip_code` and `postal_code`).
+- **Standard Threshold**: $0.85$.
+
+#### 4. Recursive Feature Elimination (RFE & RFECV)
+A supervised wrapper method. RFE starts with all features, fits a model (Random Forest is used as the default), ranks features by importance, and removes the least important features recursively until the target number of features is reached.
+- **RFE**: Drops features until a user-specified count $n$ is reached.
+- **RFECV**: Performs RFE within a cross-validation loop ($3$-fold split) to automatically find the optimal number of features that yields the highest validation score.
+- **When to use**: To leverage non-linear model weights and interaction effects to obtain the absolute best feature subset.
 
 ## Model Training
 
