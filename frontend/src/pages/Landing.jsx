@@ -201,8 +201,8 @@ const Landing = () => {
 
       {/* Features Bento Grid Section */}
       <section id="features" className="landing-section" style={{ padding: '6rem 2rem', borderBottom: '1px solid var(--border-color)' }}>
-        <div style={{ textAlign: 'center', marginBottom: '4rem' }}>
-          <h2 style={{ fontSize: '2.5rem', fontFamily: 'var(--font-display)', fontWeight: 500, color: 'var(--text-main)', letterSpacing: '-0.02em' }}>Automatic ML Pipeline Stages</h2>
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', marginBottom: '4rem' }}>
+          <h2 style={{ fontSize: '2.5rem', fontFamily: 'var(--font-display)', fontWeight: 500, color: 'var(--text-main)', letterSpacing: '-0.02em', margin: '0 auto' }}>Automatic ML Pipeline Stages</h2>
           <p style={{ fontSize: '0.95rem', color: 'var(--text-muted)', marginTop: '0.5rem', fontFamily: 'var(--font-body)' }}>Everything you need to go from raw file formats to production serving APIs.</p>
         </div>
 
@@ -298,8 +298,8 @@ const Landing = () => {
 
       {/* FAQ Accordion Section */}
       <section id="faqs" className="landing-section" style={{ padding: '6rem 2rem', borderBottom: '1px solid var(--border-color)' }}>
-        <div style={{ textAlign: 'center', marginBottom: '4.5rem' }}>
-          <h2 style={{ fontSize: '2.5rem', fontFamily: 'var(--font-display)', fontWeight: 500, color: 'var(--text-main)', letterSpacing: '-0.02em' }}>Frequently Asked Questions</h2>
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', marginBottom: '4.5rem' }}>
+          <h2 style={{ fontSize: '2.5rem', fontFamily: 'var(--font-display)', fontWeight: 500, color: 'var(--text-main)', letterSpacing: '-0.02em', margin: '0 auto' }}>Frequently Asked Questions</h2>
           <p style={{ fontSize: '0.95rem', color: 'var(--text-muted)', marginTop: '0.5rem', fontFamily: 'var(--font-body)' }}>Quick answers to structural queries about the InstaML platform.</p>
         </div>
 

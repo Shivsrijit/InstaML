@@ -24,6 +24,103 @@ app = FastAPI(
 class PredictRequest(BaseModel):
     features: Dict[str, Any]
 
+def preprocess_raw_input(project_id: int, active_model: Any, input_df: pd.DataFrame) -> pd.DataFrame:
+    """Preprocess raw input DataFrame using the project's historical preprocessing operations."""
+    if not active_model.dataset_version_id:
+        return input_df
+        
+    upload_versions = query_sync(
+        "SELECT * FROM dataset_versions WHERE project_id = ? AND step_name = 'Data Upload' ORDER BY id ASC LIMIT 1",
+        [project_id]
+    )
+    if not upload_versions:
+        return input_df
+        
+    upload_version = upload_versions[0]
+    try:
+        from backend.app.core.data_handler import load_dataframe, apply_preprocessing_operations
+        raw_df = load_dataframe(upload_version.file_path)
+        
+        # Collect operations back to upload version
+        operations_list = []
+        current_id = active_model.dataset_version_id
+        import json
+        while True:
+            rows = query_sync("SELECT * FROM dataset_versions WHERE project_id = ? AND id = ?", [project_id, current_id])
+            if not rows:
+                break
+            version = rows[0]
+            
+            metadata = {}
+            if version.metadata_json:
+                try:
+                    metadata = json.loads(version.metadata_json)
+                except:
+                    pass
+                    
+            if version.step_name == "Restore Checkpoint":
+                restored_from_vid = metadata.get("restored_from")
+                if restored_from_vid:
+                    r_rows = query_sync("SELECT id FROM dataset_versions WHERE project_id = ? AND version_id = ?", [project_id, restored_from_vid])
+                    if r_rows:
+                        current_id = r_rows[0].id
+                        continue
+                prev_rows = query_sync("SELECT id FROM dataset_versions WHERE project_id = ? AND id < ? ORDER BY id DESC LIMIT 1", [project_id, version.id])
+                if prev_rows:
+                    current_id = prev_rows[0].id
+                else:
+                    break
+            elif version.step_name in ["Preprocessing", "Feature Engineering"]:
+                ops = metadata.get("operations", [])
+                operations_list = ops + operations_list
+                prev_rows = query_sync("SELECT id FROM dataset_versions WHERE project_id = ? AND id < ? ORDER BY id DESC LIMIT 1", [project_id, version.id])
+                if prev_rows:
+                    current_id = prev_rows[0].id
+                else:
+                    break
+            elif version.step_name == "Data Upload":
+                break
+            else:
+                ops = metadata.get("operations", [])
+                operations_list = ops + operations_list
+                prev_rows = query_sync("SELECT id FROM dataset_versions WHERE project_id = ? AND id < ? ORDER BY id DESC LIMIT 1", [project_id, version.id])
+                if prev_rows:
+                    current_id = prev_rows[0].id
+                else:
+                    break
+                    
+        # Apply operations on combined dataframe
+        if operations_list:
+            # Align input_df columns with raw_df columns
+            for col in raw_df.columns:
+                if col not in input_df.columns:
+                    input_df[col] = np.nan
+            input_df = input_df[raw_df.columns]
+            
+            # Combine
+            combined_df = pd.concat([raw_df, input_df], ignore_index=True)
+            
+            # Run operations
+            preprocessed_combined = apply_preprocessing_operations(combined_df, operations_list)
+            
+            # Extract input rows back
+            input_df = preprocessed_combined.iloc[-len(input_df):]
+            
+        # Align final input columns with model expected columns
+        model_version_rows = query_sync("SELECT columns_json FROM dataset_versions WHERE id = ?", [active_model.dataset_version_id])
+        if model_version_rows:
+            model_cols = json.loads(model_version_rows[0].columns_json)
+            expected_features = [col for col in model_cols if col != active_model.target_col]
+            for col in expected_features:
+                if col not in input_df.columns:
+                    input_df[col] = 0.0
+            input_df = input_df[expected_features]
+            
+    except Exception as prep_err:
+        print(f"Error applying predict-time preprocessing: {prep_err}")
+        
+    return input_df
+
 @app.post("/projects/{project_id}/predict")
 def predict_realtime(
     project_id: int,
@@ -58,6 +155,7 @@ def predict_realtime(
         else:
             # Convert input features to a DataFrame with one row
             input_df = pd.DataFrame([req.features])
+            input_df = preprocess_raw_input(project_id, active_model, input_df)
             predictions = pipeline.predict(input_df)
             
         prediction_val = predictions[0]
@@ -110,6 +208,7 @@ def predict_batch(
         if active_model.target_col in predict_df.columns:
             predict_df = predict_df.drop(columns=[active_model.target_col])
             
+        predict_df = preprocess_raw_input(project_id, active_model, predict_df)
         preds = pipeline.predict(predict_df)
         df["prediction"] = preds
         

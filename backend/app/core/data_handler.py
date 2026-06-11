@@ -192,4 +192,43 @@ def apply_preprocessing_operations(df: pd.DataFrame, operations: list) -> pd.Dat
                 df = df.drop(columns=existing_cols)
                 df = pd.concat([df, pca_df], axis=1)
                 
+        elif op == "feature_eng":
+            fe_type = op_data.get("fe_type")
+            if fe_type == "math_op":
+                col1 = op_data.get("col1")
+                col2 = op_data.get("col2")
+                operator = op_data.get("operator")
+                new_col = op_data.get("new_col")
+                if col1 in df.columns and col2 in df.columns and operator and new_col:
+                    if operator == "+":
+                        df[new_col] = df[col1] + df[col2]
+                    elif operator == "-":
+                        df[new_col] = df[col1] - df[col2]
+                    elif operator == "*":
+                        df[new_col] = df[col1] * df[col2]
+                    elif operator == "/":
+                        df[new_col] = df[col1] / (df[col2] + 1e-9)
+            elif fe_type == "math_transform":
+                col = op_data.get("column")
+                transform = op_data.get("transform")
+                new_col = op_data.get("new_col")
+                if col in df.columns and transform and new_col:
+                    if transform == "log":
+                        df[new_col] = np.log(np.maximum(df[col], 1e-9))
+                    elif transform == "sqrt":
+                        df[new_col] = np.sqrt(np.maximum(df[col], 0))
+                    elif transform == "square":
+                        df[new_col] = df[col] ** 2
+                    elif transform == "abs":
+                        df[new_col] = df[col].abs()
+            elif fe_type == "binning":
+                col = op_data.get("column")
+                bins = int(op_data.get("bins", 4))
+                new_col = op_data.get("new_col")
+                if col in df.columns and new_col:
+                    try:
+                        df[new_col] = pd.qcut(df[col], q=bins, labels=False, duplicates='drop')
+                    except Exception:
+                        df[new_col] = pd.cut(df[col], bins=bins, labels=False)
+                        
     return df

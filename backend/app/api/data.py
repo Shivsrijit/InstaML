@@ -582,6 +582,20 @@ def get_current_dataset(
             columns = json.loads(latest_version.columns_json)
             dtypes = json.loads(latest_version.dtypes_json)
             
+            # Fetch first version (upload version) to get initial columns/dtypes
+            first_versions = query_sync(
+                "SELECT columns_json, dtypes_json FROM dataset_versions WHERE project_id = ? ORDER BY id ASC LIMIT 1",
+                [project_id]
+            )
+            initial_columns = columns
+            initial_dtypes = dtypes
+            if first_versions:
+                try:
+                    initial_columns = json.loads(first_versions[0].columns_json)
+                    initial_dtypes = json.loads(first_versions[0].dtypes_json)
+                except:
+                    pass
+            
             return {
                 "data_loaded": True,
                 "version_id": latest_version.version_id,
@@ -590,6 +604,8 @@ def get_current_dataset(
                 "shape": [latest_version.shape_rows, latest_version.shape_cols],
                 "columns": columns,
                 "dtypes": dtypes,
+                "initial_columns": initial_columns,
+                "initial_dtypes": initial_dtypes,
                 "missing_counts": missing_counts,
                 "missing_total": missing_total,
                 "duplicate_count": duplicate_count,

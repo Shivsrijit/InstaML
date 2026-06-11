@@ -32,14 +32,17 @@ const Deployment = ({ project, datasetStatus, models }) => {
     setDeployedModel(deployed || null);
     
     // Initialize default inputs
-    if (datasetStatus?.columns && deployed) {
+    const formColumns = datasetStatus?.initial_columns || datasetStatus?.columns;
+    const formDtypes = datasetStatus?.initial_dtypes || datasetStatus?.dtypes;
+    
+    if (formColumns && deployed) {
       const initVals = {};
       const target = deployed.target_col;
       
-      datasetStatus.columns.forEach(col => {
+      formColumns.forEach(col => {
         if (col !== target) {
           // Default numeric columns to 0, categoricals to empty string
-          const dtype = datasetStatus.dtypes?.[col];
+          const dtype = formDtypes?.[col];
           if (dtype?.includes('int') || dtype?.includes('float')) {
             initVals[col] = 0.0;
           } else {
@@ -390,7 +393,9 @@ const Deployment = ({ project, datasetStatus, models }) => {
     );
   }
 
-  const featureCols = datasetStatus.columns?.filter(c => c !== deployedModel.target_col) || [];
+  const formColumns = datasetStatus?.initial_columns || datasetStatus?.columns || [];
+  const formDtypes = datasetStatus?.initial_dtypes || datasetStatus?.dtypes || {};
+  const featureCols = formColumns.filter(c => c !== deployedModel.target_col) || [];
 
   return (
     <div>
@@ -559,7 +564,7 @@ const Deployment = ({ project, datasetStatus, models }) => {
                 <form onSubmit={handlePredictRealtime}>
                   <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '1rem', maxHeight: '400px', overflowY: 'auto', paddingRight: '0.5rem', marginBottom: '1.5rem' }}>
                     {featureCols.map(col => {
-                      const dtype = datasetStatus.dtypes?.[col];
+                      const dtype = formDtypes[col];
                       const isNum = dtype?.includes('int') || dtype?.includes('float');
                       return (
                         <div className="form-group" key={col} style={{ margin: 0 }}>

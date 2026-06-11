@@ -128,6 +128,17 @@ const Preprocessing = ({ datasetStatus, refreshStatus }) => {
   const [pcaCols, setPcaCols] = useState([]);
   const [pcaNumComponents, setPcaNumComponents] = useState(2);
 
+  // Feature Engineering state
+  const [feType, setFeType] = useState('math_op');
+  const [feCol1, setFeCol1] = useState('');
+  const [feCol2, setFeCol2] = useState('');
+  const [feOperator, setFeOperator] = useState('+');
+  const [feTransformCol, setFeTransformCol] = useState('');
+  const [feTransform, setFeTransform] = useState('log');
+  const [feBinCol, setFeBinCol] = useState('');
+  const [feBinNum, setFeBinNum] = useState(4);
+  const [feNewCol, setFeNewCol] = useState('');
+
   // Boxplot state
   const [boxplotStats, setBoxplotStats] = useState(null);
   const [boxplotLoading, setBoxplotLoading] = useState(false);
@@ -157,6 +168,18 @@ const Preprocessing = ({ datasetStatus, refreshStatus }) => {
           return dtype.includes('int') || dtype.includes('float') || dtype.includes('double') || dtype.includes('number');
         });
         setOutlierCol(firstNumeric || '');
+      }
+
+      // Feature engineering defaults
+      const numericCols = datasetStatus.columns.filter(c => {
+        const dtype = datasetStatus.dtypes?.[c]?.toLowerCase() || '';
+        return dtype.includes('int') || dtype.includes('float') || dtype.includes('double') || dtype.includes('number');
+      });
+      if (numericCols.length > 0) {
+        if (!feCol1) setFeCol1(numericCols[0]);
+        if (!feCol2) setFeCol2(numericCols[Math.min(1, numericCols.length - 1)]);
+        if (!feTransformCol) setFeTransformCol(numericCols[0]);
+        if (!feBinCol) setFeBinCol(numericCols[0]);
       }
     }
   }, [datasetStatus]);
@@ -346,6 +369,51 @@ const Preprocessing = ({ datasetStatus, refreshStatus }) => {
     applyPreprocessing([{ op: "pca", columns: pcaCols, n_components: pcaNumComponents }]);
   };
 
+  const handleFeatureEngineering = () => {
+    if (!feNewCol.trim()) {
+      toast.error("Please provide a name for the new column.");
+      return;
+    }
+    
+    if (datasetStatus.columns?.includes(feNewCol.trim())) {
+      toast.error("A column with this name already exists.");
+      return;
+    }
+    
+    let operation = {
+      op: "feature_eng",
+      fe_type: feType,
+      new_col: feNewCol.trim()
+    };
+    
+    if (feType === 'math_op') {
+      if (!feCol1 || !feCol2) {
+        toast.error("Please select both columns for the mathematical operation.");
+        return;
+      }
+      operation.col1 = feCol1;
+      operation.col2 = feCol2;
+      operation.operator = feOperator;
+    } else if (feType === 'math_transform') {
+      if (!feTransformCol) {
+        toast.error("Please select a column to transform.");
+        return;
+      }
+      operation.column = feTransformCol;
+      operation.transform = feTransform;
+    } else if (feType === 'binning') {
+      if (!feBinCol) {
+        toast.error("Please select a column to bin.");
+        return;
+      }
+      operation.column = feBinCol;
+      operation.bins = parseInt(feBinNum) || 4;
+    }
+    
+    applyPreprocessing([operation]);
+    setFeNewCol('');
+  };
+
   if (!datasetStatus?.data_loaded) return null;
 
   return (
@@ -383,6 +451,10 @@ const Preprocessing = ({ datasetStatus, refreshStatus }) => {
         <button className={`tab-btn ${activeTab === 'pca' ? 'active' : ''}`} onClick={() => setActiveTab('pca')}>
           <i className="fa-solid fa-calculator" style={{ marginRight: '0.5rem' }}></i>
           PCA / Dim Reduction
+        </button>
+        <button className={`tab-btn ${activeTab === 'feature_eng' ? 'active' : ''}`} onClick={() => setActiveTab('feature_eng')}>
+          <i className="fa-solid fa-wand-magic-sparkles" style={{ marginRight: '0.5rem' }}></i>
+          Feature Engineering
         </button>
       </div>
 
@@ -765,6 +837,181 @@ const Preprocessing = ({ datasetStatus, refreshStatus }) => {
 
             <button onClick={handleApplyPca} className="btn btn-primary" style={{ marginTop: '1rem' }}>
               Apply PCA Dimensionality Reduction
+            </button>
+          </div>
+        )}
+
+        {/* Tab 6: Feature Engineering */}
+        {activeTab === 'feature_eng' && (
+          <div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem' }}>
+              <h3 style={{ fontSize: '1rem', margin: 0, fontWeight: 600 }}>Feature Engineering</h3>
+            </div>
+            <p className="card-subtitle">Create new calculated columns, apply math transformations, or bin continuous values to generate stronger training signals.</p>
+
+            <div style={{ display: 'flex', gap: '1rem', marginBottom: '1.5rem', borderBottom: '1px solid var(--border-color)', paddingBottom: '1rem' }}>
+              <button 
+                type="button" 
+                className={`btn ${feType === 'math_op' ? 'btn-primary' : 'btn-secondary'}`} 
+                onClick={() => setFeType('math_op')}
+                style={{ fontSize: '0.8rem', padding: '0.5rem 1rem' }}
+              >
+                Math Operation (+, -, *, /)
+              </button>
+              <button 
+                type="button" 
+                className={`btn ${feType === 'math_transform' ? 'btn-primary' : 'btn-secondary'}`} 
+                onClick={() => setFeType('math_transform')}
+                style={{ fontSize: '0.8rem', padding: '0.5rem 1rem' }}
+              >
+                Math Transform (log, sqrt, square)
+              </button>
+              <button 
+                type="button" 
+                className={`btn ${feType === 'binning' ? 'btn-primary' : 'btn-secondary'}`} 
+                onClick={() => setFeType('binning')}
+                style={{ fontSize: '0.8rem', padding: '0.5rem 1rem' }}
+              >
+                Continuous Binning
+              </button>
+            </div>
+
+            <div className="grid-2" style={{ alignItems: 'start', margin: '1.5rem 0' }}>
+              <div>
+                {/* Mode 1: Math Operation */}
+                {feType === 'math_op' && (
+                  <div>
+                    <div className="form-group">
+                      <label className="form-label">First Column (Operand 1)</label>
+                      <select 
+                        className="form-control" 
+                        value={feCol1} 
+                        onChange={(e) => setFeCol1(e.target.value)}
+                        style={{ cursor: 'pointer' }}
+                      >
+                        {getNumericColumns().map(col => (
+                          <option key={col} value={col}>{col}</option>
+                        ))}
+                      </select>
+                    </div>
+
+                    <div className="form-group">
+                      <label className="form-label">Operator</label>
+                      <select 
+                        className="form-control" 
+                        value={feOperator} 
+                        onChange={(e) => setFeOperator(e.target.value)}
+                        style={{ cursor: 'pointer' }}
+                      >
+                        <option value="+">Addition (+)</option>
+                        <option value="-">Subtraction (-)</option>
+                        <option value="*">Multiplication (*)</option>
+                        <option value="/">Division (/)</option>
+                      </select>
+                    </div>
+
+                    <div className="form-group">
+                      <label className="form-label">Second Column (Operand 2)</label>
+                      <select 
+                        className="form-control" 
+                        value={feCol2} 
+                        onChange={(e) => setFeCol2(e.target.value)}
+                        style={{ cursor: 'pointer' }}
+                      >
+                        {getNumericColumns().map(col => (
+                          <option key={col} value={col}>{col}</option>
+                        ))}
+                      </select>
+                    </div>
+                  </div>
+                )}
+
+                {/* Mode 2: Math Transform */}
+                {feType === 'math_transform' && (
+                  <div>
+                    <div className="form-group">
+                      <label className="form-label">Select Column to Transform</label>
+                      <select 
+                        className="form-control" 
+                        value={feTransformCol} 
+                        onChange={(e) => setFeTransformCol(e.target.value)}
+                        style={{ cursor: 'pointer' }}
+                      >
+                        {getNumericColumns().map(col => (
+                          <option key={col} value={col}>{col}</option>
+                        ))}
+                      </select>
+                    </div>
+
+                    <div className="form-group">
+                      <label className="form-label">Mathematical Transformation</label>
+                      <select 
+                        className="form-control" 
+                        value={feTransform} 
+                        onChange={(e) => setFeTransform(e.target.value)}
+                        style={{ cursor: 'pointer' }}
+                      >
+                        <option value="log">Logarithm (ln(x))</option>
+                        <option value="sqrt">Square Root (sqrt(x))</option>
+                        <option value="square">Square (x^2)</option>
+                        <option value="abs">Absolute Value (|x|)</option>
+                      </select>
+                    </div>
+                  </div>
+                )}
+
+                {/* Mode 3: Binning */}
+                {feType === 'binning' && (
+                  <div>
+                    <div className="form-group">
+                      <label className="form-label">Select Numerical Column</label>
+                      <select 
+                        className="form-control" 
+                        value={feBinCol} 
+                        onChange={(e) => setFeBinCol(e.target.value)}
+                        style={{ cursor: 'pointer' }}
+                      >
+                        {getNumericColumns().map(col => (
+                          <option key={col} value={col}>{col}</option>
+                        ))}
+                      </select>
+                    </div>
+
+                    <div className="form-group">
+                      <label className="form-label">Number of Bins (Quantiles)</label>
+                      <input 
+                        type="number" 
+                        min="2" 
+                        max="20"
+                        className="form-control" 
+                        value={feBinNum} 
+                        onChange={(e) => setFeBinNum(Math.max(2, parseInt(e.target.value) || 4))}
+                      />
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              <div>
+                <div className="form-group">
+                  <label className="form-label">New Column Output Name</label>
+                  <input 
+                    type="text" 
+                    placeholder="e.g. log_income or age_binned"
+                    className="form-control"
+                    value={feNewCol}
+                    onChange={(e) => setFeNewCol(e.target.value.replace(/\s+/g, '_'))}
+                    required
+                  />
+                  <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: '0.25rem', display: 'block' }}>
+                    Standard spaces will be automatically replaced with underscores.
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            <button onClick={handleFeatureEngineering} className="btn btn-primary" style={{ marginTop: '1rem' }} disabled={!feNewCol.trim()}>
+              Create Engineered Feature
             </button>
           </div>
         )}
