@@ -265,7 +265,6 @@ def apply_preprocessing_operations(df: pd.DataFrame, operations: list) -> pd.Dat
                     X = df[num_cols].fillna(df[num_cols].median())
                     y = df[target_col]
                     if not np.issubdtype(y.dtype, np.number):
-                        from sklearn.preprocessing import LabelEncoder
                         y = LabelEncoder().fit_transform(y.astype(str))
                     else:
                         y = y.fillna(y.median())
@@ -292,7 +291,6 @@ def apply_preprocessing_operations(df: pd.DataFrame, operations: list) -> pd.Dat
                     X = df[num_cols].fillna(df[num_cols].median())
                     y = df[target_col]
                     if not np.issubdtype(y.dtype, np.number):
-                        from sklearn.preprocessing import LabelEncoder
                         y = LabelEncoder().fit_transform(y.astype(str))
                     else:
                         y = y.fillna(y.median())
