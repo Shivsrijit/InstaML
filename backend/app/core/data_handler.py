@@ -195,19 +195,34 @@ def apply_preprocessing_operations(df: pd.DataFrame, operations: list) -> pd.Dat
         elif op == "feature_eng":
             fe_type = op_data.get("fe_type")
             if fe_type == "math_op":
-                col1 = op_data.get("col1")
-                col2 = op_data.get("col2")
                 operator = op_data.get("operator")
                 new_col = op_data.get("new_col")
-                if col1 in df.columns and col2 in df.columns and operator and new_col:
-                    if operator == "+":
-                        df[new_col] = df[col1] + df[col2]
-                    elif operator == "-":
-                        df[new_col] = df[col1] - df[col2]
-                    elif operator == "*":
-                        df[new_col] = df[col1] * df[col2]
-                    elif operator == "/":
-                        df[new_col] = df[col1] / (df[col2] + 1e-9)
+                columns = op_data.get("columns", [])
+                
+                if not columns:
+                    col1 = op_data.get("col1")
+                    col2 = op_data.get("col2")
+                    if col1 and col2:
+                        columns = [col1, col2]
+                        
+                existing_cols = [c for c in columns if c in df.columns]
+                if len(existing_cols) >= 2 and operator and new_col:
+                    if operator == "/" and len(existing_cols) != 2:
+                        existing_cols = existing_cols[:2]
+                        
+                    result = df[existing_cols[0]].copy()
+                    for next_col in existing_cols[1:]:
+                        if operator == "+":
+                            result = result + df[next_col]
+                        elif operator == "-":
+                            result = result - df[next_col]
+                        elif operator == "*":
+                            result = result * df[next_col]
+                        elif operator == "/":
+                            # Replace 0 values with NaN to prevent division by zero
+                            denominator = df[next_col].replace(0, np.nan)
+                            result = result / denominator
+                    df[new_col] = result.round(4)
             elif fe_type == "math_transform":
                 col = op_data.get("column")
                 transform = op_data.get("transform")
@@ -221,6 +236,7 @@ def apply_preprocessing_operations(df: pd.DataFrame, operations: list) -> pd.Dat
                         df[new_col] = df[col] ** 2
                     elif transform == "abs":
                         df[new_col] = df[col].abs()
+                    df[new_col] = df[new_col].round(4)
             elif fe_type == "binning":
                 col = op_data.get("column")
                 bins = int(op_data.get("bins", 4))

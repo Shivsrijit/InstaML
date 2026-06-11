@@ -8,8 +8,7 @@ const FeatureEngineering = ({ datasetStatus, refreshStatus }) => {
 
   // Feature Engineering state
   const [feType, setFeType] = useState('math_op'); // 'math_op', 'math_transform', 'binning'
-  const [feCol1, setFeCol1] = useState('');
-  const [feCol2, setFeCol2] = useState('');
+  const [feCols, setFeCols] = useState([]);
   const [feOperator, setFeOperator] = useState('+');
   const [feTransformCol, setFeTransformCol] = useState('');
   const [feTransform, setFeTransform] = useState('log');
@@ -38,8 +37,6 @@ const FeatureEngineering = ({ datasetStatus, refreshStatus }) => {
     if (datasetStatus?.columns) {
       const numericCols = getNumericColumns();
       if (numericCols.length > 0) {
-        if (!feCol1) setFeCol1(numericCols[0]);
-        if (!feCol2) setFeCol2(numericCols[Math.min(1, numericCols.length - 1)]);
         if (!feTransformCol) setFeTransformCol(numericCols[0]);
         if (!feBinCol) setFeBinCol(numericCols[0]);
       }
@@ -53,6 +50,13 @@ const FeatureEngineering = ({ datasetStatus, refreshStatus }) => {
       setSelTargetCol(target || '');
     }
   }, [datasetStatus]);
+
+  useEffect(() => {
+    if (feOperator === '/' && feCols.length > 2) {
+      setFeCols(feCols.slice(0, 2));
+      toast.error("Division is only allowed for exactly 2 columns. Selected columns have been sliced to the first 2.");
+    }
+  }, [feOperator]);
 
   // Fetch preview when dataset status or row count changes
   const fetchPreview = async () => {
@@ -80,6 +84,18 @@ const FeatureEngineering = ({ datasetStatus, refreshStatus }) => {
       const dtype = datasetStatus.dtypes?.[c]?.toLowerCase() || '';
       return dtype.includes('int') || dtype.includes('float') || dtype.includes('double') || dtype.includes('number');
     });
+  };
+
+  const toggleFeColumn = (col) => {
+    if (feCols.includes(col)) {
+      setFeCols(feCols.filter(c => c !== col));
+    } else {
+      if (feOperator === '/' && feCols.length >= 2) {
+        toast.error("Division is only allowed for exactly 2 columns.");
+        return;
+      }
+      setFeCols([...feCols, col]);
+    }
   };
 
   const applyPreprocessing = async (operations) => {
@@ -113,12 +129,15 @@ const FeatureEngineering = ({ datasetStatus, refreshStatus }) => {
     };
     
     if (feType === 'math_op') {
-      if (!feCol1 || !feCol2) {
-        toast.error("Please select both columns for the mathematical operation.");
+      if (feOperator === '/' && feCols.length !== 2) {
+        toast.error("Division is only allowed for exactly 2 columns.");
         return;
       }
-      operation.col1 = feCol1;
-      operation.col2 = feCol2;
+      if (feCols.length < 2) {
+        toast.error("Please select at least 2 columns for the mathematical operation.");
+        return;
+      }
+      operation.columns = feCols;
       operation.operator = feOperator;
     } else if (feType === 'math_transform') {
       if (!feTransformCol) {
@@ -138,6 +157,7 @@ const FeatureEngineering = ({ datasetStatus, refreshStatus }) => {
     
     applyPreprocessing([operation]);
     setFeNewCol('');
+    setFeCols([]);
   };
 
   const handleFeatureSelection = () => {
@@ -237,20 +257,6 @@ const FeatureEngineering = ({ datasetStatus, refreshStatus }) => {
                 {feType === 'math_op' && (
                   <div>
                     <div className="form-group">
-                      <label className="form-label">First Column (Operand 1)</label>
-                      <select 
-                        className="form-control" 
-                        value={feCol1} 
-                        onChange={(e) => setFeCol1(e.target.value)}
-                        style={{ cursor: 'pointer' }}
-                      >
-                        {getNumericColumns().map(col => (
-                          <option key={col} value={col}>{col}</option>
-                        ))}
-                      </select>
-                    </div>
-
-                    <div className="form-group">
                       <label className="form-label">Operator</label>
                       <select 
                         className="form-control" 
@@ -265,18 +271,19 @@ const FeatureEngineering = ({ datasetStatus, refreshStatus }) => {
                       </select>
                     </div>
 
-                    <div className="form-group">
-                      <label className="form-label">Second Column (Operand 2)</label>
-                      <select 
-                        className="form-control" 
-                        value={feCol2} 
-                        onChange={(e) => setFeCol2(e.target.value)}
-                        style={{ cursor: 'pointer' }}
-                      >
-                        {getNumericColumns().map(col => (
-                          <option key={col} value={col}>{col}</option>
-                        ))}
-                      </select>
+                    <label className="form-label">Select Columns (Select 2 or more)</label>
+                    <div style={{ maxHeight: '180px', overflowY: 'auto', border: '1px solid var(--border-color)', borderRadius: 'var(--radius-sm)', padding: '0.75rem', marginBottom: '1.5rem', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                      {getNumericColumns().map(col => (
+                        <label key={col} style={{ display: 'flex', alignItems: 'center', gap: '0.65rem', padding: '0.25rem 0.5rem', cursor: 'pointer', fontSize: '0.85rem', userSelect: 'none', borderRadius: '4px', border: '1px solid ' + (feCols.includes(col) ? 'var(--border-focus)' : 'transparent'), backgroundColor: feCols.includes(col) ? 'var(--bg-active)' : 'transparent' }}>
+                          <input 
+                            type="checkbox" 
+                            checked={feCols.includes(col)} 
+                            onChange={() => toggleFeColumn(col)} 
+                            style={{ cursor: 'pointer', accentColor: 'var(--text-main)' }} 
+                          />
+                          <span style={{ fontWeight: feCols.includes(col) ? '600' : '500', color: feCols.includes(col) ? 'var(--text-main)' : 'var(--text-muted)' }}>{col}</span>
+                        </label>
+                      ))}
                     </div>
                   </div>
                 )}
