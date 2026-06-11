@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import api from '../services/api';
 import { toast } from 'react-hot-toast';
+import GuideDrawer from '../components/GuideDrawer';
 
 const getTasksForDataType = (type) => {
   switch(type) {
@@ -44,6 +45,7 @@ const DataUpload = ({ project, datasetStatus, refreshStatus }) => {
   const [pastedText, setPastedText] = useState('');
   const [activeTab, setActiveTab] = useState('file'); // 'file' or 'paste'
   const [taskUpdating, setTaskUpdating] = useState(false);
+  const [guideOpen, setGuideOpen] = useState(false);
 
   const dataType = project?.data_type || 'tabular';
   const isImageOrAudio = dataType === 'image' || dataType === 'audio';
@@ -350,6 +352,16 @@ const DataUpload = ({ project, datasetStatus, refreshStatus }) => {
           <h1 className="page-title">Data Upload</h1>
           <p className="page-subtitle">{getPageSubtitle()}</p>
         </div>
+        <div>
+          <button 
+            onClick={() => setGuideOpen(true)} 
+            className="btn btn-secondary"
+            style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.8rem', padding: '0.5rem 0.85rem' }}
+          >
+            <i className="fa-solid fa-graduation-cap"></i>
+            <span>Get to know more</span>
+          </button>
+        </div>
       </div>
 
       {project && (
@@ -508,6 +520,8 @@ const DataUpload = ({ project, datasetStatus, refreshStatus }) => {
       </div>
 
       {renderCurrentDataInfo()}
+
+      <GuideDrawer isOpen={guideOpen} onClose={() => setGuideOpen(false)} initialTopic="data_upload" />
     </div>
   );
 };

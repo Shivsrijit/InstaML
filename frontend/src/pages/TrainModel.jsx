@@ -2,9 +2,11 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import api from '../services/api';
+import GuideDrawer from '../components/GuideDrawer';
 
 const TrainModel = ({ project, datasetStatus, refreshModels }) => {
   const [targetCol, setTargetCol] = useState('');
+  const [guideOpen, setGuideOpen] = useState(false);
   const [textCol, setTextCol] = useState('');
   const [modelName, setModelName] = useState('Random Forest');
   const [useTuning, setUseTuning] = useState(false);
@@ -172,6 +174,16 @@ const TrainModel = ({ project, datasetStatus, refreshModels }) => {
         <div className="page-title-section">
           <h1 className="page-title">Model Training</h1>
           <p className="page-subtitle">Configure hyperparameters and train machine learning models on your dataset</p>
+        </div>
+        <div>
+          <button 
+            onClick={() => setGuideOpen(true)} 
+            className="btn btn-secondary"
+            style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.8rem', padding: '0.5rem 0.85rem' }}
+          >
+            <i className="fa-solid fa-graduation-cap"></i>
+            <span>Get to know more</span>
+          </button>
         </div>
       </div>
 
@@ -364,6 +376,7 @@ const TrainModel = ({ project, datasetStatus, refreshModels }) => {
           </div>
         </div>
       </div>
+      <GuideDrawer isOpen={guideOpen} onClose={() => setGuideOpen(false)} initialTopic="training" />
     </div>
   );
 };

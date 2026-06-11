@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import toast from 'react-hot-toast';
 import api from '../services/api';
+import GuideDrawer from '../components/GuideDrawer';
 
 const BoxPlot = ({ stats }) => {
   if (!stats) return null;
@@ -135,6 +136,15 @@ const Preprocessing = ({ datasetStatus, refreshStatus }) => {
   const [previewRows, setPreviewRows] = useState(10);
   const [previewData, setPreviewData] = useState([]);
   const [previewLoading, setPreviewLoading] = useState(false);
+
+  // Guide state
+  const [guideOpen, setGuideOpen] = useState(false);
+  const [guideTopic, setGuideTopic] = useState('duplicates');
+
+  const openGuide = (topic) => {
+    setGuideTopic(topic);
+    setGuideOpen(true);
+  };
 
   // Sync columns if dataset status changes
   useEffect(() => {
@@ -386,7 +396,13 @@ const Preprocessing = ({ datasetStatus, refreshStatus }) => {
         {/* Tab 1: Columns & Duplicates */}
         {activeTab === 'columns' && (
           <div>
-            <h3 style={{ fontSize: '1rem', marginBottom: '0.5rem', fontWeight: 600 }}>Select Columns to Retain</h3>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem' }}>
+              <h3 style={{ fontSize: '1rem', margin: 0, fontWeight: 600 }}>Select Columns to Retain</h3>
+              <button onClick={() => openGuide('duplicates')} className="btn btn-secondary" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35rem', padding: '0.25rem 0.5rem', fontSize: '0.7rem', height: 'auto', borderRadius: '4px' }}>
+                <i className="fa-solid fa-graduation-cap"></i>
+                <span>Get to know more</span>
+              </button>
+            </div>
             <p className="card-subtitle">Uncheck columns you do not want to use in training, then click apply to remove them.</p>
 
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: '0.75rem', margin: '1.5rem 0 2.5rem' }}>
@@ -452,7 +468,13 @@ const Preprocessing = ({ datasetStatus, refreshStatus }) => {
         {/* Tab 2: Missing Values */}
         {activeTab === 'missing' && (
           <div>
-            <h3 style={{ fontSize: '1rem', marginBottom: '0.5rem', fontWeight: 600 }}>Impute Missing Values</h3>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem' }}>
+              <h3 style={{ fontSize: '1rem', margin: 0, fontWeight: 600 }}>Impute Missing Values</h3>
+              <button onClick={() => openGuide('imputation')} className="btn btn-secondary" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35rem', padding: '0.25rem 0.5rem', fontSize: '0.7rem', height: 'auto', borderRadius: '4px' }}>
+                <i className="fa-solid fa-graduation-cap"></i>
+                <span>Get to know more</span>
+              </button>
+            </div>
             <p className="card-subtitle">Select a column containing missing values and choose an imputation strategy.</p>
 
             {/* Missing Values Overview */}
@@ -518,7 +540,13 @@ const Preprocessing = ({ datasetStatus, refreshStatus }) => {
           <div className="grid-2" style={{ alignItems: 'start' }}>
             {/* Numeric Feature Scaling */}
             <div style={{ borderRight: '1px solid var(--border-color)', paddingRight: '2.5rem' }}>
-              <h3 style={{ fontSize: '1rem', marginBottom: '0.5rem', fontWeight: 600 }}>Feature Scaling</h3>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem' }}>
+                <h3 style={{ fontSize: '1rem', margin: 0, fontWeight: 600 }}>Feature Scaling</h3>
+                <button onClick={() => openGuide('scaling')} className="btn btn-secondary" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35rem', padding: '0.25rem 0.5rem', fontSize: '0.7rem', height: 'auto', borderRadius: '4px' }}>
+                  <i className="fa-solid fa-graduation-cap"></i>
+                  <span>Get to know more</span>
+                </button>
+              </div>
               <p className="card-subtitle">Normalize or standardize numerical columns to the same scale range.</p>
 
               <div className="form-group">
@@ -551,7 +579,13 @@ const Preprocessing = ({ datasetStatus, refreshStatus }) => {
 
             {/* Categorical Encoding */}
             <div style={{ paddingLeft: '1rem' }}>
-              <h3 style={{ fontSize: '1rem', marginBottom: '0.5rem', fontWeight: 600 }}>Categorical Feature Encoding</h3>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem' }}>
+                <h3 style={{ fontSize: '1rem', margin: 0, fontWeight: 600 }}>Categorical Feature Encoding</h3>
+                <button onClick={() => openGuide('encoding')} className="btn btn-secondary" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35rem', padding: '0.25rem 0.5rem', fontSize: '0.7rem', height: 'auto', borderRadius: '4px' }}>
+                  <i className="fa-solid fa-graduation-cap"></i>
+                  <span>Get to know more</span>
+                </button>
+              </div>
               <p className="card-subtitle">Convert categorical variables into numerical values.</p>
 
               <div className="form-group">
@@ -582,7 +616,13 @@ const Preprocessing = ({ datasetStatus, refreshStatus }) => {
         {/* Tab 4: Outliers */}
         {activeTab === 'outliers' && (
           <div>
-            <h3 style={{ fontSize: '1rem', marginBottom: '0.5rem', fontWeight: 600 }}>Filter Outliers</h3>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem' }}>
+              <h3 style={{ fontSize: '1rem', margin: 0, fontWeight: 600 }}>Filter Outliers</h3>
+              <button onClick={() => openGuide('outliers')} className="btn btn-secondary" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35rem', padding: '0.25rem 0.5rem', fontSize: '0.7rem', height: 'auto', borderRadius: '4px' }}>
+                <i className="fa-solid fa-graduation-cap"></i>
+                <span>Get to know more</span>
+              </button>
+            </div>
             <p className="card-subtitle">Identify and drop extreme outliers using IQR, Z-Score, Isolation Forest, or LOF.</p>
 
             <div className="grid-2" style={{ margin: '1.5rem 0 2.5rem', alignItems: 'start' }}>
@@ -683,7 +723,13 @@ const Preprocessing = ({ datasetStatus, refreshStatus }) => {
         {/* Tab 5: PCA */}
         {activeTab === 'pca' && (
           <div>
-            <h3 style={{ fontSize: '1rem', marginBottom: '0.5rem', fontWeight: 600 }}>Principal Component Analysis (PCA)</h3>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem' }}>
+              <h3 style={{ fontSize: '1rem', margin: 0, fontWeight: 600 }}>Principal Component Analysis (PCA)</h3>
+              <button onClick={() => openGuide('pca')} className="btn btn-secondary" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35rem', padding: '0.25rem 0.5rem', fontSize: '0.7rem', height: 'auto', borderRadius: '4px' }}>
+                <i className="fa-solid fa-graduation-cap"></i>
+                <span>Get to know more</span>
+              </button>
+            </div>
             <p className="card-subtitle">Apply dimensionality reduction to map selected numerical features onto lower-dimensional principal components.</p>
 
             <div className="grid-2" style={{ margin: '1.5rem 0 2.5rem', alignItems: 'start' }}>
@@ -787,6 +833,7 @@ const Preprocessing = ({ datasetStatus, refreshStatus }) => {
           </div>
         )}
       </div>
+      <GuideDrawer isOpen={guideOpen} onClose={() => setGuideOpen(false)} initialTopic={guideTopic} />
     </div>
   );
 };

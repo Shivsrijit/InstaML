@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import toast from 'react-hot-toast';
 import api from '../services/api';
+import GuideDrawer from '../components/GuideDrawer';
 
 const Deployment = ({ project, datasetStatus, models }) => {
   const [activeTab, setActiveTab] = useState('realtime');
   const [deployedModel, setDeployedModel] = useState(null);
+  const [guideOpen, setGuideOpen] = useState(false);
   
   // Realtime Pred States
   const [features, setFeatures] = useState({});
@@ -397,8 +399,16 @@ const Deployment = ({ project, datasetStatus, models }) => {
           <h1 className="page-title">Deploy & Serve Model</h1>
           <p className="page-subtitle">Expose REST APIs, perform batch predictions, and fetch integration code snippets</p>
         </div>
-        <div>
-          <span className="badge badge-success" style={{ padding: '0.4rem 0.8rem', borderRadius: '20px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+          <button 
+            onClick={() => setGuideOpen(true)} 
+            className="btn btn-secondary"
+            style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.8rem', padding: '0.5rem 0.85rem' }}
+          >
+            <i className="fa-solid fa-graduation-cap"></i>
+            <span>Get to know more</span>
+          </button>
+          <span className="badge badge-success" style={{ padding: '0.4rem 0.8rem', borderRadius: '20px', height: 'auto', display: 'inline-flex', alignItems: 'center' }}>
             <i className="fa-solid fa-circle-check" style={{ marginRight: '0.4rem' }}></i>
             Deployed: {deployedModel.model_type}
           </span>
@@ -740,6 +750,7 @@ if "confidence" in result:
           </div>
         )}
       </div>
+      <GuideDrawer isOpen={guideOpen} onClose={() => setGuideOpen(false)} initialTopic="deployment" />
     </div>
   );
 };

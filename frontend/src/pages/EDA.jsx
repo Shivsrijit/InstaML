@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import toast from 'react-hot-toast';
 import api from '../services/api';
+import GuideDrawer from '../components/GuideDrawer';
 import {
   ResponsiveContainer,
   BarChart,
@@ -18,6 +19,15 @@ import {
 const EDA = ({ datasetStatus }) => {
   const [activeTab, setActiveTab] = useState('univariate');
   const [loading, setLoading] = useState(false);
+
+  // Guide state
+  const [guideOpen, setGuideOpen] = useState(false);
+  const [guideTopic, setGuideTopic] = useState('eda_univariate');
+
+  const openGuide = (topic) => {
+    setGuideTopic(topic);
+    setGuideOpen(true);
+  };
 
   // Univariate States
   const [selectedCol, setSelectedCol] = useState('');
@@ -190,6 +200,21 @@ const EDA = ({ datasetStatus }) => {
         <div className="page-title-section">
           <h1 className="page-title">Exploratory Data Analysis</h1>
           <p className="page-subtitle">Visualize distributions, correlations, and projections of your dataset features</p>
+        </div>
+        <div>
+          <button 
+            onClick={() => openGuide(
+              activeTab === 'univariate' ? 'eda_univariate' :
+              activeTab === 'bivariate' ? 'eda_bivariate' :
+              activeTab === 'correlation' ? 'eda_correlation' :
+              'eda_projections'
+            )} 
+            className="btn btn-secondary"
+            style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.8rem', padding: '0.5rem 0.85rem' }}
+          >
+            <i className="fa-solid fa-graduation-cap"></i>
+            <span>Get to know more</span>
+          </button>
         </div>
       </div>
 
@@ -505,6 +530,7 @@ const EDA = ({ datasetStatus }) => {
           </div>
         )}
       </div>
+      <GuideDrawer isOpen={guideOpen} onClose={() => setGuideOpen(false)} initialTopic={guideTopic} />
     </div>
   );
 };
