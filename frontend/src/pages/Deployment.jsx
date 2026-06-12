@@ -274,7 +274,7 @@ const Deployment = ({ project, datasetStatus, models }) => {
           <h4 style={{ color: 'var(--text-muted)', fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '1.25rem' }}>
             Processed Visual Output vs Original
           </h4>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem', width: '100%' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 180px), 1fr))', gap: '0.75rem', width: '100%' }}>
             <div>
               <span style={{ fontSize: '0.7rem', color: 'var(--text-muted)', display: 'block', marginBottom: '0.25rem' }}>Original Input</span>
               <img src={imagePreview} style={{ width: '100%', maxHeight: '180px', objectFit: 'contain', borderRadius: '4px', border: '1px solid var(--border-color)' }} alt="Original" />
@@ -563,7 +563,7 @@ const Deployment = ({ project, datasetStatus, models }) => {
                 </form>
               ) : (
                 <form onSubmit={handlePredictRealtime}>
-                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '1rem', maxHeight: '400px', overflowY: 'auto', paddingRight: '0.5rem', marginBottom: '1.5rem' }}>
+                   <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 200px), 1fr))', gap: '1rem', maxHeight: '400px', overflowY: 'auto', paddingRight: '0.5rem', marginBottom: '1.5rem' }}>
                     {featureCols.map(col => {
                       const dtype = formDtypes[col];
                       const isNum = dtype?.includes('int') || dtype?.includes('float');

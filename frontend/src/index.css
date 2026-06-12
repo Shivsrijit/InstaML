@@ -529,6 +529,15 @@ h3, h4, h5, h6 {
   gap: 0.25rem;
   border-bottom: 1px solid var(--border-color);
   margin-bottom: 2rem;
+  overflow-x: auto;
+  flex-wrap: nowrap;
+  -webkit-overflow-scrolling: touch;
+  -ms-overflow-style: none;  /* IE/Edge */
+  scrollbar-width: none;     /* Firefox */
+}
+
+.tab-container::-webkit-scrollbar {
+  display: none;             /* Hide scrollbar on WebKit browsers */
 }
 
 .tab-btn {
@@ -542,6 +551,7 @@ h3, h4, h5, h6 {
   cursor: pointer;
   transition: all 0.15s ease;
   border-bottom: 2px solid transparent;
+  flex-shrink: 0;
 }
 
 .tab-btn:hover {
@@ -1318,6 +1328,33 @@ div > .spinner:only-child {
 }
 
 /* Bento Grid Styling & Animations */
+.bento-card-wide {
+  grid-column: span 2;
+  display: flex;
+  flex-direction: row;
+  gap: 1.5rem;
+}
+
+@media (max-width: 768px) {
+  .bento-card-wide {
+    grid-column: span 1 !important;
+    flex-direction: column !important;
+  }
+}
+
+.dashboard-welcome-title {
+  font-size: 2.25rem !important;
+  font-weight: 500 !important;
+  margin-bottom: 0.15rem;
+  line-height: 1.2;
+}
+
+@media (max-width: 768px) {
+  .dashboard-welcome-title {
+    font-size: 1.6rem !important;
+  }
+}
+
 .bento-card {
   display: flex;
   flex-direction: column;
@@ -1611,7 +1648,12 @@ div > .spinner:only-child {
   .landing-footer-container {
     flex-direction: column;
     text-align: center;
-    gap: 1rem;
+    gap: 1.25rem;
+  }
+  .landing-footer-links {
+    flex-direction: column;
+    align-items: center;
+    gap: 0.65rem;
   }
 }
 

@@ -265,7 +265,7 @@ const Landing = () => {
           </div>
 
           {/* Feature 4: Hyperparameter Optuna Tuning */}
-          <div className="card bento-card" style={{ gridColumn: 'span 2', flexDirection: 'row', gap: '1.5rem' }}>
+          <div className="card bento-card bento-card-wide">
             <div className="bento-icon-wrapper accent-purple">
               <i className="fa-solid fa-gears"></i>
             </div>

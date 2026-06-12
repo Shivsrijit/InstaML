@@ -196,7 +196,7 @@ const Dashboard = () => {
         <div className="header-bar" style={{ marginBottom: '2.5rem' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
             <div className="page-title-section">
-              <h1 className="page-title" style={{ fontSize: '2.25rem', fontWeight: 500, marginBottom: '0.15rem', lineHeight: '1.2' }}>Hey {user?.username || 'developer'},</h1>
+              <h1 className="page-title dashboard-welcome-title" style={{ margin: 0 }}>Hey {user?.username || 'developer'},</h1>
               <p className="page-subtitle" style={{ fontSize: '0.95rem', color: 'var(--text-muted)', fontFamily: 'var(--font-body)', margin: 0 }}>Let's build and deploy some amazing machine learning models today.</p>
             </div>
           </div>
