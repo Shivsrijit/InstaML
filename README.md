@@ -53,6 +53,4 @@ Start the entire stack using Docker Compose:
 3.  Open http://localhost:5173/ in your browser.
 
 ## License
-
 This project is licensed under the MIT License.
-```
