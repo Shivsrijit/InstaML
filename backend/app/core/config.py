@@ -26,7 +26,15 @@ else:
     DATABASE_URL = os.getenv("DATABASE_URL", f"sqlite:///{BASE_DIR}/instaml.db")
 
 # Security
-SECRET_KEY = os.getenv("SECRET_KEY", "instaml-super-secret-key-change-in-prod")
+import secrets
+SECRET_KEY = os.getenv("SECRET_KEY")
+if not SECRET_KEY:
+    # Use dynamic cryptographically secure key in production to avoid static fallback vulnerabilities,
+    # but use static key in local development to preserve login sessions across hot-reloads.
+    if os.getenv("RENDER") or os.getenv("NODE_ENV") == "production":
+        SECRET_KEY = secrets.token_hex(32)
+    else:
+        SECRET_KEY = "instaml-super-secret-key-change-in-prod"
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 60 * 24  # 1 day
 
