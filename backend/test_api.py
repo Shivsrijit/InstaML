@@ -101,12 +101,12 @@ class TestInstaMLAPI(unittest.TestCase):
 
     def test_project_isolation(self):
         # Create user A & token
-        self.client.post("/api/auth/register", json={"username": "userA", "email": "a@instaml.com", "password": "pass"})
-        tokenA = self.client.post("/api/auth/login", json={"username": "userA", "password": "pass"}).json()["access_token"]
+        self.client.post("/api/auth/register", json={"username": "userA", "email": "a@instaml.com", "password": "password123"})
+        tokenA = self.client.post("/api/auth/login", json={"username": "userA", "password": "password123"}).json()["access_token"]
         
         # Create user B & token
-        self.client.post("/api/auth/register", json={"username": "userB", "email": "b@instaml.com", "password": "pass"})
-        tokenB = self.client.post("/api/auth/login", json={"username": "userB", "password": "pass"}).json()["access_token"]
+        self.client.post("/api/auth/register", json={"username": "userB", "email": "b@instaml.com", "password": "password123"})
+        tokenB = self.client.post("/api/auth/login", json={"username": "userB", "password": "password123"}).json()["access_token"]
 
         # User A creates a project
         proj_payload = {"name": "A's Project", "description": "Tabular model", "data_type": "tabular"}
@@ -127,8 +127,8 @@ class TestInstaMLAPI(unittest.TestCase):
 
     def test_dim_reduction_endpoint(self):
         # 1. Register & login user
-        self.client.post("/api/auth/register", json={"username": "user", "email": "user@instaml.com", "password": "pass"})
-        token = self.client.post("/api/auth/login", json={"username": "user", "password": "pass"}).json()["access_token"]
+        self.client.post("/api/auth/register", json={"username": "user", "email": "user@instaml.com", "password": "password123"})
+        token = self.client.post("/api/auth/login", json={"username": "user", "password": "password123"}).json()["access_token"]
         headers = {"Authorization": f"Bearer {token}"}
         
         # 2. Create project
@@ -202,8 +202,8 @@ class TestInstaMLAPI(unittest.TestCase):
 
     def test_boxplot_endpoint(self):
         # 1. Register & login user
-        self.client.post("/api/auth/register", json={"username": "boxplotuser", "email": "boxplot@instaml.com", "password": "pass"})
-        token = self.client.post("/api/auth/login", json={"username": "boxplotuser", "password": "pass"}).json()["access_token"]
+        self.client.post("/api/auth/register", json={"username": "boxplotuser", "email": "boxplot@instaml.com", "password": "password123"})
+        token = self.client.post("/api/auth/login", json={"username": "boxplotuser", "password": "password123"}).json()["access_token"]
         headers = {"Authorization": f"Bearer {token}"}
         
         # 2. Create project
@@ -275,8 +275,8 @@ class TestInstaMLAPI(unittest.TestCase):
 
     def test_pca_preprocessing(self):
         # 1. Register & login user
-        self.client.post("/api/auth/register", json={"username": "pcauser", "email": "pca@instaml.com", "password": "pass"})
-        token = self.client.post("/api/auth/login", json={"username": "pcauser", "password": "pass"}).json()["access_token"]
+        self.client.post("/api/auth/register", json={"username": "pcauser", "email": "pca@instaml.com", "password": "password123"})
+        token = self.client.post("/api/auth/login", json={"username": "pcauser", "password": "password123"}).json()["access_token"]
         headers = {"Authorization": f"Bearer {token}"}
         
         # 2. Create project

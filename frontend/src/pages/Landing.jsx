@@ -85,6 +85,26 @@ const Landing = () => {
           </nav>
 
           <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
+            {/* GitHub Link Icon */}
+            <a 
+              href="https://github.com/shivsrijit/instaml" 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="btn-glass-pill"
+              style={{ 
+                width: '36px',
+                height: '36px',
+                padding: 0,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                textDecoration: 'none'
+              }}
+              title="View on GitHub"
+            >
+              <i className="fa-brands fa-github" style={{ fontSize: '1.25rem' }}></i>
+            </a>
+
             {/* Theme Toggle Button */}
             <button 
               onClick={toggleTheme} 
@@ -390,6 +410,10 @@ const Landing = () => {
         <div className="landing-footer-container">
           <span className="landing-footer-text">&copy; {new Date().getFullYear()} InstaML. All rights reserved.</span>
           <div className="landing-footer-links">
+            <a href="https://github.com/shivsrijit/instaml" target="_blank" rel="noopener noreferrer" className="landing-footer-link" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.4rem' }}>
+              <i className="fa-brands fa-github"></i>
+              <span>GitHub</span>
+            </a>
             <a href="#features" className="landing-footer-link">Privacy Policy</a>
             <a href="#features" className="landing-footer-link">Terms of Service</a>
             <a href="mailto:shivsrijit@gmail.com" className="landing-footer-link">shivsrijit@gmail.com</a>
