@@ -1,85 +1,89 @@
 # InstaML Frontend Client
 
-This directory houses the React Single Page Application (SPA) for the InstaML platform. It provides a visual, drag-and-drop workspace that interfaces with the backend Gateway API.
+This directory contains the React single-page application (SPA) client for the InstaML platform.
 
----
+## Technology Stack
 
-## 1. Technology Stack
+*   **UI Library**: React 18, Vite.
+*   **Routing**: React Router DOM (v6) with ProtectedRoute guards.
+*   **Charts**: Recharts (for descriptive EDA charts, correlations, and test evaluation matrices).
+*   **API Connection**: Axios client with JWT authorization headers.
 
--   **Core Framework**: React 18 with Vite (for fast module reloading and bundling).
--   **Routing**: React Router DOM (v6) for multi-stage pipelines and authentication guards.
--   **State & API**: Context API (`AuthContext`) for credentials persistent sessions, Axios for backend HTTP communication.
--   **Charting & Visuals**: Recharts (for drawing advanced EDA summaries, correlation heatmaps, line plots, and training metrics), Vanilla CSS for glassmorphism layout, and custom SVGs for indicators.
+## Component Hierarchy Diagram
 
----
+The structure of routes, pages, and components inside the application:
 
-## 2. Directory Structure
+```mermaid
+graph TD
+    App["App.jsx (Router & Toaster)"] --> Landing["Landing.jsx"]
+    App --> Login["Login.jsx"]
+    App --> Register["Register.jsx"]
+    App --> Protected["ProtectedRoute Guard"]
+    
+    Protected --> Dashboard["Dashboard.jsx (List Projects)"]
+    Protected --> Settings["Settings.jsx (User Updates)"]
+    Protected --> Guidelines["Guidelines.jsx (Tutorials)"]
+    Protected --> Pipeline["PipelineLayout.jsx (Stage Workspace)"]
+    
+    subgraph Shared Layout Components
+        Pipeline --> Sidebar["Sidebar.jsx (Navigation Menu)"]
+        Pipeline --> Background["InteractiveBackground.jsx (Canvas Backdrop)"]
+        Pipeline --> Nav["PipelineNavigation (Wizard Back/Next Controls)"]
+    end
+    
+    subgraph Pipeline Views
+        Pipeline --> DataUpload["DataUpload.jsx (File Drag-Drop)"]
+        Pipeline --> Preprocessing["Preprocessing.jsx (Clean/Scale/Encode)"]
+        Pipeline --> EDA["EDA.jsx (Plots & Heatmap)"]
+        Pipeline --> FeatureEng["FeatureEngineering.jsx (Transforms)"]
+        Pipeline --> TrainModel["TrainModel.jsx (Optuna & CV Configuration)"]
+        Pipeline --> TestModel["TestModel.jsx (Evaluation Metrics & Confusion Matrix)"]
+        Pipeline --> Deployment["Deployment.jsx (Predict Widgets & API Docs)"]
+        Pipeline --> Versions["Versions.jsx (Checkpoints list & Restore Modal)"]
+        Pipeline --> NLPPlayground["NLPPlayground.jsx (Text Analyzer)"]
+    end
+```
+
+## Directory Structure
 
 ```
 frontend/
 ├── public/                 # Static public assets
 ├── src/                    # Source code
-│   ├── assets/             # Images & visual styles
-│   ├── components/         # Reusable UI Components
-│   │   ├── InteractiveBackground.jsx # Smooth animated canvas backdrop
-│   │   ├── Sidebar.jsx     # Side navigation menu
-│   │   └── sidebarHelper.js # Mobile menu trigger helpers
-│   ├── context/            # Authentication Context Providers
-│   │   └── AuthContext.jsx # Logs users in, parses JWTs, and handles logging out
-│   ├── pages/              # Primary View Pages
-│   │   ├── Dashboard.jsx   # List user projects and modalities
-│   │   ├── DataUpload.jsx  # Dataset upload drag-drop & modalities configurations
-│   │   ├── Deployment.jsx  # Realtime & batch predict test client & deployed APIs
-│   │   ├── EDA.jsx         # Statistical summaries, univariate and bivariate plots
-│   │   ├── FeatureEngineering.jsx # Custom target lineage transformations & filters
-│   │   ├── Guidelines.jsx  # Machine Learning tutorials and platform guides
-│   │   ├── Landing.jsx     # Marketing home screen and welcome panel
-│   │   ├── Login.jsx       # User credentials form & token store
-│   │   ├── Preprocessing.jsx # Multi-stage preprocessing step configurator
-│   │   ├── Register.jsx    # New account form & constraints checks
-│   │   ├── Settings.jsx    # User email updates & password alterations
-│   │   ├── TestModel.jsx   # Training results, evaluations, and confusion matrices
-│   │   ├── TrainModel.jsx  # Model selectors, tuning options, and training console
-│   │   └── Versions.jsx    # Checkpoints list & restore modal triggers
-│   ├── services/           # Axios connection managers
-│   │   └── api.js          # API client with token insertion interceptors
-│   ├── App.jsx             # Routes map & pipeline routing guards
-│   ├── index.css           # Global theme variables, colors, and design system
-│   └── main.jsx            # DOM entrypoint
+│   ├── components/         # Canvas backdrops, sidebars, and navigation triggers
+│   ├── context/            # AuthContext login session handlers
+│   ├── pages/              # Views (Dashboard, Upload, EDA, Preprocess, Train, Test, Deploy, Versions)
+│   ├── services/           # API client instance (api.js)
+│   ├── App.jsx             # Router definition and route guards
+│   └── index.css           # Vanilla CSS theme system
 ├── package.json            # Node configurations
 └── vite.config.js          # Vite configuration options
 ```
 
----
+## Router URL Layout
 
-## 3. Pipeline Views & Router Mapping
+The pages render inside the pipeline layout route `/projects/:project_id/`:
 
-The platform is designed around a multi-stage **PipelineLayout** nested router (`/projects/:project_id/`):
+*   `/upload`: DataUpload page
+*   `/preprocess`: Preprocessing page
+*   `/eda`: EDA page
+*   `/feature-eng`: FeatureEngineering page
+*   `/train`: TrainModel page
+*   `/test`: TestModel page
+*   `/deploy`: Deployment page
+*   `/versions`: Versions list
+*   `/playground`: NLP text playground
 
-1.  **`/upload`**: DataUpload page (upload CSV/Parquet/Excel/ZIP and detect shapes).
-2.  **`/preprocess`**: Preprocessing page (interactively clean data and check shapes).
-3.  **`/eda`**: EDA page (univariate histogram/boxplot/KDE/CDF, correlation heatmap).
-4.  **`/feature-eng`**: FeatureEngineering page (apply math functions to target columns).
-5.  **`/train`**: TrainModel page (configure algorithm types, Optuna trials, and start training).
-6.  **`/test`**: TestModel page (explore validation scores, confusion matrix, and feature importances).
-7.  **`/deploy`**: Deployment page (deploy models, test realtime JSON prediction, upload files for predict, or predict batch CSV).
-8.  **`/versions`**: Versions page (view versions log and restore state checkpoints).
-9.  **`/playground`**: NLPPlayground page (test sentiment and summarization utilities).
+## Run Scripts
 
----
+Install dependencies with `npm install` first.
 
-## 4. Run Scripts
-
-Make sure you have installed Node.js 18+ and have run `npm install` inside this directory first.
-
-### Run Development Server
-Launches the React client with Hot Module Replacement (HMR) on port `5173`:
+### Start Development Server
 ```bash
 npm run dev
 ```
 
-### Build Client
-Bundles the React client into static production assets under the `dist/` directory:
+### Build Client for Production
 ```bash
 npm run build
 ```

@@ -2,11 +2,9 @@
 
 This document provides a detailed breakdown of the InstaML system architecture, services interaction, data storage configurations, and communication flows.
 
----
-
 ## 1. System Overview
 
-InstaML is built on a **decoupled microservices architecture** designed to separate API orchestration, model training execution, and real-time inference. This separation allows training tasks (which are highly CPU/memory intensive) and prediction tasks (which require high availability and low latency) to scale independently.
+InstaML is built on a decoupled microservices architecture designed to separate API orchestration, model training execution, and real-time inference. This separation allows training tasks (which are highly CPU/memory intensive) and prediction tasks (which require high availability and low latency) to scale independently.
 
 ```mermaid
 graph TD
@@ -48,47 +46,24 @@ graph TD
     LocalStorage <-->|Sync / Caching Fallback| Supabase
 ```
 
----
-
 ## 2. Component Descriptions
 
 ### A. Frontend Client (React)
-- **Tech Stack**: React 18, Vite, Vanilla CSS, Recharts (for EDA and model evaluation plotting), React Router DOM, React Hot Toast.
-- **Role**: Provides the no-code workspace. It guides the user step-by-step through:
-  - Dataset Upload and modality selections.
-  - Interactive Preprocessing (data cleaning, scaling, encoding).
-  - Exploratory Data Analysis (univariate distribution plots, bivariate correlations, scatter/box charts).
-  - Model Training specifications and real-time execution logs.
-  - Model evaluation comparison and deployed test interfaces.
-- **Authentication**: JWT tokens saved in memory/localStorage, attached to all requests in the `Authorization: Bearer <token>` header.
+*   **Tech Stack**: React 18, Vite, Vanilla CSS, Recharts (for EDA and model evaluation plotting), React Router DOM, React Hot Toast.
+*   **Role**: Provides the no-code workspace. It guides the user step-by-step through dataset upload, preprocessing config (clean/scale/encode), exploratory plots (histograms/boxplot/correlations), model parameters, live training logs, and evaluations.
+*   **Authentication**: JWT tokens saved in localStorage, attached to all requests in the `Authorization: Bearer <token>` header.
 
 ### B. Gateway API (Port 8000)
-- **Tech Stack**: FastAPI, Uvicorn, SQLite/LibSQL client, Jose (JWT), Bcrypt.
-- **Role**: The single entrypoint for the frontend client. It manages:
-  - Authentication (user registration, login, token issue/refresh).
-  - Projects and dataset versions metadata.
-  - Preprocessing task triggers (delegated to `data_handler.py`).
-  - Access control and ownership isolation (verifies `user_id` on all project-related requests).
-  - Proxying training triggers to the Trainer Service and inference payloads to the Predictor Service.
+*   **Tech Stack**: FastAPI, Uvicorn, SQLite/LibSQL client, Jose (JWT), Bcrypt.
+*   **Role**: The single entrypoint for the frontend client. It manages user authentication, projects metadata, preprocessing task executions, access control, and proxies training requests to the Trainer Service and inference to the Predictor.
 
 ### C. Trainer Service (Port 8001)
-- **Tech Stack**: FastAPI, Uvicorn, Optuna, Scikit-Learn.
-- **Role**: A background service dedicated to running model training jobs.
-  - Receives asynchronous training requests from the Gateway.
-  - Spawns background training worker threads using `UnifiedModelTrainer`.
-  - Performs automated hyperparameter optimization (using Optuna trials) and K-Fold cross-validation.
-  - Serializes the final trained pipeline as a `.pkl` file.
-  - Captures and stores execution logs in memory.
+*   **Tech Stack**: FastAPI, Uvicorn, Optuna, Scikit-Learn.
+*   **Role**: A background service dedicated to running model training jobs. It receives asynchronous training requests, starts Optuna trials, runs K-Fold cross validation, saves final pipeline `.pkl` files, and saves run logs in memory.
 
 ### D. Predictor Service (Port 8002)
-- **Tech Stack**: FastAPI, Uvicorn, Joblib, Pandas.
-- **Role**: An inference service optimized for low latency.
-  - Loads trained pipeline `.pkl` files dynamically into memory.
-  - Preprocesses raw prediction features matching the historical preprocessing operations of the target dataset version.
-  - Executes predictions and returns confidence scores / probabilities.
-  - Reconstructs predicted values back to the original target column space if inverse transforms (like log, exp, square root) were applied.
-
----
+*   **Tech Stack**: FastAPI, Uvicorn, Joblib, Pandas.
+*   **Role**: An inference service optimized for low latency. It loads pipeline `.pkl` files, preprocesses prediction data matching historical data modifications, and runs inferences.
 
 ## 3. Database Layer & Multi-User Isolation
 
@@ -129,15 +104,9 @@ InstaML handles database orchestration using `libsql-client`, supporting local f
 ```
 
 ### B. Security and Isolation Control
-1. **Ownership Validation**: Every endpoint verifying user resource requests queries:
-   ```sql
-   SELECT * FROM projects WHERE id = ? AND user_id = ?
-   ```
-   If no rows are found, a `404 Not Found` response is raised immediately, preventing users from accessing or modifying other accounts' projects.
-2. **Parameterized Queries**: All queries are parameterized (`?` place-holders) inside the database session manager to eliminate SQL injection vulnerabilities.
-3. **Password Hashing**: User passwords are encrypted using `bcrypt` (gensalt rounds) before inserting into the database, with constant-time matching implemented during authentication.
-
----
+1.  **Ownership Validation**: Every endpoint verifying user resource requests queries `SELECT * FROM projects WHERE id = ? AND user_id = ?`. If no rows are found, a `404 Not Found` response is raised immediately.
+2.  **Parameterized Queries**: All queries are parameterized (`?` placeholders) inside the database session manager to eliminate SQL injection vulnerabilities.
+3.  **Password Hashing**: User passwords are encrypted using `bcrypt` (gensalt rounds) before inserting into the database, with constant-time matching implemented during authentication.
 
 ## 4. File Storage Layer & Supabase Sync
 
@@ -166,6 +135,5 @@ The storage architecture implements an automatic caching sync wrapper to support
              └───────────────────────────────┘
 ```
 
-- **Local Path Formatting**: All paths under the `storage/` directory follow the naming structure:
-  `user_<user_id>/project_<project_id>/[data|models]/<version_id_or_model_id>.[parquet|pkl]`
-- **REST Syncing**: When `SUPABASE_URL` and `SUPABASE_KEY` are provided, the backend uploads newly created files to the cloud bucket under their relative storage path (e.g. `user_1/project_2/data/...`). When a service needs a dataset or model that isn't cached in its container filesystem, it pulls the file dynamically from Supabase.
+*   **Local Path Formatting**: All paths under the `storage/` directory follow the naming structure: `user_<user_id>/project_<project_id>/[data|models]/<version_id_or_model_id>.[parquet|pkl]`
+*   **REST Syncing**: When `SUPABASE_URL` and `SUPABASE_KEY` are provided, the backend uploads newly created files to the cloud bucket under their relative storage path (e.g. `user_1/project_2/data/...`). When a service needs a dataset or model that isn't cached in its container filesystem, it pulls the file dynamically from Supabase.
