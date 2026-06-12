@@ -1,9 +1,0 @@
-DEBUG: Trainer Service DATABASE_URL = None
-PyTorch not available. Install with: pip install torch torchvision
-TensorFlow not available. Install with: pip install tensorflow
-TensorFlow not available. Install with: pip install tensorflow
-TensorFlow not available. Install with: pip install tensorflow
-INFO:     Started server process [25120]
-INFO:     Waiting for application startup.
-INFO:     Application startup complete.
-INFO:     Uvicorn running on http://127.0.0.1:8011 (Press CTRL+C to quit)
