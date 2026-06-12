@@ -5,6 +5,7 @@ import api from '../services/api';
 const Versions = ({ datasetStatus, refreshStatus }) => {
   const [versions, setVersions] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [restoreConfirmVersion, setRestoreConfirmVersion] = useState(null);
 
   // Compare States
   const [v1, setV1] = useState('');
@@ -32,10 +33,14 @@ const Versions = ({ datasetStatus, refreshStatus }) => {
     fetchVersions();
   }, [datasetStatus]);
 
-  const handleRestore = async (versionId) => {
-    if (!window.confirm(`Are you sure you want to restore the project dataset to version "${versionId}"? A new checkpoint will be created.`)) {
-      return;
-    }
+  const handleRestore = (ver) => {
+    setRestoreConfirmVersion(ver);
+  };
+
+  const confirmRestore = async () => {
+    if (!restoreConfirmVersion) return;
+    const versionId = restoreConfirmVersion.version_id;
+    setRestoreConfirmVersion(null);
     setLoading(true);
     try {
       await api.post(`/projects/${datasetStatus.project_id}/data/versions/${versionId}/restore`);
@@ -270,7 +275,7 @@ const Versions = ({ datasetStatus, refreshStatus }) => {
 
                   <div>
                     <button
-                      onClick={() => handleRestore(ver.version_id)}
+                      onClick={() => handleRestore(ver)}
                       className="btn btn-secondary"
                       style={{ padding: '0.55rem 1.25rem', fontSize: '0.85rem' }}
                       disabled={idx === 0} // Can't restore the active latest version
@@ -285,6 +290,31 @@ const Versions = ({ datasetStatus, refreshStatus }) => {
           </div>
         )}
       </div>
+
+      {/* Restore Confirmation Modal */}
+      {restoreConfirmVersion && (
+        <div className="modal-backdrop">
+          <div className="modal-content" style={{ maxWidth: '420px' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
+              <h3 style={{ fontSize: '1.1rem', fontWeight: 700, letterSpacing: '-0.02em', color: 'var(--accent-purple)' }}>Restore Dataset?</h3>
+              <button onClick={() => setRestoreConfirmVersion(null)} style={{ background: 'none', border: 'none', color: 'var(--text-muted)', fontSize: '1.1rem', cursor: 'pointer' }}>
+                <i className="fa-solid fa-xmark"></i>
+              </button>
+            </div>
+            <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)', lineHeight: '1.6', marginBottom: '2rem' }}>
+              Are you sure you want to restore the project dataset to checkpoint <strong>"{restoreConfirmVersion.step_name}"</strong> ({restoreConfirmVersion.version_id.substring(0, 12)})? A new checkpoint will be created.
+            </p>
+            <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '0.5rem' }}>
+              <button type="button" onClick={() => setRestoreConfirmVersion(null)} className="btn btn-secondary">
+                Cancel
+              </button>
+              <button type="button" onClick={confirmRestore} className="btn btn-primary" style={{ backgroundColor: 'var(--accent-purple)', borderColor: 'var(--accent-purple)' }}>
+                Restore Checkpoint
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

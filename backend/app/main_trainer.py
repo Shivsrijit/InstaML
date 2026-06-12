@@ -29,6 +29,7 @@ class TrainerRequest(BaseModel):
     text_col: Optional[str] = None
     trials: Optional[int] = 10
     validation_split: Optional[float] = 0.2
+    k_folds: Optional[int] = None
 
 @app.post("/train")
 def train_model_job(req: TrainerRequest, background_tasks: BackgroundTasks):
@@ -44,7 +45,8 @@ def train_model_job(req: TrainerRequest, background_tasks: BackgroundTasks):
         user_id=req.user_id,
         text_col=req.text_col,
         trials=req.trials or 10,
-        validation_split=req.validation_split or 0.2
+        validation_split=req.validation_split or 0.2,
+        k_folds=req.k_folds
     )
     return {"status": "started", "project_id": req.project_id, "model_id": req.model_id}
 

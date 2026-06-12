@@ -37,7 +37,8 @@ def run_training_task(
     user_id: int,
     text_col: str = None,
     trials: int = 10,
-    validation_split: float = 0.2
+    validation_split: float = 0.2,
+    k_folds: int = None
 ):
     """Background thread function to execute training."""
     # Initialize job tracking
@@ -227,7 +228,8 @@ def run_training_task(
         best_model, metrics, best_params = trainer.train_model(
             model_name=model_name,
             use_hyperparameter_tuning=use_hyperparameter_tuning,
-            trials=trials
+            trials=trials,
+            k_folds=k_folds
         )
         
         log_to_job(project_id, "Model trained successfully. Evaluating metrics...")

@@ -12,6 +12,8 @@ const TrainModel = ({ project, datasetStatus, refreshModels }) => {
   const [useTuning, setUseTuning] = useState(false);
   const [trials, setTrials] = useState(10);
   const [valSplit, setValSplit] = useState(0.2);
+  const [useCrossVal, setUseCrossVal] = useState(false);
+  const [kFolds, setKFolds] = useState(5);
 
   const [availableOptions, setAvailableOptions] = useState({ classification: [], regression: [] });
   const [training, setTraining] = useState(false);
@@ -88,11 +90,30 @@ const TrainModel = ({ project, datasetStatus, refreshModels }) => {
     if (project?.data_type === 'audio') return 'Audio DSP Signals';
     if (project?.data_type === 'text') return 'Natural Language Classification';
     if (!targetCol || !datasetStatus?.dtypes) return 'Unknown';
-    const dtype = datasetStatus.dtypes[targetCol];
-    if (dtype?.includes('int') || dtype?.includes('float')) {
-      const isBinary = datasetStatus.unique_counts?.[targetCol] === 2;
-      return isBinary ? 'Binary Classification' : 'Regression';
+    
+    const dtype = datasetStatus.dtypes[targetCol]?.toLowerCase() || '';
+    const uniqueValues = datasetStatus.unique_counts?.[targetCol] || 1000;
+    
+    // Categorical types are always classification
+    if (dtype.includes('object') || dtype.includes('category') || dtype.includes('str') || dtype.includes('bool')) {
+      return 'Classification';
     }
+    
+    // Numeric but very few unique values is classification
+    if (uniqueValues <= 10) {
+      return 'Classification';
+    }
+    
+    // Numeric integers with up to 50 unique values are classified as Classification
+    if (dtype.includes('int') && uniqueValues <= 50) {
+      return 'Classification';
+    }
+    
+    // Default to Regression for other numeric types
+    if (dtype.includes('int') || dtype.includes('float') || dtype.includes('double') || dtype.includes('num')) {
+      return 'Regression';
+    }
+    
     return 'Classification';
   };
 
@@ -119,6 +140,16 @@ const TrainModel = ({ project, datasetStatus, refreshModels }) => {
     }
     return availableOptions.regression || [];
   };
+
+  // Adjust model algorithm automatically when target column changes task type
+  useEffect(() => {
+    if (project?.data_type !== 'image' && project?.data_type !== 'audio' && targetCol) {
+      const list = getAlgorithmList();
+      if (list && list.length > 0 && !list.includes(modelName)) {
+        setModelName(list[0]);
+      }
+    }
+  }, [targetCol, availableOptions]);
 
   // Start checking training status
   const startPollingStatus = () => {
@@ -159,7 +190,8 @@ const TrainModel = ({ project, datasetStatus, refreshModels }) => {
         text_col: project?.data_type === 'text' ? textCol : null,
         use_hyperparameter_tuning: useTuning,
         trials: trials,
-        validation_split: valSplit
+        validation_split: valSplit,
+        k_folds: useCrossVal ? kFolds : null
       });
       startPollingStatus();
     } catch (err) {
@@ -280,22 +312,57 @@ const TrainModel = ({ project, datasetStatus, refreshModels }) => {
                   </div>
                 )}
 
-                <div className="form-group" style={{ marginBottom: '2rem' }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.5rem' }}>
-                    <label className="form-label" style={{ margin: 0 }}>Validation Split Rate</label>
-                    <span style={{ fontSize: '0.85rem', fontWeight: 600, color: 'var(--accent-primary)' }}>{Math.round(valSplit * 100)}%</span>
+                {!useCrossVal && (
+                  <div className="form-group" style={{ marginBottom: '1.25rem' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.5rem' }}>
+                      <label className="form-label" style={{ margin: 0 }}>Validation Split Rate</label>
+                      <span style={{ fontSize: '0.85rem', fontWeight: 600, color: 'var(--accent-primary)' }}>{Math.round(valSplit * 100)}%</span>
+                    </div>
+                    <input
+                      type="range"
+                      min="0.1"
+                      max="0.4"
+                      step="0.05"
+                      value={valSplit}
+                      onChange={(e) => setValSplit(parseFloat(e.target.value))}
+                      disabled={training}
+                      style={{ width: '100%', cursor: 'pointer', accentColor: 'var(--accent-primary)' }}
+                    />
                   </div>
+                )}
+
+                <div className="form-group" style={{ display: 'flex', gap: '0.75rem', padding: '0.5rem 0', alignItems: 'center' }}>
                   <input
-                    type="range"
-                    min="0.1"
-                    max="0.4"
-                    step="0.05"
-                    value={valSplit}
-                    onChange={(e) => setValSplit(parseFloat(e.target.value))}
+                    type="checkbox"
+                    id="cv-checkbox"
+                    checked={useCrossVal}
+                    onChange={(e) => setUseCrossVal(e.target.checked)}
                     disabled={training}
-                    style={{ width: '100%', cursor: 'pointer', accentColor: 'var(--accent-primary)' }}
+                    style={{ cursor: 'pointer', width: '18px', height: '18px', accentColor: 'var(--accent-purple)' }}
                   />
+                  <label htmlFor="cv-checkbox" style={{ fontWeight: 500, cursor: 'pointer', fontSize: '0.9rem', color: 'var(--text-main)' }}>
+                    Enable K-Fold Cross Validation
+                  </label>
                 </div>
+
+                {useCrossVal && (
+                  <div className="form-group" style={{ paddingLeft: '1.75rem', marginBottom: '2rem' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.5rem' }}>
+                      <label className="form-label" style={{ margin: 0 }}>Number of Folds (K)</label>
+                      <span style={{ fontSize: '0.85rem', fontWeight: 600, color: 'var(--accent-purple)' }}>{kFolds} folds</span>
+                    </div>
+                    <input
+                      type="range"
+                      min="2"
+                      max="10"
+                      step="1"
+                      value={kFolds}
+                      onChange={(e) => setKFolds(parseInt(e.target.value))}
+                      disabled={training}
+                      style={{ width: '100%', cursor: 'pointer', accentColor: 'var(--accent-purple)' }}
+                    />
+                  </div>
+                )}
               </>
             )}
 

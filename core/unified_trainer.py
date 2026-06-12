@@ -185,10 +185,11 @@ class UnifiedModelTrainer:
             Trained model and metrics
         """
         if self.data_type == "tabular":
-            # For tabular data, pass model_name, use_hyperparameter_tuning, and trials
+            # For tabular data, pass model_name, use_hyperparameter_tuning, trials, and k_folds
             training_kwargs = {
                 'use_hyperparameter_tuning': kwargs.get('use_hyperparameter_tuning', True),
-                'trials': kwargs.get('trials', 10)
+                'trials': kwargs.get('trials', 10),
+                'k_folds': kwargs.get('k_folds')
             }
             return self.trainer.train_model(model_name, **training_kwargs)
         

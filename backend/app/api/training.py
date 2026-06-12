@@ -25,11 +25,11 @@ def get_training_options(
         return {
             "classification": [
                 "Random Forest", "XGBoost", "Gradient Boosting", "Logistic Regression",
-                "SVM", "KNN", "Decision Tree", "Naive Bayes"
+                "SVM", "KNN", "Decision Tree", "Naive Bayes", "MLP"
             ],
             "regression": [
                 "Random Forest", "XGBoost", "Gradient Boosting", "Linear Regression",
-                "Ridge", "Lasso", "SVR", "KNN", "Decision Tree"
+                "Ridge", "Lasso", "SVR", "KNN", "Decision Tree", "MLP"
             ]
         }
     elif project.data_type == "text":
@@ -132,7 +132,8 @@ def trigger_training(
                 "user_id": current_user.id,
                 "text_col": req.text_col,
                 "trials": req.trials,
-                "validation_split": req.validation_split
+                "validation_split": req.validation_split,
+                "k_folds": req.k_folds
             }
         )
         if res.status_code != 200:

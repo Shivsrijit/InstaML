@@ -8,6 +8,7 @@ from sklearn.svm import SVC, SVR
 from sklearn.neighbors import KNeighborsClassifier, KNeighborsRegressor
 from sklearn.tree import DecisionTreeClassifier, DecisionTreeRegressor
 from sklearn.naive_bayes import GaussianNB
+from sklearn.neural_network import MLPClassifier, MLPRegressor
 from sklearn.metrics import (
     accuracy_score, precision_score, recall_score, f1_score, roc_auc_score,
     mean_squared_error, mean_absolute_error, r2_score, classification_report, confusion_matrix
@@ -129,7 +130,8 @@ class TabularModelTrainer:
                 "SVM": SVC(random_state=self.random_state, probability=True),
                 "KNN": KNeighborsClassifier(),
                 "Decision Tree": DecisionTreeClassifier(random_state=self.random_state),
-                "Naive Bayes": GaussianNB()
+                "Naive Bayes": GaussianNB(),
+                "MLP": MLPClassifier(random_state=self.random_state, max_iter=1000)
             }
             
             self.param_grids = {
@@ -163,6 +165,11 @@ class TabularModelTrainer:
                 "Decision Tree": {
                     'model__max_depth': [3, 5, 7, None],
                     'model__min_samples_split': [2, 5, 10]
+                },
+                "MLP": {
+                    'model__hidden_layer_sizes': [(50,), (100,), (50, 25)],
+                    'model__activation': ['tanh', 'relu'],
+                    'model__alpha': [0.0001, 0.001, 0.01]
                 }
             }
         else:  # Regression
@@ -175,7 +182,8 @@ class TabularModelTrainer:
                 "Lasso": Lasso(random_state=self.random_state),
                 "SVR": SVR(),
                 "KNN": KNeighborsRegressor(),
-                "Decision Tree": DecisionTreeRegressor(random_state=self.random_state)
+                "Decision Tree": DecisionTreeRegressor(random_state=self.random_state),
+                "MLP": MLPRegressor(random_state=self.random_state, max_iter=1000)
             }
             
             self.param_grids = {
@@ -188,10 +196,15 @@ class TabularModelTrainer:
                     'model__n_estimators': [50, 100, 200],
                     'model__max_depth': [3, 6, 9],
                     'model__learning_rate': [0.01, 0.1, 0.3]
+                },
+                "MLP": {
+                    'model__hidden_layer_sizes': [(50,), (100,), (50, 25)],
+                    'model__activation': ['tanh', 'relu'],
+                    'model__alpha': [0.0001, 0.001, 0.01]
                 }
             }
     
-    def train_model(self, model_name, use_hyperparameter_tuning=True, trials=10):
+    def train_model(self, model_name, use_hyperparameter_tuning=True, trials=10, k_folds=None):
         """
         Train a specific model.
         
@@ -278,6 +291,13 @@ class TabularModelTrainer:
                             params = {
                                 'alpha': trial.suggest_float('alpha', 0.01, 10.0, log=True)
                             }
+                        elif model_name == "MLP":
+                            params = {
+                                'hidden_layer_sizes': trial.suggest_categorical('hidden_layer_sizes', [(50,), (100,), (50, 25), (100, 50)]),
+                                'activation': trial.suggest_categorical('activation', ['tanh', 'relu']),
+                                'alpha': trial.suggest_float('alpha', 0.0001, 0.05, log=True),
+                                'learning_rate_init': trial.suggest_float('learning_rate_init', 0.001, 0.01, log=True)
+                            }
                         
                         tuned_model = clone(model)
                         tuned_model.set_params(**params)
@@ -328,6 +348,37 @@ class TabularModelTrainer:
             metrics = self._evaluate_classification(best_model)
         else:
             metrics = self._evaluate_regression(best_model)
+            
+        # Run K-Fold Cross Validation if requested
+        if k_folds and k_folds >= 2:
+            from sklearn.model_selection import cross_validate
+            scoring = {
+                'accuracy': 'accuracy',
+                'precision': 'precision_weighted',
+                'recall': 'recall_weighted',
+                'f1': 'f1_weighted'
+            } if self.task_type == "classification" else {
+                'r2': 'r2',
+                'neg_mean_squared_error': 'neg_mean_squared_error',
+                'neg_mean_absolute_error': 'neg_mean_absolute_error'
+            }
+            try:
+                cv_results = cross_validate(best_model, self.X_train, self.y_train, cv=k_folds, scoring=scoring)
+                cv_metrics = {}
+                for key, vals in cv_results.items():
+                    if key.startswith('test_'):
+                        metric_name = key.replace('test_', '')
+                        if 'neg_' in metric_name:
+                            metric_name = metric_name.replace('neg_', '')
+                            vals = -vals
+                        cv_metrics[metric_name] = {
+                            "mean": float(vals.mean()),
+                            "std": float(vals.std()),
+                            "scores": vals.tolist()
+                        }
+                metrics["cv_metrics"] = cv_metrics
+            except Exception as cv_err:
+                print(f"CV evaluation failed: {cv_err}")
         
         # Store results
         self.trained_model = best_model

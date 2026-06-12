@@ -107,6 +107,7 @@ class TrainRequest(BaseModel):
     use_hyperparameter_tuning: bool = False
     trials: int = 10
     validation_split: float = 0.2
+    k_folds: Optional[int] = None
 
 class PredictRequest(BaseModel):
     features: Dict[str, Any]

@@ -411,3 +411,92 @@ def get_boxplot_stats(
         "total_outliers": int(outliers_mask.sum()),
         "total_rows": len(col_data)
     }
+
+@router.get("/kde/{column}")
+def get_kde_data(
+    project_id: int,
+    column: str,
+    current_user: dict = Depends(get_current_user)
+):
+    """Calculate Kernel Density Estimation for a numeric column."""
+    df = get_latest_dataframe(project_id, current_user.id)
+    if column not in df.columns:
+        raise HTTPException(status_code=404, detail=f"Column '{column}' not found")
+        
+    col_data = df[column].dropna()
+    if not np.issubdtype(col_data.dtype, np.number):
+        raise HTTPException(status_code=400, detail="KDE is only available for numerical columns")
+        
+    if len(col_data) < 2:
+        raise HTTPException(status_code=400, detail="Not enough data points to compute KDE")
+        
+    from scipy.stats import gaussian_kde
+    try:
+        kde = gaussian_kde(col_data)
+        x_min, x_max = float(col_data.min()), float(col_data.max())
+        x = np.linspace(x_min, x_max, 100)
+        y = kde(x)
+        return {
+            "x": x.tolist(),
+            "y": y.tolist()
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to calculate KDE: {str(e)}")
+
+@router.get("/cdf/{column}")
+def get_cdf_data(
+    project_id: int,
+    column: str,
+    current_user: dict = Depends(get_current_user)
+):
+    """Calculate Cumulative Distribution Function for a numeric column."""
+    df = get_latest_dataframe(project_id, current_user.id)
+    if column not in df.columns:
+        raise HTTPException(status_code=404, detail=f"Column '{column}' not found")
+        
+    col_data = df[column].dropna()
+    if not np.issubdtype(col_data.dtype, np.number):
+        raise HTTPException(status_code=400, detail="CDF is only available for numerical columns")
+        
+    if len(col_data) == 0:
+        raise HTTPException(status_code=400, detail="Column has no data")
+        
+    sorted_data = np.sort(col_data)
+    y = np.arange(1, len(sorted_data) + 1) / len(sorted_data)
+    
+    if len(sorted_data) > 200:
+        indices = np.linspace(0, len(sorted_data) - 1, 200, dtype=int)
+        sorted_data = sorted_data[indices]
+        y = y[indices]
+        
+    return {
+        "x": sorted_data.tolist(),
+        "y": y.tolist()
+    }
+
+@router.get("/grouped")
+def get_grouped_stats(
+    project_id: int,
+    numeric_col: str = Query(...),
+    categorical_col: str = Query(...),
+    current_user: dict = Depends(get_current_user)
+):
+    """Calculate average of a numeric column grouped by a categorical column."""
+    df = get_latest_dataframe(project_id, current_user.id)
+    if numeric_col not in df.columns or categorical_col not in df.columns:
+        raise HTTPException(status_code=404, detail="Columns not found")
+        
+    col_data_num = df[numeric_col]
+    if not np.issubdtype(col_data_num.dtype, np.number):
+        raise HTTPException(status_code=400, detail="numeric_col must be a numerical column")
+        
+    grouped = df.groupby(categorical_col)[numeric_col].agg(['mean', 'count', 'std']).reset_index()
+    grouped = grouped.sort_values(by='mean', ascending=False).head(15).replace({np.nan: None})
+    
+    return {
+        "labels": grouped[categorical_col].astype(str).tolist(),
+        "means": grouped['mean'].tolist(),
+        "counts": grouped['count'].tolist(),
+        "stds": grouped['std'].tolist()
+    }
+

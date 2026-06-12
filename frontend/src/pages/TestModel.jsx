@@ -337,6 +337,55 @@ const TestModel = ({ project, models, refreshModels, datasetStatus }) => {
       </div>
     );
   };
+  const renderCrossValidationResults = () => {
+    if (!evalData?.metrics?.cv_metrics) return null;
+    const cv = evalData.metrics.cv_metrics;
+    
+    return (
+      <div className="card" style={{ marginBottom: '2.5rem' }}>
+        <h4 style={{ fontSize: '1rem', marginBottom: '1.25rem', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+          <i className="fa-solid fa-square-poll-vertical" style={{ color: 'var(--accent-purple)' }}></i>
+          K-Fold Cross-Validation Fold Metrics
+        </h4>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+          {Object.entries(cv).map(([metricName, data]) => (
+            <div key={metricName} style={{ borderBottom: '1px solid var(--border-color)', paddingBottom: '1.5rem' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', marginBottom: '0.75rem' }}>
+                <span style={{ fontSize: '0.9rem', fontWeight: 700, color: 'var(--text-main)', textTransform: 'capitalize' }}>
+                  {metricName.replace('_weighted', '')}
+                </span>
+                <div style={{ display: 'flex', gap: '1.5rem', fontSize: '0.85rem' }}>
+                  <span>Mean: <strong style={{ color: 'var(--accent-primary)' }}>{data.mean?.toFixed(4)}</strong></span>
+                  <span>Std Dev: <strong style={{ color: 'var(--text-muted)' }}>&plusmn; {data.std?.toFixed(4)}</strong></span>
+                </div>
+              </div>
+              
+              <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
+                {data.scores.map((score, foldIdx) => (
+                  <div
+                    key={foldIdx}
+                    style={{
+                      flex: 1,
+                      minWidth: '70px',
+                      padding: '0.6rem 0.4rem',
+                      textAlign: 'center',
+                      backgroundColor: 'var(--bg-tertiary)',
+                      border: '1px solid var(--border-color)',
+                      borderRadius: 'var(--radius-sm)',
+                      fontSize: '0.8rem'
+                    }}
+                  >
+                    <div style={{ color: 'var(--text-muted)', fontSize: '0.7rem', marginBottom: '0.25rem' }}>Fold {foldIdx + 1}</div>
+                    <div style={{ fontWeight: 600, color: 'var(--text-main)' }}>{score.toFixed(4)}</div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+  };
 
   return (
     <div>
@@ -398,6 +447,7 @@ const TestModel = ({ project, models, refreshModels, datasetStatus }) => {
           ) : (
             <>
               {renderMetricsGrid()}
+              {renderCrossValidationResults()}
 
               {!isPretrainedTask(project?.task) && (
                 <div className="grid-2" style={{ alignItems: 'start', marginBottom: '2.5rem' }}>
