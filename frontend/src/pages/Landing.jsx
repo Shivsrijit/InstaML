@@ -172,7 +172,7 @@ const Landing = () => {
             fontFamily: 'var(--font-mono)',
             marginBottom: '1.5rem'
           }}>
-            No-Code ML Orchestration for Teams
+            No-Code ML Orchestration for Devs
           </span>
           <h1 style={{ 
             fontSize: '3.75rem', 
