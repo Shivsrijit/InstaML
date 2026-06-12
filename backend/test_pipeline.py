@@ -11,9 +11,11 @@ from pathlib import Path
 # Setup pathing
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
-# Define test database URL BEFORE importing any backend components
+# Define test database URL and service URLs BEFORE importing any backend components
 db_path = Path(__file__).resolve().parent / "test_pipeline.db"
 os.environ["TURSO_DATABASE_URL"] = f"file:{db_path.resolve().as_posix()}"
+os.environ["TRAINER_SERVICE_URL"] = "http://localhost:8011"
+os.environ["PREDICTOR_SERVICE_URL"] = "http://localhost:8012"
 
 from backend.app.main import app
 from backend.app.db.session import run_migrations_sync
@@ -25,8 +27,8 @@ class TestInstaMLPipeline(unittest.TestCase):
         db_path = (Path(__file__).resolve().parent / "test_pipeline.db").resolve()
         os.environ["TURSO_DATABASE_URL"] = f"file:{db_path.as_posix()}"
         # Make sure they communicate with localhost endpoints for testing
-        os.environ["TRAINER_SERVICE_URL"] = "http://localhost:8001"
-        os.environ["PREDICTOR_SERVICE_URL"] = "http://localhost:8002"
+        os.environ["TRAINER_SERVICE_URL"] = "http://localhost:8011"
+        os.environ["PREDICTOR_SERVICE_URL"] = "http://localhost:8012"
         
         # Clean slate: delete existing pipeline db file
         if db_path.exists():
@@ -38,16 +40,16 @@ class TestInstaMLPipeline(unittest.TestCase):
         run_migrations_sync()
         cls.client = TestClient(app)
         
-        # Start Trainer and Predictor background services
         import subprocess
         env = os.environ.copy()
+        env["PYTHONUNBUFFERED"] = "1"
         
         cls.trainer_proc = subprocess.Popen([
-            "uvicorn", "backend.app.main_trainer:app", "--host", "127.0.0.1", "--port", "8001"
+            "uvicorn", "backend.app.main_trainer:app", "--host", "127.0.0.1", "--port", "8011"
         ], shell=True, env=env)
         
         cls.predictor_proc = subprocess.Popen([
-            "uvicorn", "backend.app.main_predictor:app", "--host", "127.0.0.1", "--port", "8002"
+            "uvicorn", "backend.app.main_predictor:app", "--host", "127.0.0.1", "--port", "8012"
         ], shell=True, env=env)
         
         time.sleep(3) # Wait for uvicorn instances to boot up
@@ -156,7 +158,9 @@ class TestInstaMLPipeline(unittest.TestCase):
                 completed = True
                 break
             elif status_val == "failed":
-                self.fail("Background training job failed.")
+                print("\n=== BACKGROUND TRAINING JOB FAILED! LOGS: ===")
+                print(json.dumps(res_status.json(), indent=2))
+                self.fail(f"Background training job failed: {res_status.json()}")
             time.sleep(1)
             
         self.assertTrue(completed, "Training task timed out")

@@ -110,7 +110,19 @@ def preprocess_raw_input(project_id: int, active_model: Any, input_df: pd.DataFr
         model_version_rows = query_sync("SELECT columns_json FROM dataset_versions WHERE id = ?", [active_model.dataset_version_id])
         if model_version_rows:
             model_cols = json.loads(model_version_rows[0].columns_json)
-            expected_features = [col for col in model_cols if col != active_model.target_col]
+            projects = query_sync("SELECT * FROM projects WHERE id = ?", [project_id])
+            project = projects[0] if projects else None
+            
+            if project and project.data_type == "tabular":
+                from backend.app.core.data_handler import get_operations_for_version, trace_target_operations
+                ops = get_operations_for_version(project_id, active_model.dataset_version_id)
+                original_target_col = project.target_col or active_model.target_col
+                lineage = trace_target_operations(ops, original_target_col)
+                derived_cols = lineage.get("target_derived_cols", [])
+                expected_features = [col for col in model_cols if col not in derived_cols]
+            else:
+                expected_features = [col for col in model_cols if col != active_model.target_col]
+                
             for col in expected_features:
                 if col not in input_df.columns:
                     input_df[col] = 0.0
@@ -158,6 +170,27 @@ def predict_realtime(
             input_df = preprocess_raw_input(project_id, active_model, input_df)
             predictions = pipeline.predict(input_df)
             
+        reconstructable = True
+        reason = None
+        non_invertible_step = None
+        active_target = active_model.target_col
+        original_target = active_model.target_col
+        
+        if project and project.data_type == "tabular":
+            from backend.app.core.data_handler import get_operations_for_version, trace_target_operations, reconstruct_original_target
+            ops = get_operations_for_version(project_id, active_model.dataset_version_id)
+            model_target_rows = query_sync("SELECT target_col FROM models WHERE id = ?", [active_model.id])
+            training_target = model_target_rows[0].target_col if model_target_rows else active_model.target_col
+            
+            original_target = project.target_col or active_model.target_col
+            lineage = trace_target_operations(ops, original_target)
+            active_target = training_target
+            
+            reconstructed_preds, reconstructable, reason, non_invertible_step = reconstruct_original_target(
+                predictions, lineage, active_target, original_target
+            )
+            predictions = reconstructed_preds
+
         prediction_val = predictions[0]
         
         if isinstance(prediction_val, (np.integer, np.floating)):
@@ -166,7 +199,13 @@ def predict_realtime(
         result = {
             "prediction": prediction_val,
             "model_type": active_model.model_type,
-            "target_col": active_model.target_col
+            "target_col": active_model.target_col,
+            "prediction_space": original_target if reconstructable else active_target,
+            "reconstructable": reconstructable,
+            "reason": reason or "Success",
+            "active_target": active_target,
+            "original_target": original_target,
+            "non_invertible_step": non_invertible_step or "None"
         }
         
         if hasattr(pipeline, "predict_proba"):
@@ -210,6 +249,21 @@ def predict_batch(
             
         predict_df = preprocess_raw_input(project_id, active_model, predict_df)
         preds = pipeline.predict(predict_df)
+        
+        projects = query_sync("SELECT * FROM projects WHERE id = ?", [project_id])
+        project = projects[0] if projects else None
+        
+        if project and project.data_type == "tabular":
+            from backend.app.core.data_handler import get_operations_for_version, trace_target_operations, reconstruct_original_target
+            ops = get_operations_for_version(project_id, active_model.dataset_version_id)
+            model_target_rows = query_sync("SELECT target_col FROM models WHERE id = ?", [active_model.id])
+            training_target = model_target_rows[0].target_col if model_target_rows else active_model.target_col
+            
+            lineage = trace_target_operations(ops, active_model.target_col)
+            preds, reconstructable, reason, non_invertible_step = reconstruct_original_target(
+                preds, lineage, training_target, active_model.target_col
+            )
+            
         df["prediction"] = preds
         
         if hasattr(pipeline, "predict_proba"):

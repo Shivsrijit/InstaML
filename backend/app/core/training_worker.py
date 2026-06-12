@@ -49,7 +49,6 @@ def run_training_task(
     
     try:
         log_to_job(project_id, "Initializing training job...")
-        
         # Load project metadata
         projects = query_sync("SELECT * FROM projects WHERE id = ?", [project_id])
         if not projects:
@@ -140,10 +139,42 @@ def run_training_task(
             training_jobs[project_id]["status"] = "completed"
             return
             
+        target_derived_cols = None
+        active_target = None
+        
         if data_type in ["image", "audio"]:
             log_to_job(project_id, f"Initializing folder structures from: {version.file_path}")
             data_source = version.file_path
             log_to_job(project_id, f"Selected model algorithm: {model_name}")
+        elif data_type == "tabular":
+            log_to_job(project_id, f"Loading version dataset from: {version.file_path}")
+            df = load_dataframe(version.file_path)
+            
+            # Authoritative active target
+            active_target = target_col
+            original_target_col = project.target_col or target_col
+            
+            # Trace target lineage graph
+            from backend.app.core.data_handler import get_operations_for_version, trace_target_operations, InvalidTargetLineageError
+            ops = get_operations_for_version(project_id, dataset_version_id)
+            lineage = trace_target_operations(ops, active_target)
+            target_derived_cols = lineage.get("target_derived_cols", [])
+            resolved_original_target = lineage.get("original_target", original_target_col)
+            
+            # Validate active target column is part of the lineage graph
+            if active_target not in target_derived_cols:
+                raise InvalidTargetLineageError(
+                    f"Selected active target '{active_target}' is not in the target lineage graph. "
+                    f"Available target-derived columns: {target_derived_cols}"
+                )
+                
+            if active_target not in df.columns:
+                raise ValueError(f"Active target column '{active_target}' not found in dataset columns.")
+                
+            log_to_job(project_id, f"Dataset loaded: {df.shape[0]} rows, {df.shape[1]} columns")
+            log_to_job(project_id, f"Authoritative target: {active_target} (derived from original target: {resolved_original_target})")
+            log_to_job(project_id, f"Selected model algorithm: {model_name}")
+            data_source = df
         else:
             log_to_job(project_id, f"Loading version dataset from: {version.file_path}")
             df = load_dataframe(version.file_path)
@@ -162,6 +193,10 @@ def run_training_task(
             "test_size": validation_split,
             "random_state": 42
         }
+        if data_type == "tabular":
+            trainer_kwargs["target_derived_cols"] = target_derived_cols
+            trainer_kwargs["active_target"] = active_target
+            
         if data_type == "text" and text_col:
             trainer_kwargs["text_col"] = text_col
             log_to_job(project_id, f"Text column selected: {text_col}")
@@ -213,7 +248,8 @@ def run_training_task(
             "task_type": task_type_val,
             "best_params": best_params,
             "metrics": metrics,
-            "feature_importances": feature_importances
+            "feature_importances": feature_importances,
+            "target_derived_cols": target_derived_cols
         }
         
         # Save model pipeline

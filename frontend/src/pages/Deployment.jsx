@@ -37,10 +37,10 @@ const Deployment = ({ project, datasetStatus, models }) => {
     
     if (formColumns && deployed) {
       const initVals = {};
-      const target = deployed.target_col;
+      const targetCols = deployed.target_derived_cols || [deployed.target_col];
       
       formColumns.forEach(col => {
-        if (col !== target) {
+        if (!targetCols.includes(col)) {
           // Default numeric columns to 0, categoricals to empty string
           const dtype = formDtypes?.[col];
           if (dtype?.includes('int') || dtype?.includes('float')) {
@@ -395,7 +395,8 @@ const Deployment = ({ project, datasetStatus, models }) => {
 
   const formColumns = datasetStatus?.initial_columns || datasetStatus?.columns || [];
   const formDtypes = datasetStatus?.initial_dtypes || datasetStatus?.dtypes || {};
-  const featureCols = formColumns.filter(c => c !== deployedModel.target_col) || [];
+  const targetCols = deployedModel?.target_derived_cols || [deployedModel?.target_col];
+  const featureCols = formColumns.filter(c => !targetCols.includes(c)) || [];
 
   return (
     <div>

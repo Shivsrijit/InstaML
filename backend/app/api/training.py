@@ -175,7 +175,26 @@ def list_trained_models(
         "SELECT * FROM models WHERE project_id = ? ORDER BY created_at DESC",
         [project_id]
     )
-    return models
+    
+    models_list = []
+    for model in models:
+        model_dict = dict(model)
+        try:
+            metrics_data = json.loads(model.metrics_json) if model.metrics_json else {}
+            if "target_derived_cols" in metrics_data:
+                model_dict["target_derived_cols"] = metrics_data["target_derived_cols"]
+            else:
+                from backend.app.core.data_handler import get_operations_for_version, trace_target_operations
+                ops = get_operations_for_version(project_id, model.dataset_version_id)
+                project_rows = query_sync("SELECT target_col FROM projects WHERE id = ?", [project_id])
+                original_target_col = project_rows[0].target_col if project_rows else model.target_col
+                lineage = trace_target_operations(ops, original_target_col)
+                model_dict["target_derived_cols"] = lineage.get("target_derived_cols", [])
+        except Exception:
+            model_dict["target_derived_cols"] = [model.target_col]
+        models_list.append(model_dict)
+        
+    return models_list
 
 @router.get("/models/{model_id}/evaluation")
 def get_model_evaluation(

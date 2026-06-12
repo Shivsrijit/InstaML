@@ -22,6 +22,8 @@ else:
     url = f"file:{BASE_DIR}/instaml.db"
     token = None
 
+print(f"DATABASE URL RESOLVED TO: {url}")
+
 class Row(dict):
     """A dictionary subclass that supports dot-attribute access for columns."""
     def __getattr__(self, name):

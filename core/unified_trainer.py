@@ -93,7 +93,9 @@ class UnifiedModelTrainer:
                     self.target_col, 
                     scaling=self.kwargs.get('scaling', 'standard'),
                     test_size=self.kwargs.get('test_size', 0.2),
-                    random_state=self.kwargs.get('random_state', 42)
+                    random_state=self.kwargs.get('random_state', 42),
+                    target_derived_cols=self.kwargs.get('target_derived_cols'),
+                    active_target=self.kwargs.get('active_target')
                 )
             else:
                 if str(self.data_source).endswith('.parquet'):
@@ -105,7 +107,9 @@ class UnifiedModelTrainer:
                     self.target_col, 
                     scaling=self.kwargs.get('scaling', 'standard'),
                     test_size=self.kwargs.get('test_size', 0.2),
-                    random_state=self.kwargs.get('random_state', 42)
+                    random_state=self.kwargs.get('random_state', 42),
+                    target_derived_cols=self.kwargs.get('target_derived_cols'),
+                    active_target=self.kwargs.get('active_target')
                 )
         
         elif self.data_type == "text":

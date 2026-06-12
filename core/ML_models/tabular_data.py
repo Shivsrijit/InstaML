@@ -20,7 +20,7 @@ warnings.filterwarnings('ignore')
 class TabularModelTrainer:
     """Comprehensive trainer for tabular data models."""
     
-    def __init__(self, df, target_col, task_type="auto", test_size=0.2, random_state=42, scaling="standard"):
+    def __init__(self, df, target_col, task_type="auto", test_size=0.2, random_state=42, scaling="standard", target_derived_cols=None, active_target=None):
         """
         Initialize the trainer.
         
@@ -31,9 +31,13 @@ class TabularModelTrainer:
             test_size: Test set size
             random_state: Random seed
             scaling: Scaling method ("standard", "minmax", "robust", "none")
+            target_derived_cols: List of target-derived column names
+            active_target: Authorized target column name selected for training
         """
         self.df = df.copy()
         self.target_col = target_col
+        self.target_derived_cols = target_derived_cols or []
+        self.active_target = active_target or target_col
         self.test_size = test_size
         self.random_state = random_state
         self.scaling = scaling
@@ -52,9 +56,9 @@ class TabularModelTrainer:
         
     def _detect_task_type(self):
         """Auto-detect if this is classification or regression with improved logic."""
-        target_dtype = self.df[self.target_col].dtype
-        unique_values = self.df[self.target_col].nunique()
-        total_samples = len(self.df[self.target_col])
+        target_dtype = self.df[self.active_target].dtype
+        unique_values = self.df[self.active_target].nunique()
+        total_samples = len(self.df[self.active_target])
         
         # Check if target column is categorical (object, category, or string-like)
         if target_dtype in ['object', 'category', 'string']:
@@ -68,16 +72,16 @@ class TabularModelTrainer:
         # Check if numeric values are integers and represent categories
         if target_dtype in ['int64', 'int32', 'int16', 'int8']:
             # If all values are non-negative integers and represent a small set of categories
-            if (self.df[self.target_col] >= 0).all() and unique_values <= 50:
+            if (self.df[self.active_target] >= 0).all() and unique_values <= 50:
                 # Additional check: if the values are consecutive starting from 0 or 1
-                sorted_values = sorted(self.df[self.target_col].unique())
+                sorted_values = sorted(self.df[self.active_target].unique())
                 if (sorted_values == list(range(len(sorted_values))) or 
                     sorted_values == list(range(1, len(sorted_values) + 1))):
                     return "classification"
         
         # Check for binary classification with numeric values (0/1 or -1/1)
         if unique_values == 2:
-            unique_vals = self.df[self.target_col].unique()
+            unique_vals = self.df[self.active_target].unique()
             if set(unique_vals) in [{0, 1}, {-1, 1}, {0.0, 1.0}, {-1.0, 1.0}]:
                 return "classification"
         
@@ -86,8 +90,21 @@ class TabularModelTrainer:
     
     def _prepare_data(self):
         """Prepare features and target."""
-        self.X = self.df.drop(columns=[self.target_col])
-        self.y = self.df[self.target_col]
+        drop_cols = {self.target_col, self.active_target}
+        if self.target_derived_cols:
+            drop_cols.update(self.target_derived_cols)
+        drop_list = [c for c in drop_cols if c in self.df.columns]
+        self.X = self.df.drop(columns=drop_list)
+        self.y = self.df[self.active_target]
+        
+        # Explicit target leakage validation
+        derived_set = set(self.target_derived_cols) if self.target_derived_cols else {self.target_col, self.active_target}
+        contamination = set(self.X.columns) & derived_set
+        if contamination:
+            from backend.app.core.data_handler import TargetLeakageError
+            raise TargetLeakageError(
+                f"Target contamination detected in feature matrix X! Columns: {list(contamination)}"
+            )
         
         # Split data
         self.X_train, self.X_test, self.y_train, self.y_test = train_test_split(
@@ -95,8 +112,10 @@ class TabularModelTrainer:
         )
         
         # Create preprocessing pipeline
+        temp_df = self.X.copy()
+        temp_df[self.active_target] = self.y
         self.preprocessor, self.num_cols, self.cat_cols = create_preprocessing_pipeline(
-            self.df, self.target_col, scaling=self.scaling
+            temp_df, self.active_target, scaling=self.scaling
         )
     
     def _initialize_models(self):
