@@ -5,6 +5,7 @@ import sys
 
 # Inject workspace/backend paths
 sys.path.insert(0, r"c:\Users\SSN\OneDrive - Shiv Nadar University - Chennai\Desktop\instaml")
+sys.path.insert(0, r"c:\Users\SSN\OneDrive - Shiv Nadar University - Chennai\Desktop\instaml\backend")
 
 from backend.app.db.session import query_sync, execute_sync
 

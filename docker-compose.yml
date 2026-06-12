@@ -9,7 +9,7 @@ services:
       - "8000:8000"
     volumes:
       - ./backend:/workspace/backend
-      - ./core:/workspace/core
+      - ./backend/core:/workspace/core
     environment:
       - SECRET_KEY=instaml-super-secret-key-change-in-prod
       - DATABASE_URL=sqlite:////workspace/backend/instaml.db
@@ -27,7 +27,7 @@ services:
       - "8001:8001"
     volumes:
       - ./backend:/workspace/backend
-      - ./core:/workspace/core
+      - ./backend/core:/workspace/core
     environment:
       - SECRET_KEY=instaml-super-secret-key-change-in-prod
       - DATABASE_URL=sqlite:////workspace/backend/instaml.db
@@ -43,7 +43,7 @@ services:
       - "8002:8002"
     volumes:
       - ./backend:/workspace/backend
-      - ./core:/workspace/core
+      - ./backend/core:/workspace/core
     environment:
       - SECRET_KEY=instaml-super-secret-key-change-in-prod
       - DATABASE_URL=sqlite:////workspace/backend/instaml.db

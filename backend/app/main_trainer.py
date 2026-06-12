@@ -7,6 +7,7 @@ import os
 
 # Setup pathing so core is accessible
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent.parent))
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
 print(f"DEBUG: Trainer Service DATABASE_URL = {os.getenv('DATABASE_URL')}")
 

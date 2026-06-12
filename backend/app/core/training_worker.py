@@ -8,6 +8,7 @@ from typing import Dict, List, Any
 
 # Add project root to sys.path so we can import 'core'
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent.parent.parent))
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent.parent))
 
 from core.unified_trainer import UnifiedModelTrainer
 from backend.app.db.session import query_sync, execute_sync

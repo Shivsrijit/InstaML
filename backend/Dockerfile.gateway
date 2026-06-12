@@ -17,7 +17,7 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 # Copy backend files and root core
 COPY backend /workspace/backend
-COPY core /workspace/core
+COPY backend/core /workspace/core
 
 EXPOSE 8000
 

@@ -10,6 +10,7 @@ from pathlib import Path
 
 # Setup pathing
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
+sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 # Define test database URL and service URLs BEFORE importing any backend components
 db_path = Path(__file__).resolve().parent / "test_cv_and_mlp.db"

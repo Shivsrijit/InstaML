@@ -6,6 +6,7 @@ from pathlib import Path
 
 # Setup pathing
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
+sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 # Set test database URL before importing any database modules
 os.environ["TURSO_DATABASE_URL"] = f"file:{Path(__file__).resolve().parent}/test_instaml.db"

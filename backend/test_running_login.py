@@ -45,6 +45,7 @@ def test_running():
     # Delete from Turso directly
     import sys
     sys.path.insert(0, r"c:\Users\SSN\OneDrive - Shiv Nadar University - Chennai\Desktop\instaml")
+    sys.path.insert(0, r"c:\Users\SSN\OneDrive - Shiv Nadar University - Chennai\Desktop\instaml\backend")
     from backend.app.db.session import execute_sync
     try:
         execute_sync("DELETE FROM users WHERE username = ?", [username])
