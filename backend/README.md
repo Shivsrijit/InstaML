@@ -13,7 +13,7 @@ graph TD
     Gateway -->|"/projects/{id}/training/train"| Trainer["Trainer Service (Port 8001)"]
     Gateway -->|"/projects/{id}/deploy/predict"| Predictor["Predictor Service (Port 8002)"]
     
-    subgraph Trainer Worker Thread
+    subgraph TrainerWorker ["Trainer Worker Thread"]
         Trainer -->|"Async thread spawn"| Worker["training_worker.py"]
         Worker -->|"Load dataset"| DataHandler["data_handler.py"]
         Worker -->|"Train & CV"| UnifiedTrainer["UnifiedModelTrainer"]
@@ -21,7 +21,7 @@ graph TD
         ModelPickle -->|"Upload file"| Supabase["Supabase Storage Bucket"]
     end
     
-    subgraph Predictor Servicing
+    subgraph PredictorServicing ["Predictor Servicing"]
         Predictor -->|"Cache hit check"| CacheCheck["ensure_local_file_exists"]
         CacheCheck -->|"Download file if missing"| DownloadSupabase["Supabase Download API"]
         DownloadSupabase -->|"Load pipeline"| Joblib["joblib.load (pkl)"]

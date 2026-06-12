@@ -25,13 +25,13 @@ graph TD
     Protected --> Guidelines["Guidelines.jsx (Tutorials)"]
     Protected --> Pipeline["PipelineLayout.jsx (Stage Workspace)"]
     
-    subgraph Shared Layout Components
+    subgraph SharedLayoutComponents ["Shared Layout Components"]
         Pipeline --> Sidebar["Sidebar.jsx (Navigation Menu)"]
         Pipeline --> Background["InteractiveBackground.jsx (Canvas Backdrop)"]
         Pipeline --> Nav["PipelineNavigation (Wizard Back/Next Controls)"]
     end
     
-    subgraph Pipeline Views
+    subgraph PipelineViews ["Pipeline Views"]
         Pipeline --> DataUpload["DataUpload.jsx (File Drag-Drop)"]
         Pipeline --> Preprocessing["Preprocessing.jsx (Clean/Scale/Encode)"]
         Pipeline --> EDA["EDA.jsx (Plots & Heatmap)"]

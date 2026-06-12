@@ -8,22 +8,22 @@ InstaML is built on a decoupled microservices architecture designed to separate 
 
 ```mermaid
 graph TD
-    subgraph Client Layer
+    subgraph ClientLayer ["Client Layer"]
         ReactClient["React SPA (Vite)"]
     end
 
-    subgraph Service Layer (Gateway & Microservices)
+    subgraph ServiceLayer ["Service Layer (Gateway & Microservices)"]
         Gateway["Gateway API (FastAPI, Port 8000)"]
         Trainer["Trainer Service (FastAPI, Port 8001)"]
         Predictor["Predictor Service (FastAPI, Port 8002)"]
     end
 
-    subgraph Database Layer
+    subgraph DatabaseLayer ["Database Layer"]
         SQLite["Local SQLite (instaml.db)"]
         Turso["Turso Database (LibSQL, Cloud)"]
     end
 
-    subgraph Storage Layer
+    subgraph StorageLayer ["Storage Layer"]
         LocalStorage["Local Directory (backend/storage)"]
         Supabase["Supabase Storage Bucket"]
     end
