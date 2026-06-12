@@ -1,6 +1,6 @@
 # InstaML
 
-InstaML is a no-code machine learning platform built with a React frontend and FastAPI microservices. It allows users to upload datasets, configure preprocessing steps, visualize statistical relations, train classification/regression models, and execute predictions.
+InstaML is a no-code machine learning workspace built with React and FastAPI. It lets you upload datasets, run preprocessing pipelines, inspect statistical charts, train classification/regression models, and execute predictions.
 
 ## Microservices Architecture
 
@@ -8,19 +8,19 @@ InstaML splits Gateway orchestration, Optuna training threads, and Predictor inf
 
 ```mermaid
 graph TD
-    Client["React SPA (Client)"] <-->|HTTP / JWT| Gateway["Gateway API (Port 8000)"]
-    Gateway <-->|HTTP / RPC| Trainer["Trainer Service (Port 8001)"]
-    Gateway <-->|HTTP / Streams| Predictor["Predictor Service (Port 8002)"]
+    Client["React SPA (Client)"] -->|"HTTP / JWT"| Gateway["Gateway API (Port 8000)"]
+    Gateway -->|"HTTP / RPC"| Trainer["Trainer Service (Port 8001)"]
+    Gateway -->|"HTTP / Streams"| Predictor["Predictor Service (Port 8002)"]
 
-    Gateway <-->|SQL Queries| DB["SQLite (Local) / Turso (Cloud)"]
-    Trainer <-->|SQL Queries| DB
-    Predictor <-->|SQL Queries| DB
+    Gateway -->|"SQL Queries"| DB["SQLite (Local) / Turso (Cloud)"]
+    Trainer -->|"SQL Queries"| DB
+    Predictor -->|"SQL Queries"| DB
 
-    Gateway <-->|Read / Write| LocalCache["Local Cache (backend/storage)"]
-    Trainer <-->|Read / Write| LocalCache
-    Predictor <-->|Read / Write| LocalCache
+    Gateway -->|"Read / Write"| LocalCache["Local Cache (backend/storage)"]
+    Trainer -->|"Read / Write"| LocalCache
+    Predictor -->|"Read / Write"| LocalCache
 
-    LocalCache <-->|REST Sync| Supabase["Supabase Storage Bucket"]
+    LocalCache -->|"REST Sync"| Supabase["Supabase Storage Bucket"]
 ```
 
 ## Documentation Directory
@@ -55,3 +55,4 @@ Start the entire stack using Docker Compose:
 ## License
 
 This project is licensed under the MIT License.
+```

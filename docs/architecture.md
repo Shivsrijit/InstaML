@@ -28,22 +28,22 @@ graph TD
         Supabase["Supabase Storage Bucket"]
     end
 
-    ReactClient <-->|HTTP / JSON / JWT| Gateway
-    Gateway <-->|HTTP / JSON| Trainer
-    Gateway <-->|HTTP / JSON / Streams| Predictor
+    ReactClient -->|"HTTP / JSON / JWT"| Gateway
+    Gateway -->|"HTTP / JSON"| Trainer
+    Gateway -->|"HTTP / JSON / Streams"| Predictor
 
-    Gateway <-->|SQL Queries| SQLite
-    Gateway <-->|SQL Queries| Turso
-    Trainer <-->|SQL Queries| SQLite
-    Trainer <-->|SQL Queries| Turso
-    Predictor <-->|SQL Queries| SQLite
-    Predictor <-->|SQL Queries| Turso
+    Gateway -->|"SQL Queries"| SQLite
+    Gateway -->|"SQL Queries"| Turso
+    Trainer -->|"SQL Queries"| SQLite
+    Trainer -->|"SQL Queries"| Turso
+    Predictor -->|"SQL Queries"| SQLite
+    Predictor -->|"SQL Queries"| Turso
 
-    Gateway <-->|Read / Write| LocalStorage
-    Trainer <-->|Read / Write| LocalStorage
-    Predictor <-->|Read / Write| LocalStorage
+    Gateway -->|"Read / Write"| LocalStorage
+    Trainer -->|"Read / Write"| LocalStorage
+    Predictor -->|"Read / Write"| LocalStorage
 
-    LocalStorage <-->|Sync / Caching Fallback| Supabase
+    LocalStorage -->|"Sync / Caching Fallback"| Supabase
 ```
 
 ## 2. Component Descriptions
