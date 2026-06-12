@@ -180,10 +180,10 @@ const Sidebar = ({ project, datasetStatus, hasModels }) => {
             </li>
 
             {project?.data_type === 'text' && (
-              <li className="menu-item">
-                <NavLink to={`/projects/${project_id}/playground`} className={({ isActive }) => isActive ? 'active' : ''}>
-                  <i className="fa-solid fa-brain"></i>
-                  <span>NLP Playground</span>
+              <li className="menu-item disabled">
+                <NavLink to={`/projects/${project_id}/playground`} className={({ isActive }) => isActive ? 'active' : ''} style={{ pointerEvents: 'none' }}>
+                  <i className="fa-solid fa-lock" style={{ opacity: 0.6 }}></i>
+                  <span>NLP Playground <span style={{ fontSize: '0.7rem', opacity: 0.6, marginLeft: '0.25rem' }}>(Coming Soon)</span></span>
                 </NavLink>
               </li>
             )}

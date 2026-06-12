@@ -338,7 +338,7 @@ const DataUpload = ({ project, datasetStatus, refreshStatus }) => {
           </li>
           <li style={{ display: 'flex', gap: '0.5rem', alignItems: 'center', fontSize: '0.8rem' }}>
             <i className="fa-solid fa-circle-check" style={{ color: 'var(--text-muted)' }}></i>
-            <span>Keep datasets under 100MB for optimal browser speed.</span>
+            <span>Keep datasets under 30MB for cloud deployments (local setups depend on your PC RAM).</span>
           </li>
         </ul>
       </div>

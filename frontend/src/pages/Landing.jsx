@@ -26,7 +26,7 @@ const Landing = () => {
   const faqs = [
     {
       q: "What data formats are supported?",
-      a: "InstaML natively parses structured tabular tables (CSV, Excel, Parquet), copy-pasted text logs, notepad files (.txt), and ZIP folder structures containing class directories for image and sound classification tasks."
+      a: "InstaML currently supports structured tabular tables (CSV, Excel, Parquet). Support for copy-pasted text logs, notepad files (.txt), and ZIP folder archives containing categories for image and sound classification are coming soon."
     },
     {
       q: "How does the serverless deployment work?",
@@ -42,11 +42,11 @@ const Landing = () => {
     },
     {
       q: "Is there a limit on dataset upload sizes?",
-      a: "During the public beta, we support dataset files up to 100MB directly in the browser interface. For custom large-scale datasets or dedicated enterprise database syncs, please reach out to our beta support queue."
+      a: "Yes. The cloud deployment enforces a dataset upload limit of 30MB to preserve shared server stability. When running InstaML locally, there is no strict software limit—the capacity is entirely dependent on your PC's hardware capacity and available RAM."
     },
     {
       q: "What machine learning models are available for training?",
-      a: "For tabular tasks, we support XGBoost, Random Forest, LightGBM, and Linear classifiers. For text/NLP datasets, you can utilize linear models, neural network classifiers, or zero-shot NLP models. For image/sound arrays, custom CNNs and ResNet architectures are trained."
+      a: "For tabular tasks, we support XGBoost, Random Forest, LightGBM, and Linear classifiers or regressors. Support for training text/NLP models (using linear algorithms or zero-shot classifiers) and image/sound classification (using custom CNNs and ResNet architectures) is coming soon."
     },
     {
       q: "How do I integrate the deployed API endpoints into my application?",
@@ -177,7 +177,7 @@ const Landing = () => {
             Connect datasets, clean features, compute correlation grids, optimize hyperparameters, and serve secure REST endpoints in a clean graphic workspace.
           </p>
 
-          <div style={{ display: 'flex', gap: '1rem', marginBottom: '5rem' }}>
+          <div style={{ display: 'flex', gap: '1rem', marginBottom: '1.5rem' }}>
             {user ? (
               <button onClick={() => navigate('/dashboard')} className="btn btn-primary" style={{ padding: '0.75rem 2rem', borderRadius: 'var(--radius-sm)', fontSize: '0.9rem' }}>
                 Open Console Dashboard
@@ -192,6 +192,29 @@ const Landing = () => {
                 </button>
               </>
             )}
+          </div>
+
+          {/* Highlighted Upload Size Limits */}
+          <div style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '0.65rem',
+            fontSize: '0.75rem',
+            color: 'var(--text-muted)',
+            fontFamily: 'var(--font-mono)',
+            backgroundColor: 'var(--bg-glass)',
+            border: '1px solid var(--border-color)',
+            padding: '0.45rem 1.15rem',
+            borderRadius: '9999px',
+            marginBottom: '3.5rem',
+            boxShadow: 'var(--shadow-sm)',
+            backdropFilter: 'blur(8px)'
+          }}>
+            <i className="fa-solid fa-cloud-arrow-up" style={{ color: 'var(--accent-purple)' }}></i>
+            <span>Cloud Upload Limit: <strong style={{ color: 'var(--text-main)' }}>30MB</strong></span>
+            <span style={{ color: 'var(--border-hover)' }}>|</span>
+            <i className="fa-solid fa-laptop" style={{ color: 'var(--accent-green)' }}></i>
+            <span>Local Setup Limit: <strong style={{ color: 'var(--text-main)' }}>Depends on PC RAM</strong></span>
           </div>
 
           {/* Unified Application Mockup Dashboard */}
@@ -278,7 +301,7 @@ const Landing = () => {
             InstaML Public Beta
           </h2>
           <p style={{ fontSize: '0.95rem', color: 'var(--text-muted)', lineHeight: '1.6', fontFamily: 'var(--font-body)', maxWidth: '540px' }}>
-            InstaML is currently in open public beta. During this period, all pipelines, datasets, Optuna parameters, and REST serving endpoints are <strong>completely free</strong> with no usage tiers or bandwidth restrictions.
+            InstaML is currently in open public beta. During this period, all pipelines, datasets, Optuna parameters, and REST serving endpoints are <strong>completely free</strong>. We support dataset uploads up to 30MB on our cloud platform, while local setups have no strict software limits and depend entirely on your PC's available memory and hardware capacity.
           </p>
           <div style={{ 
             border: '1px solid var(--border-color)', 
@@ -363,13 +386,13 @@ const Landing = () => {
       </section>
 
       {/* Simple Footer */}
-      <footer className="landing-header" style={{ borderTop: '1px solid var(--border-color)', borderBottom: 'none' }}>
-        <div className="landing-header-container" style={{ padding: '2rem 1rem', fontSize: '0.8rem', color: 'var(--text-dim)', fontFamily: 'var(--font-body)' }}>
-          <span>&copy; {new Date().getFullYear()} InstaML. All rights reserved. Powered by FastAPI, PyTorch, & Turso Db.</span>
-          <div style={{ display: 'flex', gap: '1.5rem' }}>
-            <a href="#features" className="landing-nav-link" style={{ fontSize: '0.8rem' }}>Privacy Policy</a>
-            <a href="#features" className="landing-nav-link" style={{ fontSize: '0.8rem' }}>Terms of Service</a>
-            <a href="mailto:support@instaml.ai" className="landing-nav-link" style={{ fontSize: '0.8rem' }}>support@instaml.ai</a>
+      <footer className="landing-footer">
+        <div className="landing-footer-container">
+          <span className="landing-footer-text">&copy; {new Date().getFullYear()} InstaML. All rights reserved.</span>
+          <div className="landing-footer-links">
+            <a href="#features" className="landing-footer-link">Privacy Policy</a>
+            <a href="#features" className="landing-footer-link">Terms of Service</a>
+            <a href="mailto:shivsrijit@gmail.com" className="landing-footer-link">shivsrijit@gmail.com</a>
           </div>
         </div>
       </footer>

@@ -404,7 +404,7 @@ const Dashboard = () => {
                   style={{ cursor: 'pointer' }}
                 >
                   <option value="tabular">Tabular (CSV, Excel, Parquet)</option>
-                  <option value="text">Raw Text (NLP classification)</option>
+                  <option value="text" disabled>Raw Text (NLP classification) (Coming Soon)</option>
                   <option value="image" disabled>Image Dataset (Coming Soon)</option>
                   <option value="audio" disabled>Audio Signals (Coming Soon)</option>
                   <option value="multi_dimensional" disabled>Multi-Dimensional Arrays (Coming Soon)</option>
