@@ -79,6 +79,8 @@ TransformRegistry.register("/", None, None, is_invertible=False)
 
 def load_dataframe(file_path: str) -> pd.DataFrame:
     """Load a pandas DataFrame from Parquet or Pickle format."""
+    from backend.app.core.supabase_storage import ensure_local_file_exists
+    file_path = ensure_local_file_exists(file_path)
     path = Path(file_path)
     if not path.exists():
         raise FileNotFoundError(f"File not found: {file_path}")
@@ -88,6 +90,7 @@ def load_dataframe(file_path: str) -> pd.DataFrame:
     else:
         with open(path, "rb") as f:
             return pickle.load(f)
+
 
 def save_dataframe(df: pd.DataFrame, file_path: str) -> None:
     """Save a pandas DataFrame in Parquet or Pickle format."""

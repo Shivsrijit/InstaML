@@ -149,8 +149,10 @@ def predict_realtime(
         )
         
     try:
+        from backend.app.core.supabase_storage import ensure_local_file_exists
+        file_path = ensure_local_file_exists(active_model.file_path)
         # Load the pipeline (.pkl file) from disk (shared volume)
-        pipeline = joblib.load(active_model.file_path)
+        pipeline = joblib.load(file_path)
         
         # Check project modality
         projects = query_sync("SELECT * FROM projects WHERE id = ?", [project_id])
@@ -242,7 +244,9 @@ def predict_batch(
         
     try:
         df = pd.read_csv(file.file)
-        pipeline = joblib.load(active_model.file_path)
+        from backend.app.core.supabase_storage import ensure_local_file_exists
+        file_path = ensure_local_file_exists(active_model.file_path)
+        pipeline = joblib.load(file_path)
         
         predict_df = df.copy()
         if active_model.target_col in predict_df.columns:

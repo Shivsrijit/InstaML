@@ -85,6 +85,9 @@ def upload_dataset(
             with open(dest_file, "wb") as f:
                 shutil.copyfileobj(file.file, f)
                 
+            from backend.app.core.supabase_storage import upload_file_to_supabase
+            upload_file_to_supabase(dest_file)
+            
             execute_sync(
                 """INSERT INTO dataset_versions (
                     version_id, step_name, description, shape_rows, shape_cols,
@@ -129,6 +132,9 @@ def upload_dataset(
             with zipfile.ZipFile(temp_zip, 'r') as zip_ref:
                 zip_ref.extractall(final_dir_path)
                 
+            from backend.app.core.supabase_storage import upload_dir_to_supabase
+            upload_dir_to_supabase(final_dir_path)
+            
             # Count extracted files
             all_files = [p for p in final_dir_path.rglob('*') if p.is_file()]
             subdirs = [p.name for p in final_dir_path.iterdir() if p.is_dir() and not p.name.startswith('.')]
@@ -212,6 +218,9 @@ def upload_dataset(
             final_file_path = project_dir / "data" / f"{version_id}.parquet"
             save_dataframe(df, str(final_file_path))
             
+            from backend.app.core.supabase_storage import upload_file_to_supabase
+            upload_file_to_supabase(final_file_path)
+            
             shape_rows, shape_cols = df.shape
             columns_list = list(df.columns)
             dtypes_dict = {col: str(dtype) for col, dtype in df.dtypes.to_dict().items()}
@@ -282,6 +291,9 @@ def upload_dataset(
             df = pd.DataFrame({"text": lines})
             final_file_path = project_dir / "data" / f"{version_id}.parquet"
             save_dataframe(df, str(final_file_path))
+            
+            from backend.app.core.supabase_storage import upload_file_to_supabase
+            upload_file_to_supabase(final_file_path)
             
             shape_rows, shape_cols = df.shape
             columns_list = list(df.columns)
@@ -395,6 +407,10 @@ def upload_dataset(
                                 
                             test_save_path = project_dir / "data" / f"{version_id}_test.parquet"
                             save_dataframe(df_test, str(test_save_path))
+                            
+                            from backend.app.core.supabase_storage import upload_file_to_supabase
+                            upload_file_to_supabase(test_save_path)
+                            
                             metadata["has_test"] = True
                             metadata["test_file_path"] = str(test_save_path)
                             metadata["test_filename"] = test_file.name
@@ -422,6 +438,9 @@ def upload_dataset(
                 
             final_file_path = project_dir / "data" / f"{version_id}.parquet"
             save_dataframe(df, str(final_file_path))
+            
+            from backend.app.core.supabase_storage import upload_file_to_supabase
+            upload_file_to_supabase(final_file_path)
             
             shape_rows, shape_cols = df.shape
             columns_list = list(df.columns)
@@ -648,6 +667,9 @@ def preprocess_dataset(
         project_dir = STORAGE_DIR / f"user_{current_user.id}" / f"project_{project_id}"
         final_file_path = project_dir / "data" / f"{version_id}.parquet"
         save_dataframe(df_processed, str(final_file_path))
+        
+        from backend.app.core.supabase_storage import upload_file_to_supabase
+        upload_file_to_supabase(final_file_path)
         
         # Calculate new shapes/dtypes
         shape_rows, shape_cols = df_processed.shape

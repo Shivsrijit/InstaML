@@ -24,7 +24,7 @@ services:
       context: .
       dockerfile: backend/Dockerfile.trainer
     ports:
-      - "8001:8001"
+      - "127.0.0.1:8001:8001"
     volumes:
       - ./backend:/workspace/backend
       - ./backend/core:/workspace/core
@@ -40,7 +40,7 @@ services:
       context: .
       dockerfile: backend/Dockerfile.predictor
     ports:
-      - "8002:8002"
+      - "127.0.0.1:8002:8002"
     volumes:
       - ./backend:/workspace/backend
       - ./backend/core:/workspace/core

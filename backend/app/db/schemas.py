@@ -1,12 +1,12 @@
-from pydantic import BaseModel, EmailStr
+from pydantic import BaseModel, EmailStr, Field
 from typing import List, Dict, Any, Optional
 from datetime import datetime
 
 # --- User Schemas ---
 class UserCreate(BaseModel):
-    username: str
+    username: str = Field(..., min_length=3, max_length=50)
     email: EmailStr
-    password: str
+    password: str = Field(..., min_length=8, max_length=100)
 
 class UserLogin(BaseModel):
     username: str
@@ -23,7 +23,7 @@ class UserResponse(BaseModel):
 
 class UserUpdate(BaseModel):
     email: Optional[EmailStr] = None
-    password: Optional[str] = None
+    password: Optional[str] = Field(None, min_length=8, max_length=100)
 
 class Token(BaseModel):
     access_token: str
@@ -101,13 +101,13 @@ class PreprocessRequest(BaseModel):
     #  {"op": "remove_outliers", "column": "fare"}]
 
 class TrainRequest(BaseModel):
-    model_name: str
-    target_col: str
+    model_name: str = Field(..., min_length=1, max_length=100)
+    target_col: str = Field(..., min_length=1)
     text_col: Optional[str] = None
     use_hyperparameter_tuning: bool = False
-    trials: int = 10
-    validation_split: float = 0.2
-    k_folds: Optional[int] = None
+    trials: int = Field(10, ge=1, le=100)
+    validation_split: float = Field(0.2, ge=0.05, le=0.5)
+    k_folds: Optional[int] = Field(None, ge=2, le=10)
 
 class PredictRequest(BaseModel):
     features: Dict[str, Any]

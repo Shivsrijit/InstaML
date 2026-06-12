@@ -177,6 +177,8 @@ def predict_file(
             )
             class_name = "default"
             if latest_versions:
+                from backend.app.core.supabase_storage import ensure_local_file_exists
+                ensure_local_file_exists(latest_versions[0].file_path)
                 path = Path(latest_versions[0].file_path)
                 subdirs = [p.name for p in path.iterdir() if p.is_dir() and not p.name.startswith('.')]
                 if subdirs:
@@ -192,6 +194,8 @@ def predict_file(
             )
             class_name = "default"
             if latest_versions:
+                from backend.app.core.supabase_storage import ensure_local_file_exists
+                ensure_local_file_exists(latest_versions[0].file_path)
                 path = Path(latest_versions[0].file_path)
                 subdirs = [p.name for p in path.iterdir() if p.is_dir() and not p.name.startswith('.')]
                 if subdirs:
@@ -255,7 +259,9 @@ def download_model_file(
         raise HTTPException(status_code=404, detail="Model file not found")
     model = models[0]
         
-    path = Path(model.file_path)
+    from backend.app.core.supabase_storage import ensure_local_file_exists
+    file_path = ensure_local_file_exists(model.file_path)
+    path = Path(file_path)
     if not path.exists():
          raise HTTPException(status_code=404, detail="Model file does not exist on disk")
          

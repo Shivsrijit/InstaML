@@ -131,6 +131,9 @@ def run_training_task(
             joblib.dump({"task": task, "pipeline": "pretrained"}, str(model_save_path))
             log_to_job(project_id, f"Model pipeline registered to: {model_save_path}")
             
+            from backend.app.core.supabase_storage import upload_file_to_supabase
+            upload_file_to_supabase(model_save_path)
+            
             # Update Model DB record
             execute_sync(
                 "UPDATE models SET metrics_json = ?, file_path = ?, dataset_version_id = ? WHERE id = ?",
@@ -145,6 +148,8 @@ def run_training_task(
         active_target = None
         
         if data_type in ["image", "audio"]:
+            from backend.app.core.supabase_storage import ensure_local_file_exists
+            ensure_local_file_exists(version.file_path)
             log_to_job(project_id, f"Initializing folder structures from: {version.file_path}")
             data_source = version.file_path
             log_to_job(project_id, f"Selected model algorithm: {model_name}")
@@ -263,6 +268,9 @@ def run_training_task(
         
         trainer.save_model(str(model_save_path))
         log_to_job(project_id, f"Model saved to: {model_save_path}")
+        
+        from backend.app.core.supabase_storage import upload_file_to_supabase
+        upload_file_to_supabase(model_save_path)
         
         # Update Model DB record
         execute_sync(
