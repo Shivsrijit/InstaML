@@ -4,131 +4,67 @@
 
 InstaML is a comprehensive no-code machine learning platform designed to democratize AI development. It provides an intuitive web-based interface that enables users to build, train, evaluate, and deploy machine learning models without writing code. The platform serves students learning ML concepts, researchers prototyping models, and business professionals solving real-world problems.
 
-
-<!-- ## App Preview
-
-<p align="center">
-  <img src="images/Screenshot%20(95).png" alt="App Preview 1" width="200"/>
-  <img src="images/Screenshot%20(94).png" alt="App Preview 2" width="200"/>
-  <img src="images/Screenshot%20(97).png" alt="App Preview 3" width="200"/>
-  <img src="images/Screenshot%20(98).png" alt="App Preview 4" width="200"/>
-  <img src="images/Screenshot%20(99).png" alt="App Preview 5" width="200"/>
-  <img src="images/Screenshot (96) - Copy.png" alt="App Preview 5" width="200"/>
-
-</p> -->
-
+---
 
 ## Core Features
 
-**Data Management**
-- Intelligent data upload and validation
-- Comprehensive data preprocessing pipeline
-- Advanced data quality assessment
-- Automated feature engineering
-
-**Exploratory Data Analysis**
-- Interactive visualization dashboard
-- Statistical analysis and insights
-- Correlation and feature importance analysis
-- Multi-dimensional data exploration
-
-**Machine Learning**
-- Multiple algorithm support (Classification, Regression, Object Detection)
-- Automated hyperparameter optimization
-- Model performance evaluation and comparison
-- Cross-validation and metrics analysis
-
-**Deployment**
-- One-click model deployment
-- REST API generation
-- Real-time prediction interface
-- Model versioning and management
-
-## Technology Stack
-
-| Layer | Technology | Purpose |
-|-------|------------|---------|
-| **Frontend** | Streamlit | Interactive web interface |
-| **Backend** | FastAPI | API services and model serving |
-| **ML Frameworks** | scikit-learn, XGBoost, YOLOv8 | Model training and inference |
-| **Data Processing** | Pandas, NumPy | Data manipulation and analysis |
-| **Visualization** | Plotly, Seaborn, Matplotlib | Charts and interactive graphs |
-| **Optimization** | Optuna | Hyperparameter tuning |
-| **MLOps** | MLflow | Experiment tracking and versioning |
-| **Deployment** | Docker, GitHub Codespaces | Containerization and cloud deployment |
-
-## Platform Workflow
-
-1. **Data Upload** → Upload datasets and perform initial validation
-2. **Data Preprocessing** → Clean, transform, and prepare data for modeling
-3. **Exploratory Analysis** → Understand data patterns through visualizations
-4. **Model Training** → Select algorithms and train models with optimization
-5. **Model Testing** → Evaluate performance and validate results
-6. **Model Deployment** → Deploy models for real-world predictions
-
-## Quick Start
-
-### Local Installation
-
-```bash
-git clone https://github.com/shivsrijit/InstaML.git
-cd InstaML/InstaML
-pip install -r requirements.txt
-streamlit run app.py --server.port 8501 --server.address 0.0.0.0
-```
-
-Access the application at: **[http://localhost:8501](http://localhost:8501)**
-
----
-
-## Development Status
-
-| Component          | Status         | Description                                          |
-|--------------------|---------------|------------------------------------------------------|
-| Data Upload        | ✅ Complete   | CSV support with comprehensive validation            |
-| Data Preprocessing | ✅ Complete   | 5-stage preprocessing workflow                       |
-| EDA Dashboard      | ✅ Complete   | Lots of visualization options                        |
-| Model Training     | ✅ Complete   | Classification and regression algorithms             |
-| Model Testing      | ✅ Complete   | Performance evaluation and validation                |
-| Model Deployment   | 🔄 In Progress| Local deployment infrastructure                      |
-| Computer Vision    | ✅ Complete   | YOLO integration for object detection                |
-| Time Series        | 📋 Planned    | Forecasting and trend analysis                       |
-| API Backend        | 📋 Planned    | FastAPI service architecture                         |
-
-
----
-
-## Project Vision
-
-**InstaML** aims to bridge the gap between complex machine learning concepts and practical implementation.  
-
-By providing a **no-code interface**, we enable users to focus on **problem-solving and insights** rather than technical implementation details.  
-
-The platform maintains the **flexibility required for advanced use cases** while ensuring **accessibility for beginners**.
-
----
-
-## Contributing
-
-We welcome contributions to enhance InstaML's capabilities.  
-Please review our contributing guidelines and feel free to submit **issues, feature requests, or pull requests**.
-
----
-
-## License
-
-This project is licensed under the **MIT License**.  
-See the [LICENSE](./LICENSE) file for details.
+*   **Intelligent Data Upload**: CSV, Excel, Parquet, and ZIP files (containing structured images/audio) with auto-modality detection.
+*   **Interactive Preprocessing**: Sequential multi-stage pipeline configuration (handling missing values, dropping columns, scaling features, outlier removals, and category encoders).
+*   **Exploratory Data Analysis (EDA)**: Interactive statistical description cards, Univariate visuals (Box plot, Histogram, KDE, CDF, Pie chart), Bivariate correlations, and K-Means/PCA projections.
+*   **Model Training**: Select custom classifiers or regressors (XGBoost, Random Forest, Multi-Layer Perceptrons) with automated hyperparameter optimization (using Optuna trials) and K-Fold cross-validation.
+*   **Specialized Modalities**: Out-of-the-box pretrained networks for NLP (Named Entity Recognition, Sentiment, Text Summarization), Computer Vision (Face Detection, OCR, Image Super Resolution/Denoising), and Audio (Speech Recognition, Noise Reduction).
+*   **Deployment**: One-click REST API deployments, real-time prediction widgets, bulk CSV predictions, and version restore capabilities.
 
 ---
 
 ## Documentation
 
-- 📘 **ML Guide** – Comprehensive machine learning documentation  
-- ⚙️ **API Reference** – Backend API documentation  
-- 🚀 **Deployment Guide** – Production deployment instructions  
+For deep dives into configuration, architecture, and coding standards, refer to:
+
+- 📘 **[System Architecture](file:///c:/Users/SSN/OneDrive%20-%20Shiv%20Nadar%20University%20-%20Chennai/Desktop/instaml/docs/architecture.md)** – Detailed microservices mapping, databases schemas, and storage sync caching.
+- ⚙️ **[Installation & Setup Guide](file:///c:/Users/SSN/OneDrive%20-%20Shiv%20Nadar%20University%20-%20Chennai/Desktop/instaml/docs/setup.md)** – Launch the project locally with or without Docker.
+- 🌐 **[Production Deployment Guide](file:///c:/Users/SSN/OneDrive%20-%20Shiv%20Nadar%20University%20-%20Chennai/Desktop/instaml/docs/deployment.md)** – Detailed instructions for hosting the platform on Render, Vercel, Turso, and Supabase free-tiers.
+- 🚀 **[Contributing Guide](file:///c:/Users/SSN/OneDrive%20-%20Shiv%20Nadar%20University%20-%20Chennai/Desktop/instaml/docs/contribution.md)** – Repository structure, coding protocols, and test suites executions.
+
+---
+
+## Technology Stack
+
+| Layer | Technology | Purpose |
+|-------|------------|---------|
+| **Frontend** | React 18, Vite, Recharts, Vanilla CSS | Interactive single page client |
+| **Gateway** | FastAPI, Uvicorn, Python-Jose, Bcrypt | Orchestrator, authorization, and route security |
+| **Microservices** | FastAPI, Scikit-Learn, Joblib, Optuna | Background trainers and inference predictors |
+| **Database** | SQLite (local) / Turso LibSQL (cloud) | Schema migrations and user/project indexing |
+| **Storage** | Local Disk / Supabase Storage REST API | Caching sync for dataset check-points & pickled models |
+
+---
+
+## Quick Start (Docker Compose)
+
+The fastest way to boot the complete environment is via Docker:
+
+1.  Make sure you have Docker Desktop running.
+2.  Launch the services:
+    ```bash
+    docker-compose up --build
+    ```
+3.  Access the React client at: **[http://localhost:5173](http://localhost:5173)** (Gateway runs on `8000`).
+
+*(Refer to [docs/setup.md](file:///c:/Users/SSN/OneDrive%20-%20Shiv%20Nadar%20University%20-%20Chennai/Desktop/instaml/docs/setup.md) for running native python/npm processes directly on your host loops).*
+
+---
+
+## Contributing
+
+We welcome contributions to enhance InstaML's capabilities! Please review our **[Contributing Guide](file:///c:/Users/SSN/OneDrive%20-%20Shiv%20Nadar%20University%20-%20Chennai/Desktop/instaml/docs/contribution.md)** and feel free to submit issues or pull requests.
+
+---
+
+## License
+
+This project is licensed under the **MIT License**.
 
 ---
 
 ✨ **Built for the AI community** | ⭐ **Star this repository if you find it helpful**
-
