@@ -84,53 +84,36 @@ const Landing = () => {
             <a href="#contact" className="landing-nav-link">Contact</a>
           </nav>
 
-          <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
+          <div className="landing-header-actions">
             {/* GitHub Link Icon */}
             <a 
               href="https://github.com/shivsrijit/instaml" 
               target="_blank" 
               rel="noopener noreferrer"
-              className="btn-glass-pill"
-              style={{ 
-                width: '36px',
-                height: '36px',
-                padding: 0,
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                textDecoration: 'none'
-              }}
+              className="btn-glass-pill landing-header-btn-round"
               title="View on GitHub"
             >
-              <i className="fa-brands fa-github" style={{ fontSize: '1.25rem' }}></i>
+              <i className="fa-brands fa-github"></i>
             </a>
 
             {/* Theme Toggle Button */}
             <button 
               onClick={toggleTheme} 
-              className="btn-glass-pill"
-              style={{ 
-                width: '36px',
-                height: '36px',
-                padding: 0,
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center'
-              }}
+              className="btn-glass-pill landing-header-btn-round"
               title={theme === 'dark' ? 'Switch to Solar Mode' : 'Switch to Dark Mode'}
             >
               <i className={theme === 'dark' ? 'fa-solid fa-moon' : 'fa-solid fa-sun'}></i>
             </button>
 
             {user ? (
-              <Link to="/dashboard" className="btn-glass-pill" style={{ padding: '0.5rem 1.25rem' }}>
+              <Link to="/dashboard" className="btn-glass-pill landing-header-btn-action">
                 <span>Dashboard</span>
                 <i className="fa-solid fa-arrow-right" style={{ fontSize: '0.75rem' }}></i>
               </Link>
             ) : (
               <>
-                <Link to="/login" className="landing-nav-link" style={{ fontWeight: 600 }}>Sign In</Link>
-                <Link to="/register" className="btn-glass-pill" style={{ padding: '0.5rem 1.25rem' }}>Join Beta</Link>
+                <Link to="/login" className="landing-nav-link landing-header-signin-link" style={{ fontWeight: 600 }}>Sign In</Link>
+                <Link to="/register" className="btn-glass-pill landing-header-btn-action">Join Beta</Link>
               </>
             )}
           </div>

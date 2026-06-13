@@ -1180,6 +1180,7 @@ div > .spinner:only-child {
   cursor: pointer;
   text-decoration: none;
   color: var(--text-main);
+  flex-shrink: 0;
 }
 
 .landing-logo-container i {
@@ -1526,6 +1527,32 @@ div > .spinner:only-child {
   }
 }
 
+/* Landing Header Base Classes */
+.landing-header-actions {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.landing-header-btn-round {
+  width: 36px;
+  height: 36px;
+  padding: 0 !important;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+}
+
+.landing-header-btn-round i {
+  font-size: 1.25rem;
+}
+
+.landing-header-btn-action {
+  padding: 0.5rem 1.25rem;
+}
+
 /* Landing Navbar Mobile Responsiveness */
 @media (max-width: 768px) {
   .landing-nav {
@@ -1543,6 +1570,59 @@ div > .spinner:only-child {
   .landing-header {
     width: calc(100% - 1.25rem) !important;
     margin: 0.75rem auto 0 !important;
+  }
+  .landing-header-actions {
+    gap: 0.4rem !important;
+  }
+  .landing-header-btn-round {
+    width: 30px !important;
+    height: 30px !important;
+  }
+  .landing-header-btn-round i {
+    font-size: 0.95rem !important;
+  }
+  .landing-header-btn-action {
+    padding: 0.4rem 0.85rem !important;
+    font-size: 0.75rem !important;
+  }
+  .landing-header-signin-link {
+    font-size: 0.75rem !important;
+    padding: 0.4rem 0.5rem !important;
+    white-space: nowrap !important;
+  }
+}
+
+@media (max-width: 480px) {
+  .landing-header {
+    width: calc(100% - 0.75rem) !important;
+    margin: 0.5rem auto 0 !important;
+  }
+  .landing-header-container {
+    padding: 0.35rem 0.6rem !important;
+  }
+  .landing-logo-container span {
+    font-size: 1.05rem !important;
+  }
+  .landing-logo-container i {
+    font-size: 0.95rem !important;
+  }
+  .landing-header-actions {
+    gap: 0.25rem !important;
+  }
+  .landing-header-btn-round {
+    width: 28px !important;
+    height: 28px !important;
+  }
+  .landing-header-btn-round i {
+    font-size: 0.85rem !important;
+  }
+  .landing-header-btn-action {
+    padding: 0.35rem 0.65rem !important;
+    font-size: 0.7rem !important;
+  }
+  .landing-header-signin-link {
+    font-size: 0.7rem !important;
+    padding: 0.35rem 0.35rem !important;
   }
 }
 
