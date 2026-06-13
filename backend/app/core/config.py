@@ -44,4 +44,12 @@ ORIGINS = [
     "http://localhost:3000",
     "http://127.0.0.1:5173",
     "http://127.0.0.1:3000",
+    "https://instamlx.vercel.app",  # Production Vercel client
 ]
+
+cors_env = os.getenv("CORS_ORIGINS")
+if cors_env:
+    for origin in cors_env.split(","):
+        origin = origin.strip()
+        if origin and origin not in ORIGINS:
+            ORIGINS.append(origin)
