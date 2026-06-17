@@ -65,9 +65,7 @@ def upload_file_to_supabase(local_file_path: Path) -> bool:
             print(err_msg)
             if is_supabase_required():
                 raise RuntimeError(
-                    f"Cloud storage upload failed: {err_msg}. "
-                    f"Please ensure you have created a public/private storage bucket named '{SUPABASE_BUCKET}' "
-                    f"in your Supabase project, and that your SUPABASE_KEY is a valid 'service_role' key (not the anon/publishable key) that bypasses Row-Level Security (RLS)."
+                    f"Failed to upload dataset to cloud storage. Supabase configuration may be fishy, check out macha!"
                 )
             return False
     except Exception as e:
@@ -212,9 +210,7 @@ def ensure_local_file_exists(local_path_str: str) -> str:
         
     if is_supabase_required():
         raise FileNotFoundError(
-            f"File not found locally: {local_path}. Attempted to download from cloud storage (Supabase) using path '{remote_path}' but it failed. "
-            f"Please verify that you have created a public/private storage bucket named '{SUPABASE_BUCKET}' in your Supabase project, "
-            f"and that your SUPABASE_KEY is a valid 'service_role' key (not the anon/publishable key) that bypasses Row-Level Security (RLS)."
+            f"The requested dataset could not be found or downloaded. Please verify your Supabase storage setup."
         )
         
     return local_path_str
