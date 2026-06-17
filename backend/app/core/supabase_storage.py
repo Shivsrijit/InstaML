@@ -12,6 +12,10 @@ def is_supabase_configured() -> bool:
     """Check if both Supabase URL and Key are defined."""
     return bool(SUPABASE_URL and SUPABASE_KEY)
 
+def is_supabase_required() -> bool:
+    """Check if cloud storage (Supabase) is strictly required (e.g., in production/deployment)."""
+    return bool(os.getenv("RENDER") or os.getenv("STRICT_CLOUD_STORAGE") or os.getenv("NODE_ENV") == "production")
+
 def get_supabase_headers():
     """Build authorization and key headers for Supabase API requests."""
     return {
@@ -57,10 +61,22 @@ def upload_file_to_supabase(local_file_path: Path) -> bool:
             print(f"Supabase Upload Success: {remote_path}")
             return True
         else:
-            print(f"Supabase Upload Failed ({res.status_code}): {res.text}")
+            err_msg = f"Supabase Upload Failed ({res.status_code}): {res.text}"
+            print(err_msg)
+            if is_supabase_required():
+                raise RuntimeError(
+                    f"Cloud storage upload failed: {err_msg}. "
+                    f"Please ensure you have created a public/private storage bucket named '{SUPABASE_BUCKET}' "
+                    f"in your Supabase project, and that your SUPABASE_KEY is a valid 'service_role' key (not the anon/publishable key) that bypasses Row-Level Security (RLS)."
+                )
             return False
     except Exception as e:
-        print(f"Supabase Upload Exception: {e}")
+        if isinstance(e, RuntimeError):
+            raise e
+        err_msg = f"Supabase Upload Exception: {e}"
+        print(err_msg)
+        if is_supabase_required():
+            raise RuntimeError(f"Cloud storage upload failed due to network/unexpected error: {err_msg}")
         return False
 
 def upload_dir_to_supabase(local_dir_path: Path) -> bool:
@@ -193,5 +209,12 @@ def ensure_local_file_exists(local_path_str: str) -> str:
     # If file download fails, try folder download
     if download_dir_from_supabase(remote_path, local_path):
         return local_path_str
+        
+    if is_supabase_required():
+        raise FileNotFoundError(
+            f"File not found locally: {local_path}. Attempted to download from cloud storage (Supabase) using path '{remote_path}' but it failed. "
+            f"Please verify that you have created a public/private storage bucket named '{SUPABASE_BUCKET}' in your Supabase project, "
+            f"and that your SUPABASE_KEY is a valid 'service_role' key (not the anon/publishable key) that bypasses Row-Level Security (RLS)."
+        )
         
     return local_path_str
